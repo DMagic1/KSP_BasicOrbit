@@ -20,6 +20,9 @@ namespace BasicOrbit.Modules.OrbitModules
 
 		protected override string fieldUpdate()
 		{
+			if (FlightGlobals.ActiveVessel == null)
+				return "---";
+
 			if (FlightGlobals.ActiveVessel.orbit == null)
 				return "---";
 
@@ -28,7 +31,7 @@ namespace BasicOrbit.Modules.OrbitModules
 
 		private string result(double d, double t)
 		{
-			return string.Format("{0} in {1}", d.Distance(), KSPUtil.dateTimeFormatter.PrintTime(t, 3, false));
+			return string.Format("{0} in {1}", d.Distance(), KSPUtil.PrintTime(t, 3, false));
 		}
 	}
 }

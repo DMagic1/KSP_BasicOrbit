@@ -20,6 +20,9 @@ namespace BasicOrbit.Modules.OrbitModules
 
 		protected override string fieldUpdate()
 		{
+			if (FlightGlobals.ActiveVessel == null)
+				return "---";
+
 			if (FlightGlobals.ActiveVessel.orbit == null)
 				return "---";
 

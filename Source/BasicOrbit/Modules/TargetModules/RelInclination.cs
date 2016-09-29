@@ -21,7 +21,7 @@ namespace BasicOrbit.Modules.TargetModules
 		protected override string fieldUpdate()
 		{
 			if (!BasicTargetting.Updated)
-				return "";
+				return "---";
 
 			double angle = Vector3d.Angle(BasicTargetting.ShipOrbit.GetOrbitNormal(), BasicTargetting.TargetOrbit.GetOrbitNormal());
 
@@ -53,7 +53,7 @@ namespace BasicOrbit.Modules.TargetModules
 
 		private string result(double d, double t)
 		{
-			return string.Format("{0:F3}°; node in {1}", d, KSPUtil.dateTimeFormatter.PrintTime(t, 2, false));
+			return string.Format("{0:F3}°; node in {1}", d, KSPUtil.PrintTime(t, 2, false));
 		}
 	}
 }
