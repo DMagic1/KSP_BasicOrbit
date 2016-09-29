@@ -24,7 +24,7 @@ namespace BasicOrbit.Unity.Unity
 
 			moduleInterface = module;
 
-			m_Title.text = module.ModuleTitle;
+			m_Title.text = module.ModuleTitle + ":";
 		}
 
 		public void Toggle(bool isOn)
