@@ -26,12 +26,24 @@ namespace BasicOrbit.Unity.Unity
 		private CanvasGroup cg;
 		private IBasicPanel panelInterface;
 		private List<BasicOrbit_Module> Modules = new List<BasicOrbit_Module>();
+		private float oldAlpha;
 
 		private bool dragging;
 
 		public bool Dragging
 		{
-			set { dragging = value; }
+			set
+			{
+				dragging = value;
+
+				if (value)
+				{
+					SetOldAlpha();
+					SetAlpha(1);
+				}
+				else
+					SetAlpha(oldAlpha);
+			}
 		}
 
 		protected override void Awake()
@@ -72,6 +84,14 @@ namespace BasicOrbit.Unity.Unity
 			Fade(1, true);
 
 			SetAlpha(panel.Alpha);
+
+			SetOldAlpha();
+		}
+
+		public void SetOldAlpha()
+		{
+			if (m_Background != null)
+				oldAlpha = m_Background.color.a;
 		}
 
 		public void SetAlpha(float a)
@@ -196,6 +216,8 @@ namespace BasicOrbit.Unity.Unity
 			Modules.Add(bMod);
 		}
 
+
+
 		private void Update()
 		{
 			if (panelInterface == null)
@@ -225,7 +247,7 @@ namespace BasicOrbit.Unity.Unity
 				{
 					inactive = true;
 
-					Fade(0, false, null, false);
+					Fade(0, false);
 
 					if (cg != null)
 					{
