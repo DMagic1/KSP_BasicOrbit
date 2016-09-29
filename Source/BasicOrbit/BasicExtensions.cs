@@ -37,8 +37,10 @@ namespace BasicOrbit
 		{
 			if (Math.Abs(d) < 1)
 				return string.Format("{0:N2}cm/s", d * 100);
-			else
+			else if (Math.Abs(d) < 1000)
 				return string.Format("{0:N2}m/s", d);
+			else
+				return string.Format("{0:N3}km/s", d / 1000);
 		}
 
 	}
