@@ -39,8 +39,11 @@ namespace BasicOrbit
 					if (!module.IsActive)
 						continue;
 
-					b = true;
-					break;
+					if (module.IsVisible || module.AlwaysShow)
+					{
+						b = true;
+						break;
+					}
 				}
 
 				return b;
