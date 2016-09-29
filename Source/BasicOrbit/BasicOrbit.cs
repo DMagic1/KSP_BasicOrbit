@@ -24,14 +24,18 @@ namespace BasicOrbit
 		private Inclination inc;
 		private Eccentricity ecc;
 		private Period period;
+		private SemiMajorAxis SMA;
 		private LongAscending LAN;
+		private ArgOfPeriapsis AoPE;
 		private RadarAltitude radar;
 		private TerrainAltitude terrain;
 
 		private ClosestApproach closest;
+		private RelVelocityAtClosest closestVel;
 		private DistanceToTarget distance;
 		private RelInclination relInc;
 		private RelVelocity relVel;
+		private AngleToPrograde angToPro;
 
 		private BasicSettings settings;
 
@@ -146,6 +150,8 @@ namespace BasicOrbit
 						inc.IsActive = false;
 						ecc.IsActive = false;
 						LAN.IsActive = false;
+						AoPE.IsActive = false;
+						SMA.IsActive = false;
 						period.IsActive = false;
 						radar.IsActive = false;
 						terrain.IsActive = true;
@@ -156,6 +162,8 @@ namespace BasicOrbit
 						inc.IsActive = false;
 						ecc.IsActive = false;
 						LAN.IsActive = false;
+						AoPE.IsActive = false;
+						SMA.IsActive = false;
 						period.IsActive = false;
 						radar.IsActive = true;
 						terrain.IsActive = true;
@@ -171,6 +179,8 @@ namespace BasicOrbit
 							inc.IsActive = false;
 
 						LAN.IsActive = false;
+						AoPE.IsActive = false;
+						SMA.IsActive = false;
 						ecc.IsActive = false;
 						peri.IsActive = false;
 						period.IsActive = false;
@@ -180,7 +190,6 @@ namespace BasicOrbit
 						radar.IsActive = true;
 						inc.IsActive = true;
 						ecc.IsActive = true;
-						LAN.IsActive = true;
 
 						if (v.orbit.PeR < 0)
 						{
@@ -191,7 +200,10 @@ namespace BasicOrbit
 						}
 						else
 							peri.IsActive = true;
-
+						
+						LAN.IsActive = false;
+						AoPE.IsActive = false;
+						SMA.IsActive = false;
 						period.IsActive = false;
 						terrain.IsActive = false;
 						break;
@@ -201,6 +213,8 @@ namespace BasicOrbit
 						inc.IsActive = true;
 						ecc.IsActive = true;
 						LAN.IsActive = true;
+						AoPE.IsActive = true;
+						SMA.IsActive = true;
 						period.IsActive = true;
 
 						radar.IsActive = false;
@@ -217,12 +231,34 @@ namespace BasicOrbit
 					distance.IsActive = false;
 					relInc.IsActive = false;
 					relVel.IsActive = false;
+					angToPro.IsActive = false;
+					closestVel.IsActive = false;
 
 					BasicTargetting.UpdateOn = false;
 				}
 				else
 				{
-					closest.IsActive = true;
+					bool map = MapView.MapIsEnabled;
+
+					if (BasicTargetting.IsCelestial)
+					{
+						angToPro.IsActive = true;
+						closest.IsActive = true && map;
+						closestVel.IsActive = false;
+					}
+					else if (BasicTargetting.IsVessel)
+					{
+						angToPro.IsActive = false;
+						closest.IsActive = true && map;
+						closestVel.IsActive = true && map;
+					}
+					else
+					{
+						closest.IsActive = false;
+						closestVel.IsActive = false;
+						angToPro.IsActive = false;
+					}
+
 					distance.IsActive = true;
 					relVel.IsActive = true;
 
@@ -332,7 +368,9 @@ namespace BasicOrbit
 			inc = new Inclination("Inclination");
 			ecc = new Eccentricity("Eccentricity");
 			period = new Period("Period");
+			SMA = new SemiMajorAxis("Semi Major Axis");
 			LAN = new LongAscending("LAN");
+			AoPE = new ArgOfPeriapsis("Arg of Pe");
 			radar =new RadarAltitude("Radar Altitude");
 			terrain = new TerrainAltitude("Terrain Altitude");
 
@@ -346,21 +384,27 @@ namespace BasicOrbit
 			ecc.AlwaysShow = settings.showEccentricityAlways;
 			period.IsVisible = settings.showPeriod;
 			period.AlwaysShow = settings.showPeriodAlways;
+			SMA.IsVisible = settings.showSMA;
+			SMA.AlwaysShow = settings.showSMAAlways;
 			LAN.IsVisible = settings.showLAN;
 			LAN.AlwaysShow = settings.showLANAlways;
+			AoPE.IsVisible = settings.showAoPe;
+			AoPE.AlwaysShow = settings.showAoPeAlways;
 			radar.IsVisible = settings.showRadar;
 			radar.AlwaysShow = settings.showRadarAlways;
 			terrain.IsVisible = settings.showTerrain;
 			terrain.AlwaysShow = settings.showTerrainAlways;
 
-			modules.Add(apo);
-			modules.Add(peri);
-			modules.Add(inc);
-			modules.Add(ecc);
-			modules.Add(period);
+			modules.Add(AoPE);
 			modules.Add(LAN);
-			modules.Add(radar);
+			modules.Add(SMA);
 			modules.Add(terrain);
+			modules.Add(radar);
+			modules.Add(period);
+			modules.Add(ecc);
+			modules.Add(inc);
+			modules.Add(peri);
+			modules.Add(apo);
 
 			return modules;
 		}
@@ -370,23 +414,31 @@ namespace BasicOrbit
 			List<IBasicModule> modules = new List<IBasicModule>();
 
 			closest = new ClosestApproach("Closest Approach");
+			closestVel = new RelVelocityAtClosest("Rel Vel At Appr");
 			distance = new DistanceToTarget("Dist To Target");
-			relInc = new RelInclination("Rel. Inclination");
-			relVel = new RelVelocity("Rel. Velocity");
+			relInc = new RelInclination("Rel Inclination");
+			relVel = new RelVelocity("Rel Velocity");
+			angToPro = new AngleToPrograde("Ang To Prograde");
 
 			closest.IsVisible = settings.showClosestApproach;
 			closest.AlwaysShow = settings.showClosestApproachAlways;
+			closestVel.IsVisible = settings.showClosestApproachVelocity;
+			closestVel.AlwaysShow = settings.showClosestApproachVelocityAlways;
 			distance.IsVisible = settings.showDistance;
 			distance.AlwaysShow = settings.showDistanceAlways;
 			relInc.IsVisible = settings.showRelInclination;
 			relInc.AlwaysShow = settings.showRelInclinationAlways;
 			relVel.IsVisible = settings.showRelVelocity;
 			relVel.AlwaysShow = settings.showRelVelocityAlways;
+			angToPro.IsVisible = settings.showAngleToPrograde;
+			angToPro.AlwaysShow = settings.showAngleToProgradeAlways;
 
+			modules.Add(relVel);
+			modules.Add(relInc);
+			modules.Add(angToPro);
+			modules.Add(closestVel);
 			modules.Add(closest);
 			modules.Add(distance);
-			modules.Add(relInc);
-			modules.Add(relVel);
 
 			return modules;
 		}
@@ -414,8 +466,6 @@ namespace BasicOrbit
 			if (orbitHUD == null)
 				return;
 
-			orbitHUD.IsVisible = true;
-
 			GameObject obj = Instantiate(panelPrefab);
 
 			if (obj == null)
@@ -431,6 +481,8 @@ namespace BasicOrbit
 				return;
 
 			orbitPanel.setPanel(orbitHUD);
+
+			orbitHUD.IsVisible = true;
 		}
 
 		private void CloseOrbit()
@@ -457,8 +509,6 @@ namespace BasicOrbit
 			if (targetHUD == null)
 				return;
 
-			targetHUD.IsVisible = true;
-
 			GameObject obj = Instantiate(panelPrefab);
 
 			if (obj == null)
@@ -474,6 +524,8 @@ namespace BasicOrbit
 				return;
 
 			targetPanel.setPanel(targetHUD);
+
+			targetHUD.IsVisible = true;
 		}
 
 		private void CloseTarget()
@@ -503,10 +555,16 @@ namespace BasicOrbit
 		private void SetPanelAlpha(float alpha)
 		{
 			if (targetPanel != null)
+			{
 				targetPanel.SetAlpha(alpha);
+				targetPanel.SetOldAlpha();
+			}
 
 			if (orbitPanel != null)
+			{
 				orbitPanel.SetAlpha(alpha);
+				orbitPanel.SetOldAlpha();
+			}
 		}
 
 		public static void BasicLogging(string s, params object[] m)
