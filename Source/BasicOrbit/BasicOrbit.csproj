@@ -58,6 +58,7 @@
     <Compile Include="BasicSettings.cs" />
     <Compile Include="Modules\BasicModule.cs" />
     <Compile Include="BasicHUD.cs" />
+    <Compile Include="Modules\OrbitModules\ArgOfPeriapsis.cs" />
     <Compile Include="Modules\OrbitModules\RadarAltitude.cs" />
     <Compile Include="Modules\OrbitModules\Inclination.cs" />
     <Compile Include="Modules\OrbitModules\LongAscending.cs" />
@@ -65,12 +66,15 @@
     <Compile Include="Modules\OrbitModules\Period.cs" />
     <Compile Include="Modules\OrbitModules\Periapsis.cs" />
     <Compile Include="Modules\OrbitModules\Apoapsis.cs" />
+    <Compile Include="Modules\OrbitModules\SemiMajorAxis.cs" />
     <Compile Include="Modules\OrbitModules\TerrainAltitude.cs" />
+    <Compile Include="Modules\TargetModules\AngleToPrograde.cs" />
     <Compile Include="Modules\TargetModules\BasicTargetting.cs" />
     <Compile Include="Modules\TargetModules\ClosestApproach.cs" />
     <Compile Include="Modules\TargetModules\DistanceToTarget.cs" />
     <Compile Include="Modules\TargetModules\RelInclination.cs" />
     <Compile Include="Modules\TargetModules\RelVelocity.cs" />
+    <Compile Include="Modules\TargetModules\RelVelocityAtClosest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
