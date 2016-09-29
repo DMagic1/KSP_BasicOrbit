@@ -16,6 +16,10 @@ namespace BasicOrbit.Unity.Unity
 		[SerializeField]
 		private Toggle m_TargetToggle = null;
 		[SerializeField]
+		private Toggle m_OrbitDragToggle = null;
+		[SerializeField]
+		private Toggle m_TargetDragToggle = null;
+		[SerializeField]
 		private Text m_AlphaText = null;
 		[SerializeField]
 		private Text m_ScaleText = null;
@@ -106,6 +110,9 @@ namespace BasicOrbit.Unity.Unity
 				return;
 
 			basicInterface.ShowOrbit = isOn;
+
+			if (!isOn && m_OrbitDragToggle != null)
+				m_OrbitDragToggle.isOn = false;
 		}
 
 		public void ToggleTargetPanel(bool isOn)
@@ -117,6 +124,9 @@ namespace BasicOrbit.Unity.Unity
 				return;
 
 			basicInterface.ShowTarget = isOn;
+
+			if (!isOn && m_TargetDragToggle != null)
+				m_TargetDragToggle.isOn = false;
 		}
 
 		public void ToggleOrbitDrag(bool isOn)
@@ -126,6 +136,12 @@ namespace BasicOrbit.Unity.Unity
 
 			if (basicInterface.GetOrbit == null)
 				return;
+
+			if (isOn && basicInterface.GetOrbitPanel != null)
+			{
+				if (!basicInterface.GetOrbitPanel.IsVisible && m_OrbitToggle != null)
+					m_OrbitToggle.isOn = true;
+			}
 
 			basicInterface.GetOrbit.Dragging = isOn;
 		}
@@ -138,6 +154,12 @@ namespace BasicOrbit.Unity.Unity
 			if (basicInterface.GetTarget == null)
 				return;
 
+			if (isOn && basicInterface.GetTargetPanel != null)
+			{
+				if (!basicInterface.GetTargetPanel.IsVisible && m_TargetToggle != null)
+					m_TargetToggle.isOn = true;
+			}
+
 			basicInterface.GetTarget.Dragging = isOn;
 		}
 
@@ -148,6 +170,15 @@ namespace BasicOrbit.Unity.Unity
 				orbitSettings.gameObject.SetActive(false);
 
 				Destroy(orbitSettings);
+
+				if (targetSettings != null)
+				{
+					RectTransform r1 = targetSettings.GetComponent<RectTransform>();
+
+					float y1 = rect.sizeDelta.y * basicInterface.Scale * basicInterface.MasterScale;
+
+					r1.position = new Vector3(rect.position.x, rect.position.y - y1, rect.position.z);
+				}
 			}
 
 			if (!isOn)
@@ -194,6 +225,15 @@ namespace BasicOrbit.Unity.Unity
 				targetSettings.gameObject.SetActive(false);
 
 				Destroy(targetSettings);
+
+				if (orbitSettings != null)
+				{
+					RectTransform r1 = orbitSettings.GetComponent<RectTransform>();
+
+					float y1 = rect.sizeDelta.y * basicInterface.Scale * basicInterface.MasterScale;
+
+					r1.position = new Vector3(rect.position.x, rect.position.y - y1, rect.position.z);
+				}
 			}
 
 			if (!isOn)
