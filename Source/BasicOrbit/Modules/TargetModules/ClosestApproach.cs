@@ -21,20 +21,37 @@ namespace BasicOrbit.Modules.TargetModules
 		protected override string fieldUpdate()
 		{
 			if (!BasicTargetting.Updated)
-				return "";
+				return "---";
 
-			Vector3d x = BasicTargetting.TargetOrbit.pos - BasicTargetting.ShipOrbit.pos;
-			Vector3d v = BasicTargetting.TargetOrbit.vel - BasicTargetting.ShipOrbit.vel;
-			double xv = Vector3d.Dot(x, v);
+			//return result(BasicTargetting.ClosestDistance, BasicTargetting.ClosestTime - Planetarium.GetUniversalTime());
 			
-			double t = -xv / Vector3d.SqrMagnitude(v);
+			if (BasicTargetting.IsVessel)
+			{
+				if (BasicTargetting.ClosestIntersect == null)
+					return "---";
 
-			return result(0, t);
+				double distance = BasicTargetting.ClosestIntersect.separation * 1000;
+				double time = BasicTargetting.ClosestIntersect.UT - Planetarium.GetUniversalTime();
+
+				return result(distance, time);
+			}
+			else if (BasicTargetting.IsCelestial)
+			{
+				if (BasicTargetting.ApproachMarker == null)
+					return "---";
+
+				double distance = BasicTargetting.ApproachMarker.separation * 1000;
+				double time = -1 * BasicTargetting.ApproachMarker.dT;
+
+				return result(distance, time);
+			}
+			else
+				return "---";
 		}
 
 		private string result(double d, double t)
 		{
-			return string.Format("{0} in {1}", d.Distance(), KSPUtil.dateTimeFormatter.PrintTime(t, 3, false));
+			return string.Format("{0} in {1}", d.CloseDistance(), KSPUtil.PrintTime(t, 3, false));
 		}
 	}
 }
