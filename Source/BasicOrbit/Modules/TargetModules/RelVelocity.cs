@@ -21,14 +21,14 @@ namespace BasicOrbit.Modules.TargetModules
 		protected override string fieldUpdate()
 		{
 			if (!BasicTargetting.Updated)
-				return "";
+				return "---";
 
 			return result(FlightGlobals.ship_tgtSpeed);
 		}
 
 		private string result(double d)
 		{
-			return string.Format("{0:F3}°", d.Speed());
+			return string.Format("{0}", d.Speed());
 		}
 	}
 }
