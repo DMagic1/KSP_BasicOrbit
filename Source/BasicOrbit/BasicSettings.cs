@@ -12,51 +12,67 @@ namespace BasicOrbit
 		[Persistent]
 		public bool showApoapsis = true;
 		[Persistent]
-		public bool showApoapsisAlways = true;
+		public bool showApoapsisAlways = false;
 		[Persistent]
 		public bool showPeriapsis = true;
 		[Persistent]
-		public bool showPeriapsisAlways = true;
+		public bool showPeriapsisAlways = false;
 		[Persistent]
 		public bool showInclination = true;
 		[Persistent]
-		public bool showInclinationAlways = true;
+		public bool showInclinationAlways = false;
 		[Persistent]
 		public bool showEccentricity = true;
 		[Persistent]
-		public bool showEccentricityAlways = true;
+		public bool showEccentricityAlways = false;
 		[Persistent]
 		public bool showPeriod = true;
 		[Persistent]
-		public bool showPeriodAlways = true;
+		public bool showPeriodAlways = false;
 		[Persistent]
 		public bool showRadar = true;
 		[Persistent]
-		public bool showRadarAlways = true;
+		public bool showRadarAlways = false;
 		[Persistent]
 		public bool showTerrain = true;
 		[Persistent]
-		public bool showTerrainAlways = true;
+		public bool showTerrainAlways = false;
 		[Persistent]
 		public bool showLAN = false;
 		[Persistent]
-		public bool showLANAlways = true;
+		public bool showLANAlways = false;
+		[Persistent]
+		public bool showAoPe = false;
+		[Persistent]
+		public bool showAoPeAlways = false;
+		[Persistent]
+		public bool showSMA = false;
+		[Persistent]
+		public bool showSMAAlways = false;
 		[Persistent]
 		public bool showClosestApproach = true;
 		[Persistent]
-		public bool showClosestApproachAlways = true;
+		public bool showClosestApproachAlways = false;
+		[Persistent]
+		public bool showClosestApproachVelocity = true;
+		[Persistent]
+		public bool showClosestApproachVelocityAlways = false;
 		[Persistent]
 		public bool showDistance = true;
 		[Persistent]
-		public bool showDistanceAlways = true;
+		public bool showDistanceAlways = false;
 		[Persistent]
 		public bool showRelInclination = true;
 		[Persistent]
-		public bool showRelInclinationAlways = true;
+		public bool showRelInclinationAlways = false;
 		[Persistent]
 		public bool showRelVelocity = true;
 		[Persistent]
-		public bool showRelVelocityAlways = true;
+		public bool showRelVelocityAlways = false;
+		[Persistent]
+		public bool showAngleToPrograde = true;
+		[Persistent]
+		public bool showAngleToProgradeAlways = false;
 		[Persistent]
 		public bool showOrbitPanel = true;
 		[Persistent]
