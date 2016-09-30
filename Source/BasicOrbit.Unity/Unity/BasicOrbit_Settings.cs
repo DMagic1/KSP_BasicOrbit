@@ -56,8 +56,6 @@ namespace BasicOrbit.Unity.Unity
 			if (mod == null)
 				return;
 
-			module.ProcessStyles(mod);
-
 			mod.transform.SetParent(m_SettingModuleTransform, false);
 
 			BasicOrbit_SettingsModule bMod = mod.GetComponent<BasicOrbit_SettingsModule>();
@@ -66,6 +64,8 @@ namespace BasicOrbit.Unity.Unity
 				return;
 
 			bMod.setModule(module);
+
+			module.ProcessStyles(mod);
 		}
 	}
 }

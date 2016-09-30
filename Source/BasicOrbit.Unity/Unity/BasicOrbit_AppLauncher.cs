@@ -192,8 +192,6 @@ namespace BasicOrbit.Unity.Unity
 			if (obj == null)
 				return;
 
-			basicInterface.ProcessStyles(obj);
-
 			obj.transform.SetParent(transform, false);
 
 			orbitSettings = obj.GetComponent<BasicOrbit_Settings>();
@@ -202,6 +200,8 @@ namespace BasicOrbit.Unity.Unity
 				return;
 
 			orbitSettings.createSettings(basicInterface.GetOrbitPanel.GetModules, "Orbit Panel Settings");
+
+			basicInterface.ProcessStyles(obj);
 
 			RectTransform r = orbitSettings.GetComponent<RectTransform>();
 
@@ -247,8 +247,6 @@ namespace BasicOrbit.Unity.Unity
 			if (obj == null)
 				return;
 
-			basicInterface.ProcessStyles(obj);
-
 			obj.transform.SetParent(transform, false);
 
 			targetSettings = obj.GetComponent<BasicOrbit_Settings>();
@@ -257,6 +255,8 @@ namespace BasicOrbit.Unity.Unity
 				return;
 
 			targetSettings.createSettings(basicInterface.GetTargetPanel.GetModules, "Target Panel Settings");
+
+			basicInterface.ProcessStyles(obj);
 
 			RectTransform r = targetSettings.GetComponent<RectTransform>();
 

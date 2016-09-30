@@ -200,8 +200,6 @@ namespace BasicOrbit.Unity.Unity
 			if (mod == null)
 				return;
 
-			panelInterface.ProcessStyles(mod);
-
 			mod.transform.SetParent(m_ModuleTransform, false);
 
 			BasicOrbit_Module bMod = mod.GetComponent<BasicOrbit_Module>();
@@ -210,6 +208,8 @@ namespace BasicOrbit.Unity.Unity
 				return;
 
 			bMod.setModule(module);
+
+			panelInterface.ProcessStyles(mod);
 
 			bMod.gameObject.SetActive(module.IsVisible || module.AlwaysShow);
 

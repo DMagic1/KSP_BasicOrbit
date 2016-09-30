@@ -473,14 +473,14 @@ namespace BasicOrbit
 
 			obj.transform.SetParent(MainCanvasUtil.MainCanvas.transform, false);
 
-			BasicOrbitUtilities.processComponents(obj);
-
 			orbitPanel = obj.GetComponent<BasicOrbit_Panel>();
 
 			if (orbitPanel == null)
 				return;
 
 			orbitPanel.setPanel(orbitHUD);
+
+			BasicOrbitUtilities.processComponents(obj);
 
 			orbitHUD.IsVisible = true;
 		}
@@ -516,14 +516,14 @@ namespace BasicOrbit
 
 			obj.transform.SetParent(MainCanvasUtil.MainCanvas.transform, false);
 
-			BasicOrbitUtilities.processComponents(obj);
-
 			targetPanel = obj.GetComponent<BasicOrbit_Panel>();
 
 			if (targetPanel == null)
 				return;
 
 			targetPanel.setPanel(targetHUD);
+
+			BasicOrbitUtilities.processComponents(obj);
 
 			targetHUD.IsVisible = true;
 		}

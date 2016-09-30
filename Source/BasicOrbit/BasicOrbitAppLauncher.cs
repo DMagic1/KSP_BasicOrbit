@@ -144,14 +144,14 @@ namespace BasicOrbit
 
 			obj.transform.SetParent(MainCanvasUtil.MainCanvas.transform);
 
-			BasicOrbitUtilities.processComponents(obj);
-
 			launcher = obj.GetComponent<BasicOrbit_AppLauncher>();
 
 			if (launcher == null)
 				return;
 
 			launcher.setOrbit(BasicOrbit.Instance);
+
+			BasicOrbitUtilities.processComponents(obj);
 		}
 
 		private void Close()
