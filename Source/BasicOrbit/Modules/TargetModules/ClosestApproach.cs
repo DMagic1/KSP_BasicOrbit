@@ -6,6 +6,11 @@ namespace BasicOrbit.Modules.TargetModules
 {
 	public class ClosestApproach : BasicModule
 	{
+		private double _cachedDistance;
+		private double _cachedTime;
+		private bool _cachedVessel;
+		private bool _cachedBody;
+
 		public ClosestApproach(string t)
 			: base(t)
 		{
@@ -27,26 +32,74 @@ namespace BasicOrbit.Modules.TargetModules
 			
 			if (BasicTargetting.IsVessel)
 			{
-				if (BasicTargetting.ClosestIntersect == null)
-					return "---";
+				if (MapView.MapIsEnabled)
+				{
+					if (BasicTargetting.ClosestIntersect == null)
+					{
+						_cachedVessel = false;
+						_cachedBody = false;
+						_cachedDistance = 0;
+						_cachedTime = 0;
+						return "---";
+					}
 
-				double distance = BasicTargetting.ClosestIntersect.separation * 1000;
-				double time = BasicTargetting.ClosestIntersect.UT - Planetarium.GetUniversalTime();
+					double distance = BasicTargetting.ClosestIntersect.separation * 1000;
+					double time = BasicTargetting.ClosestIntersect.UT;
 
-				return result(distance, time);
+					_cachedVessel = true;
+					_cachedBody = false;
+					_cachedDistance = distance;
+					_cachedTime = time;
+
+					return result(distance, time - Planetarium.GetUniversalTime());
+				}
+				else if (_cachedVessel)
+					return "~" + result(_cachedDistance, _cachedTime - Planetarium.GetUniversalTime());
+
+				_cachedVessel = false;
+				_cachedBody = false;
+				_cachedDistance = 0;
+				_cachedTime = 0;
+				return "---";
 			}
 			else if (BasicTargetting.IsCelestial)
 			{
-				if (BasicTargetting.ApproachMarker == null)
-					return "---";
+				if (MapView.MapIsEnabled)
+				{
+					if (BasicTargetting.ApproachMarker == null)
+					{
+						_cachedVessel = false;
+						_cachedBody = false;
+						_cachedDistance = 0;
+						_cachedTime = 0;
+						return "---";
+					}
 
-				double distance = BasicTargetting.ApproachMarker.separation * 1000;
-				double time = -1 * BasicTargetting.ApproachMarker.dT;
+					double distance = BasicTargetting.ApproachMarker.separation * 1000;
+					double time = -1 * BasicTargetting.ApproachMarker.dT;
 
-				return result(distance, time);
-			}
-			else
+					_cachedVessel = false;
+					_cachedBody = true;
+					_cachedDistance = distance;
+					_cachedTime = time + Planetarium.GetUniversalTime();
+
+					return result(distance, time);
+				}
+				else if (_cachedBody)
+					return "~" + result(_cachedDistance, _cachedTime - Planetarium.GetUniversalTime());
+
+				_cachedVessel = false;
+				_cachedBody = false;
+				_cachedDistance = 0;
+				_cachedTime = 0;
 				return "---";
+			}
+
+			_cachedVessel = false;
+			_cachedBody = false;
+			_cachedDistance = 0;
+			_cachedTime = 0;
+			return "---";
 		}
 
 		private string result(double d, double t)

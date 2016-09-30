@@ -208,10 +208,14 @@ namespace BasicOrbit.Modules.TargetModules
 							OrbitTargeter.ISectMarker _intersectOne = BasicOrbitLoader.GetIntersect(oTarger, true);
 							OrbitTargeter.ISectMarker _intersectTwo = BasicOrbitLoader.GetIntersect(oTarger, false);
 
-							if (_intersectOne == null || _intersectTwo == null)
-								_closestIntersect = null;
-							else
+							if (_intersectOne != null && _intersectTwo != null)
 								_closestIntersect = _intersectOne.separation > _intersectTwo.separation ? _intersectTwo : _intersectOne;
+							else if (_intersectOne != null)
+								_closestIntersect = _intersectOne;
+							else if (_intersectTwo != null)
+								_closestIntersect = _intersectTwo;
+							else
+								_closestIntersect = null;
 
 							_approach = null;
 						}

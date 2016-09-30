@@ -238,19 +238,17 @@ namespace BasicOrbit
 				}
 				else
 				{
-					bool map = MapView.MapIsEnabled;
-
 					if (BasicTargetting.IsCelestial)
 					{
 						angToPro.IsActive = true;
-						closest.IsActive = true && map;
+						closest.IsActive = true;
 						closestVel.IsActive = false;
 					}
 					else if (BasicTargetting.IsVessel)
 					{
 						angToPro.IsActive = false;
-						closest.IsActive = true && map;
-						closestVel.IsActive = true && map;
+						closest.IsActive = true;
+						closestVel.IsActive = true;
 					}
 					else
 					{

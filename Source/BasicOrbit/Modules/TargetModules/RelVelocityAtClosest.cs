@@ -6,6 +6,9 @@ namespace BasicOrbit.Modules.TargetModules
 {
 	public class RelVelocityAtClosest : BasicModule
 	{
+		private double _cachedVelocity;
+		private bool _cached;
+
 		public RelVelocityAtClosest(string t)
 			: base(t)
 		{
@@ -25,13 +28,33 @@ namespace BasicOrbit.Modules.TargetModules
 
 			if (BasicTargetting.IsVessel)
 			{
-				if (BasicTargetting.ClosestIntersect == null)
-					return "---";
+				if (MapView.MapIsEnabled)
+				{
+					if (BasicTargetting.ClosestIntersect == null)
+					{
+						_cached = false;
+						_cachedVelocity = 0;
+						return "---";
+					}
 
-				return result(BasicTargetting.ClosestIntersect.relSpeed);
-			}
-			else
+					double vel = BasicTargetting.ClosestIntersect.relSpeed;
+
+					_cached = true;
+					_cachedVelocity = vel;
+
+					return result(vel);
+				}
+				else if (_cached)
+					return "~" + result(_cachedVelocity);
+
+				_cached = false;
+				_cachedVelocity = 0;
 				return "---";
+			}
+
+			_cached = false;
+			_cachedVelocity = 0;
+			return "---";
 		}
 
 		private string result(double d)
