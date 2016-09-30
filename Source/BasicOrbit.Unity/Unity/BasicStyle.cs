@@ -12,15 +12,23 @@ namespace BasicOrbit.Unity.Unity
 			Box,
 			Button,
 			Toggle,
-			Slider
+			Slider,
+			Text
 		}
 
 		[SerializeField]
 		private ElementTypes m_ElementType = ElementTypes.None;
+		[SerializeField]
+		private bool m_TextUpdate = false;
 
 		public ElementTypes ElementType
 		{
 			get { return m_ElementType; }
+		}
+
+		public bool TextUpdate
+		{
+			get { return m_TextUpdate; }
 		}
 
 		private void setSelectable(BasicUIStyle style, Sprite normal, Sprite highlight, Sprite active, Sprite inactive)
