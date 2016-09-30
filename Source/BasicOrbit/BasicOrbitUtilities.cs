@@ -15,7 +15,7 @@ namespace BasicOrbit
 			if (obj == null)
 				return;
 
-			BasicStyle[] styles = obj.GetComponentsInChildren<BasicStyle>();
+			BasicStyle[] styles = obj.GetComponentsInChildren<BasicStyle>(true);
 
 			if (styles == null)
 				return;
@@ -86,8 +86,9 @@ namespace BasicOrbit
 				//If we need to continuously update the text field then move the original Text object to a new MonoBehaviour
 				//and use its Update to continue setting the TMP text field
 				BasicTextMeshProHolder holder = BasicOrbit.Instance.gameObject.AddComponent<BasicTextMeshProHolder>();
-
+				
 				text.transform.SetParent(holder.transform);
+				text.gameObject.SetActive(false);
 				holder.Setup(tmp, text);
 			}
 			else
