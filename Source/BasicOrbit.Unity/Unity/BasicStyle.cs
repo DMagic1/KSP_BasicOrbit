@@ -12,8 +12,7 @@ namespace BasicOrbit.Unity.Unity
 			Box,
 			Button,
 			Toggle,
-			Slider,
-			Text
+			Slider
 		}
 
 		[SerializeField]
