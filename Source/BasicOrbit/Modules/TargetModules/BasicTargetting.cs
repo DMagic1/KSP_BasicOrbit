@@ -15,6 +15,7 @@ namespace BasicOrbit.Modules.TargetModules
 
 		private static OrbitTargeter.ISectMarker _closestIntersect;
 		private static OrbitTargeter.ClApprMarker _approach;
+		private static List<OrbitTargeter.Marker> _markers;
 
 		private static bool _updated;
 
@@ -189,9 +190,9 @@ namespace BasicOrbit.Modules.TargetModules
 				}
 				else
 				{
-					OrbitTargeter oTarger = FlightGlobals.ActiveVessel.orbitTargeter;
+					OrbitTargeter oTargeter = FlightGlobals.ActiveVessel.orbitTargeter;
 
-					if (oTarger == null)
+					if (oTargeter == null)
 					{
 						_closestIntersect = null;
 						_approach = null;
@@ -203,10 +204,39 @@ namespace BasicOrbit.Modules.TargetModules
 					}
 					else
 					{
-						if (_isVessel)
+						if (_markers == null || _markers.Count <= 0)
+							_markers = BasicOrbitReflection.GetOrbitMarkers(oTargeter);
+
+						if (_markers == null || _markers.Count <= 0)
 						{
-							OrbitTargeter.ISectMarker _intersectOne = BasicOrbitLoader.GetIntersect(oTarger, true);
-							OrbitTargeter.ISectMarker _intersectTwo = BasicOrbitLoader.GetIntersect(oTarger, false);
+							_closestIntersect = null;
+							_approach = null;
+						}
+						else if (_isVessel)
+						{
+							OrbitTargeter.ISectMarker _intersectOne = null;
+							OrbitTargeter.ISectMarker _intersectTwo = null;
+
+							for (int i = _markers.Count - 1; i >= 0; i--)
+							{
+								OrbitTargeter.Marker m = _markers[i];
+
+								if (m == null)
+									continue;
+
+								if (!(m is OrbitTargeter.ISectMarker))
+									continue;
+
+								int num = ((OrbitTargeter.ISectMarker)m).num;
+
+								if (num == 1)
+									_intersectOne = m as OrbitTargeter.ISectMarker;
+								else if (num == 2)
+									_intersectTwo = m as OrbitTargeter.ISectMarker;
+							}
+
+							//OrbitTargeter.ISectMarker _intersectOne = BasicOrbitLoader.GetIntersect(oTargeter, true);
+							//OrbitTargeter.ISectMarker _intersectTwo = BasicOrbitLoader.GetIntersect(oTargeter, false);
 
 							if (_intersectOne != null && _intersectTwo != null)
 								_closestIntersect = _intersectOne.separation > _intersectTwo.separation ? _intersectTwo : _intersectOne;
@@ -222,7 +252,19 @@ namespace BasicOrbit.Modules.TargetModules
 						else if (_isCelestial)
 						{
 							_closestIntersect = null;
-							_approach = BasicOrbitLoader.GetApproach(oTarger);
+
+							for (int i = _markers.Count - 1; i >= 0; i--)
+							{
+								OrbitTargeter.Marker m = _markers[i];
+
+								if (m == null)
+									continue;
+
+								if (!(m is OrbitTargeter.ClApprMarker))
+									continue;
+
+								_approach = m as OrbitTargeter.ClApprMarker;
+							}
 						}
 					}
 				}
