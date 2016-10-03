@@ -13,7 +13,7 @@ namespace BasicOrbit.Unity.Unity
 		[SerializeField]
 		private Transform m_SettingModuleTransform = null;
 		[SerializeField]
-		private Text m_Title = null;
+		private TextHandler m_Title = null;
 
 		private IList<IBasicModule> sectionModules;
 
@@ -23,7 +23,7 @@ namespace BasicOrbit.Unity.Unity
 				return;
 
 			if (m_Title != null)
-				m_Title.text = t;
+				m_Title.OnTextUpdate.Invoke(t);
 
 			sectionModules = modules;
 
@@ -64,8 +64,6 @@ namespace BasicOrbit.Unity.Unity
 				return;
 
 			bMod.setModule(module);
-
-			module.ProcessStyles(mod);
 		}
 	}
 }

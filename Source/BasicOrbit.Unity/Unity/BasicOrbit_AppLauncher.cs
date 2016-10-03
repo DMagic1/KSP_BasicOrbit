@@ -28,7 +28,7 @@ namespace BasicOrbit.Unity.Unity
 		[SerializeField]
 		private Slider m_ScaleSlider = null;
 		[SerializeField]
-		private Text m_VersionText = null;
+		private TextHandler m_VersionText = null;
 
 		private BasicOrbit_Settings orbitSettings;
 		private BasicOrbit_Settings targetSettings;
@@ -94,7 +94,7 @@ namespace BasicOrbit.Unity.Unity
 			}
 
 			if (m_VersionText != null)
-				m_VersionText.text = basic.Version;
+				m_VersionText.OnTextUpdate.Invoke(basic.Version);
 
 			transform.localScale = Vector3.one * basic.Scale;
 
@@ -201,8 +201,6 @@ namespace BasicOrbit.Unity.Unity
 
 			orbitSettings.createSettings(basicInterface.GetOrbitPanel.GetModules, "Orbit Panel Settings");
 
-			basicInterface.ProcessStyles(obj);
-
 			RectTransform r = orbitSettings.GetComponent<RectTransform>();
 
 			float y = rect.sizeDelta.y * basicInterface.Scale * basicInterface.MasterScale;
@@ -255,8 +253,6 @@ namespace BasicOrbit.Unity.Unity
 				return;
 
 			targetSettings.createSettings(basicInterface.GetTargetPanel.GetModules, "Target Panel Settings");
-
-			basicInterface.ProcessStyles(obj);
 
 			RectTransform r = targetSettings.GetComponent<RectTransform>();
 

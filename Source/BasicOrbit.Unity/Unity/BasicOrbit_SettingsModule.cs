@@ -9,7 +9,7 @@ namespace BasicOrbit.Unity.Unity
 	public class BasicOrbit_SettingsModule : MonoBehaviour
 	{
 		[SerializeField]
-		private Text m_Title = null;
+		private TextHandler m_Title = null;
 		[SerializeField]
 		private Toggle m_Toggle = null;
 		[SerializeField]
@@ -25,7 +25,7 @@ namespace BasicOrbit.Unity.Unity
 
 			moduleInterface = module;
 
-			m_Title.text = module.ModuleTitle;
+			m_Title.OnTextUpdate.Invoke(module.ModuleTitle);
 
 			m_Toggle.isOn = module.IsVisible;
 

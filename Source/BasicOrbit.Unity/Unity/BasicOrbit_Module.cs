@@ -11,9 +11,9 @@ namespace BasicOrbit.Unity.Unity
 	public class BasicOrbit_Module : MonoBehaviour
 	{
 		[SerializeField]
-		private Text m_Title = null;
+		private TextHandler m_Title = null;
 		[SerializeField]
-		private Text m_TextModule = null;
+		private TextHandler m_TextModule = null;
 
 		private IBasicModule moduleInterface;
 
@@ -24,7 +24,7 @@ namespace BasicOrbit.Unity.Unity
 
 			moduleInterface = module;
 
-			m_Title.text = module.ModuleTitle + ":";
+			m_Title.OnTextUpdate.Invoke(module.ModuleTitle + ":");
 		}
 
 		public void Toggle(bool isOn)
@@ -91,7 +91,7 @@ namespace BasicOrbit.Unity.Unity
 
 			moduleInterface.Update();
 
-			m_TextModule.text = moduleInterface.ModuleText;
+			m_TextModule.OnTextUpdate.Invoke(moduleInterface.ModuleText);
 		}
 	}
 }
