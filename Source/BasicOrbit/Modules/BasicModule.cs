@@ -60,11 +60,6 @@ namespace BasicOrbit.Modules
 			set { _isActive = value; }
 		}
 
-		public void ProcessStyles(GameObject obj)
-		{
-			BasicOrbitUtilities.processComponents(obj);
-		}
-
 		public void Update()
 		{
 			_moduleValue = fieldUpdate();

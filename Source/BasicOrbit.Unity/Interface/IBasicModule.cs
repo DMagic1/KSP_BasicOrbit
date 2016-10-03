@@ -17,8 +17,6 @@ namespace BasicOrbit.Unity.Interface
 
 		bool AlwaysShow { get; set; }
 
-		void ProcessStyles(GameObject obj);
-
 		void Update();
 	}
 }

@@ -26,7 +26,5 @@ namespace BasicOrbit.Unity.Interface
 		IBasicPanel GetTargetPanel { get; }
 
 		BasicOrbit_Panel GetTarget { get; }
-
-		void ProcessStyles(GameObject obj);
 	}
 }

@@ -209,8 +209,6 @@ namespace BasicOrbit.Unity.Unity
 
 			bMod.setModule(module);
 
-			panelInterface.ProcessStyles(mod);
-
 			bMod.gameObject.SetActive(module.IsVisible || module.AlwaysShow);
 
 			Modules.Add(bMod);

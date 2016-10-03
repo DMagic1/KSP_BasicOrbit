@@ -18,8 +18,6 @@ namespace BasicOrbit.Unity.Interface
 
 		IList<IBasicModule> GetModules { get; }
 
-		void ProcessStyles(GameObject obj);
-
 		void ClampToScreen(RectTransform rect);
 	}
 }

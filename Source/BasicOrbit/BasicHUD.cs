@@ -71,11 +71,6 @@ namespace BasicOrbit
 			get { return new List<IBasicModule>(modules.ToArray()); }
 		}
 
-		public void ProcessStyles(GameObject obj)
-		{
-			BasicOrbitUtilities.processComponents(obj);
-		}
-
 		public void ClampToScreen(RectTransform rect)
 		{
 			UIMasterController.ClampToScreen(rect, Vector2.zero);
