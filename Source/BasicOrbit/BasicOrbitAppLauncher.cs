@@ -14,9 +14,7 @@ namespace BasicOrbit
 
 		private static BasicOrbitAppLauncher instance;
 		private static Texture2D icon;
-
-		private static GameObject prefab;
-
+		
 		private bool sticky;
 
 		private BasicOrbit_AppLauncher launcher;
@@ -28,9 +26,6 @@ namespace BasicOrbit
 
 		private void Start()
 		{
-			if (prefab == null)
-				prefab = BasicOrbitLoader.Prefabs.LoadAsset<GameObject>("basicorbit_applauncher");
-
 			if (icon == null)
 				icon = GameDatabase.Instance.GetTexture("BasicOrbit/Resources/AppIcon", false);
 
@@ -134,10 +129,10 @@ namespace BasicOrbit
 			if (launcher != null)
 				return;
 
-			if (prefab == null)
+			if (BasicOrbitLoader.ToolbarPrefab == null)
 				return;
 
-			GameObject obj = Instantiate(prefab, GetAnchor(), Quaternion.identity) as GameObject;
+			GameObject obj = Instantiate(BasicOrbitLoader.ToolbarPrefab, GetAnchor(), Quaternion.identity) as GameObject;
 
 			if (obj == null)
 				return;
@@ -150,8 +145,6 @@ namespace BasicOrbit
 				return;
 
 			launcher.setOrbit(BasicOrbit.Instance);
-
-			BasicOrbitUtilities.processComponents(obj);
 		}
 
 		private void Close()

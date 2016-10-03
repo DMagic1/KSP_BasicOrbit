@@ -39,8 +39,6 @@ namespace BasicOrbit
 
 		private BasicSettings settings;
 
-		private static GameObject panelPrefab;
-
 		private static BasicOrbit instance = null;
 
 		private BasicOrbit_Panel orbitPanel;
@@ -66,9 +64,6 @@ namespace BasicOrbit
 
 		private void Start()
 		{
-			if (panelPrefab == null)
-				panelPrefab = BasicOrbitLoader.Prefabs.LoadAsset<GameObject>("basicorbit_panel");
-
 			orbitHUD = new BasicHUD(AddOrbitModules());
 			orbitHUD.Position = settings.orbitPosition;
 
@@ -352,11 +347,6 @@ namespace BasicOrbit
 			get { return targetHUD; }
 		}
 
-		public void ProcessStyles(GameObject obj)
-		{
-			BasicOrbitUtilities.processComponents(obj);
-		}
-
 		private List<IBasicModule> AddOrbitModules()
 		{
 			List<IBasicModule> modules = new List<IBasicModule>();
@@ -458,13 +448,13 @@ namespace BasicOrbit
 			if (orbitPanel != null)
 				return;
 
-			if (panelPrefab == null)
+			if (BasicOrbitLoader.PanelPrefab == null)
 				return;
 
 			if (orbitHUD == null)
 				return;
 
-			GameObject obj = Instantiate(panelPrefab);
+			GameObject obj = Instantiate(BasicOrbitLoader.PanelPrefab);
 
 			if (obj == null)
 				return;
@@ -477,8 +467,6 @@ namespace BasicOrbit
 				return;
 
 			orbitPanel.setPanel(orbitHUD);
-
-			BasicOrbitUtilities.processComponents(obj);
 
 			orbitHUD.IsVisible = true;
 		}
@@ -501,13 +489,13 @@ namespace BasicOrbit
 			if (targetPanel != null)
 				return;
 
-			if (panelPrefab == null)
+			if (BasicOrbitLoader.PanelPrefab == null)
 				return;
 
 			if (targetHUD == null)
 				return;
 
-			GameObject obj = Instantiate(panelPrefab);
+			GameObject obj = Instantiate(BasicOrbitLoader.PanelPrefab);
 
 			if (obj == null)
 				return;
@@ -520,8 +508,6 @@ namespace BasicOrbit
 				return;
 
 			targetPanel.setPanel(targetHUD);
-
-			BasicOrbitUtilities.processComponents(obj);
 
 			targetHUD.IsVisible = true;
 		}
