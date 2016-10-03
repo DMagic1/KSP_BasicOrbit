@@ -1,28 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using TMPro;
+﻿using BasicOrbit.Unity;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
+using TMPro;
 
 namespace BasicOrbit
 {
-	public class BasicTextMeshProHolder : MonoBehaviour
+	public class BasicOrbitTextMeshProHolder : TextMeshProUGUI
 	{
-		private TextMeshProUGUI _textmesh;
-		private Text _text;
+		private TextHandler _handler;
 
-		public void Setup(TextMeshProUGUI tmp, Text t)
+		new private void Awake()
 		{
-			_textmesh = tmp;
-			_text = t;
-		}
+			base.Awake();
 
-		private void Update()
-		{
-			if (_textmesh == null || _text == null)
+			_handler = GetComponent<TextHandler>();
+
+			if (_handler == null)
 				return;
 
-			_textmesh.text = _text.text;
+			_handler.OnTextUpdate.AddListener(new UnityAction<string>(UpdateText));
+		}
+
+		private void UpdateText(string t)
+		{
+			text = t;
 		}
 	}
 }
