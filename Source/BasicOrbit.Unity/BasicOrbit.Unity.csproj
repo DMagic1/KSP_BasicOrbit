@@ -49,6 +49,7 @@
     <Compile Include="Interface\IBasicPanel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BasicUIStyle.cs" />
+    <Compile Include="TextHandler.cs" />
     <Compile Include="Unity\BasicOrbit_AppLauncher.cs" />
     <Compile Include="Unity\BasicOrbit_Module.cs" />
     <Compile Include="Unity\BasicOrbit_Panel.cs" />
