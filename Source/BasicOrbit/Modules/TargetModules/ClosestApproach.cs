@@ -1,6 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿#region License
+/*
+ * Basic Orbit
+ * 
+ * BasicOrbit ClosestApproach - Readout module for closest approach to target
+ * 
+ * Copyright (C) 2016 DMagic
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation, either version 3 of the License, or 
+ * (at your option) any later version. 
+ * 
+ * This program is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ * GNU General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU General Public License 
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+ * 
+ * 
+ */
+#endregion
 
 namespace BasicOrbit.Modules.TargetModules
 {
@@ -34,7 +55,7 @@ namespace BasicOrbit.Modules.TargetModules
 			{
 				if (MapView.MapIsEnabled)
 				{
-					if (BasicTargetting.ClosestIntersect == null)
+					if (!BasicTargetting.VesselIntersect)
 					{
 						_cachedVessel = false;
 						_cachedBody = false;
@@ -43,8 +64,8 @@ namespace BasicOrbit.Modules.TargetModules
 						return "---";
 					}
 
-					double distance = BasicTargetting.ClosestIntersect.separation * 1000;
-					double time = BasicTargetting.ClosestIntersect.UT;
+					double distance = BasicTargetting.ClosestDistance;
+					double time = BasicTargetting.ClosestTime;
 
 					_cachedVessel = true;
 					_cachedBody = false;
@@ -66,7 +87,7 @@ namespace BasicOrbit.Modules.TargetModules
 			{
 				if (MapView.MapIsEnabled)
 				{
-					if (BasicTargetting.ApproachMarker == null)
+					if (!BasicTargetting.BodyIntersect)
 					{
 						_cachedVessel = false;
 						_cachedBody = false;
@@ -75,15 +96,15 @@ namespace BasicOrbit.Modules.TargetModules
 						return "---";
 					}
 
-					double distance = BasicTargetting.ApproachMarker.separation * 1000;
-					double time = -1 * BasicTargetting.ApproachMarker.dT;
+					double distance = BasicTargetting.ClosestDistance;
+					double time = BasicTargetting.ClosestTime;
 
 					_cachedVessel = false;
 					_cachedBody = true;
 					_cachedDistance = distance;
-					_cachedTime = time + Planetarium.GetUniversalTime();
+					_cachedTime = time;
 
-					return result(distance, time);
+					return result(distance, time - Planetarium.GetUniversalTime());
 				}
 				else if (_cachedBody)
 					return "~" + result(_cachedDistance, _cachedTime - Planetarium.GetUniversalTime());
@@ -104,7 +125,7 @@ namespace BasicOrbit.Modules.TargetModules
 
 		private string result(double d, double t)
 		{
-			return string.Format("{0} in {1}", d.CloseDistance(), KSPUtil.PrintTime(t, 3, false));
+			return string.Format("{0} in {1}", d.Distance(), KSPUtil.PrintTime(t, 3, false));
 		}
 	}
 }
