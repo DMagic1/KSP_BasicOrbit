@@ -55,7 +55,6 @@
     <Compile Include="BasicOrbitAppLauncher.cs" />
     <Compile Include="BasicOrbitLoader.cs" />
     <Compile Include="BasicOrbitReflection.cs" />
-    <Compile Include="BasicOrbitUtilities.cs" />
     <Compile Include="BasicSettings.cs" />
     <Compile Include="BasicTextMeshProHolder.cs" />
     <Compile Include="Modules\BasicModule.cs" />
