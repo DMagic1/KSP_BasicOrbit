@@ -1,6 +1,29 @@
-﻿using System;
+﻿#region License
+/*
+ * Basic Orbit
+ * 
+ * BasicOrbit_Panel - Script for controlling the readout module UI panel
+ * 
+ * Copyright (C) 2016 DMagic
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation, either version 3 of the License, or 
+ * (at your option) any later version. 
+ * 
+ * This program is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ * GNU General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU General Public License 
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+ * 
+ * 
+ */
+#endregion
+
 using System.Collections.Generic;
-using System.Linq;
 using BasicOrbit.Unity.Interface;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,7 +31,9 @@ using UnityEngine.EventSystems;
 
 namespace BasicOrbit.Unity.Unity
 {
-
+	/// <summary>
+	/// This class controls the creation of the readout module panel
+	/// </summary>
 	public class BasicOrbit_Panel : CanvasFader, IBeginDragHandler, IDragHandler, IEndDragHandler
 	{
 		[SerializeField]
@@ -30,6 +55,9 @@ namespace BasicOrbit.Unity.Unity
 
 		private bool dragging;
 
+		/// <summary>
+		/// Set the background alpha to full when dragging is active; return to the previous alpha when dragging is stopped
+		/// </summary>
 		public bool Dragging
 		{
 			set
@@ -56,6 +84,9 @@ namespace BasicOrbit.Unity.Unity
 			Alpha(0);
 		}
 
+		/// <summary>
+		/// The panel fades out to fully transparent when closed
+		/// </summary>
 		public void Close()
 		{
 			Fade(0, true, Kill, false);
@@ -68,6 +99,10 @@ namespace BasicOrbit.Unity.Unity
 			Destroy(gameObject);
 		}
 
+		/// <summary>
+		/// This method is used to initialize the UI panel
+		/// </summary>
+		/// <param name="panel">The panel interface reference</param>
 		public void setPanel(IBasicPanel panel)
 		{
 			if (panel == null)
@@ -88,12 +123,19 @@ namespace BasicOrbit.Unity.Unity
 			SetOldAlpha();
 		}
 
+		/// <summary>
+		/// Cached the background image alpha when dragging is active
+		/// </summary>
 		public void SetOldAlpha()
 		{
 			if (m_Background != null)
 				oldAlpha = m_Background.color.a;
 		}
 
+		/// <summary>
+		/// Set a new background image alpha; used when dragging or when changing the background transparency from the settings panel
+		/// </summary>
+		/// <param name="a">The new background alpha value</param>
 		public void SetAlpha(float a)
 		{
 			if (m_Background == null)
@@ -106,6 +148,10 @@ namespace BasicOrbit.Unity.Unity
 			m_Background.color = c;
 		}
 
+		/// <summary>
+		/// Sets the panel position
+		/// </summary>
+		/// <param name="v">The x and y coordinates of the panel, measured from the top-left</param>
 		private void SetPosition(Vector2 v)
 		{
 			if (rect == null)
@@ -114,6 +160,10 @@ namespace BasicOrbit.Unity.Unity
 			rect.anchoredPosition = new Vector3(v.x, v.y > 0 ? v.y * -1 : v.y, 0);
 		}
 
+		/// <summary>
+		/// Interface method to begin drag operation
+		/// </summary>
+		/// <param name="eventData"></param>
 		public void OnBeginDrag(PointerEventData eventData)
 		{
 			if (!dragging)
@@ -126,6 +176,10 @@ namespace BasicOrbit.Unity.Unity
 			windowStart = rect.position;
 		}
 
+		/// <summary>
+		/// Interface method to update the panel position on drag
+		/// </summary>
+		/// <param name="eventData"></param>
 		public void OnDrag(PointerEventData eventData)
 		{
 			if (!dragging)
@@ -138,10 +192,12 @@ namespace BasicOrbit.Unity.Unity
 				return;
 
 			rect.position = windowStart + (Vector3)(eventData.position - mouseStart);
-
-			rect.position = clamp(rect, new RectOffset(0, 0, 0, 0));
 		}
 
+		/// <summary>
+		/// Interface method to end drag operation and clamp the panel to the screen
+		/// </summary>
+		/// <param name="eventData"></param>
 		public void OnEndDrag(PointerEventData eventData)
 		{
 			if (!dragging)
@@ -158,19 +214,10 @@ namespace BasicOrbit.Unity.Unity
 			panelInterface.Position = new Vector2(rect.anchoredPosition.x, rect.anchoredPosition.y);
 		}
 
-		private Vector3 clamp(RectTransform r, RectOffset offset)
-		{
-			Vector3 pos = new Vector3();
-
-			float f = panelInterface.Scale;
-
-			pos.x = Mathf.Clamp(r.position.x, (-1 * (f * r.sizeDelta.x - offset.left)) - (Screen.width / 2), (Screen.width / 2) - offset.right);
-			pos.y = Mathf.Clamp(r.position.y, offset.bottom - (Screen.height / 2), (Screen.height / 2) + (f * r.sizeDelta.y - offset.top));
-			pos.z = 1;
-
-			return pos;
-		}
-
+		/// <summary>
+		/// Create the individual readout modules for the panel
+		/// </summary>
+		/// <param name="modules">The list of available readout modules for this panel</param>
 		private void CreateModules(IList<IBasicModule> modules)
 		{
 			if (modules == null)
@@ -193,6 +240,10 @@ namespace BasicOrbit.Unity.Unity
 			}
 		}
 
+		/// <summary>
+		/// Create the individual readout module using the Readout Module prefab
+		/// </summary>
+		/// <param name="module">The readout module interface</param>
 		private void CreateModule(IBasicModule module)
 		{
 			GameObject mod = Instantiate(m_ModulePrefab);
@@ -214,8 +265,10 @@ namespace BasicOrbit.Unity.Unity
 			Modules.Add(bMod);
 		}
 
-
-
+		/// <summary>
+		/// Update panel visibility based on the status of each readout module
+		/// Update any active modules found
+		/// </summary>
 		private void Update()
 		{
 			if (panelInterface == null)
