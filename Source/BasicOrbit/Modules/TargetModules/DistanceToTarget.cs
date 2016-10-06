@@ -49,26 +49,48 @@ namespace BasicOrbit.Modules.TargetModules
 			if (!BasicTargetting.Updated)
 				return "---";
 
-			ITargetable tgt = FlightGlobals.ActiveVessel.targetObject;
-
-			Vector3 targetPos = BasicTargetting.TargetOrbit.pos;
-			Vector3 originPos = BasicTargetting.ShipOrbit.pos;
-
-			if (tgt.GetVessel() != null &&
-				tgt.GetVessel().loaded &&
-				tgt is ModuleDockingNode)
+			if (BasicTargetting.IsVessel)
 			{
-				targetPos = ((ModuleDockingNode)tgt).nodeTransform.position;
+				if (FlightGlobals.ActiveVessel.targetObject == null)
+					return "---";
 
-				if (FlightGlobals.ActiveVessel != null &&
-					FlightGlobals.ActiveVessel.GetReferenceTransformPart() != null &&
-					FlightGlobals.ActiveVessel.GetReferenceTransformPart().FindModulesImplementing<ModuleDockingNode>().Count > 0)
+				ITargetable tgt = FlightGlobals.ActiveVessel.targetObject;
+
+				Vessel targetVessel = tgt.GetVessel();
+
+				if (targetVessel == null)
+					return "---";
+
+				Vector3d targetPos = BasicTargetting.TargetOrbit.pos;
+				Vector3d originPos = BasicTargetting.ShipOrbit.pos;
+
+				if (targetVessel.loaded)
 				{
-					originPos = FlightGlobals.ActiveVessel.GetReferenceTransformPart().FindModulesImplementing<ModuleDockingNode>()[0].referenceNode.position;
-				}
-			}
+					if (FlightGlobals.ActiveVessel.GetReferenceTransformPart() != null &&
+						FlightGlobals.ActiveVessel.GetReferenceTransformPart().FindModulesImplementing<ModuleDockingNode>().Count > 0)
+					{
+						originPos = FlightGlobals.ActiveVessel.GetReferenceTransformPart().FindModulesImplementing<ModuleDockingNode>()[0].nodeTransform.position;
 
-			return result(Vector3d.Distance(targetPos, originPos));
+						if (FlightGlobals.fetch != null)
+							targetPos = FlightGlobals.fetch.vesselTargetTransform.position;
+						else
+							targetPos = targetVessel.ReferenceTransform.position;
+					}
+					else if (FlightGlobals.fetch != null)
+						return result(FlightGlobals.fetch.vesselTargetDelta.magnitude);
+					else
+					{
+						originPos = FlightGlobals.ActiveVessel.ReferenceTransform.position;
+						targetPos = targetVessel.ReferenceTransform.position;
+					}
+				}
+
+				return result(Vector3d.Distance(targetPos, originPos));
+			}
+			else if (BasicTargetting.IsCelestial)
+				return result(Vector3d.Distance(BasicTargetting.TargetOrbit.pos, BasicTargetting.ShipOrbit.pos));
+			else
+				return "---";
 		}
 
 		private string result(double d)
