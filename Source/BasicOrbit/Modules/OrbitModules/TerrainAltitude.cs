@@ -44,9 +44,6 @@ namespace BasicOrbit.Modules.OrbitModules
 			if (FlightGlobals.ActiveVessel == null)
 				return "---";
 
-			if (FlightGlobals.ActiveVessel.terrainAltitude <= 0)
-				return "---";
-
 			return result(FlightGlobals.ActiveVessel.terrainAltitude);
 		}
 
