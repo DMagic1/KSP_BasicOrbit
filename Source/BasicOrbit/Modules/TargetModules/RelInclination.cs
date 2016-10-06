@@ -76,7 +76,7 @@ namespace BasicOrbit.Modules.TargetModules
 
 		private string result(double d, double t)
 		{
-			return string.Format("{0:F3}°; node in {1}", d, KSPUtil.PrintTime(t, 2, false));
+			return string.Format("{0:F3}°; node in {1}", d, t.Time(2));
 		}
 	}
 }

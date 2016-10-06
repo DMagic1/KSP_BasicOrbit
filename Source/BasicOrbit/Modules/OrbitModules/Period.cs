@@ -52,7 +52,7 @@ namespace BasicOrbit.Modules.OrbitModules
 
 		private string result(double t)
 		{
-			return KSPUtil.PrintTime(t, 3, false);
+			return t.Time(3);
 		}
 	}
 }

@@ -49,8 +49,6 @@ namespace BasicOrbit.Modules.TargetModules
 			if (!BasicTargetting.Updated)
 				return "---";
 
-			//return result(BasicTargetting.ClosestDistance, BasicTargetting.ClosestTime - Planetarium.GetUniversalTime());
-			
 			if (BasicTargetting.IsVessel)
 			{
 				if (MapView.MapIsEnabled)
@@ -125,7 +123,7 @@ namespace BasicOrbit.Modules.TargetModules
 
 		private string result(double d, double t)
 		{
-			return string.Format("{0} in {1}", d.Distance(), KSPUtil.PrintTime(t, 3, false));
+			return string.Format("{0} in {1}", d.Distance(), t.Time(2));
 		}
 	}
 }
