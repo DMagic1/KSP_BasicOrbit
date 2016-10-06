@@ -189,12 +189,7 @@ namespace BasicOrbit
 						apo.IsActive = true;
 						radar.IsActive = true;
 						terrain.IsActive = true;
-
-						if (v.altitude > (v.mainBody.scienceValues.flyingAltitudeThreshold / 3))
-							inc.IsActive = true;
-						else
-							inc.IsActive = false;
-
+						inc.IsActive = v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 3;
 						LAN.IsActive = false;
 						AoPE.IsActive = false;
 						SMA.IsActive = false;
@@ -208,13 +203,8 @@ namespace BasicOrbit
 						inc.IsActive = true;
 						ecc.IsActive = true;
 
-						if (v.orbit.PeR < 0)
-						{
-							if (Math.Abs(v.orbit.PeR) < v.mainBody.Radius / 5)
-								peri.IsActive = true;
-							else
-								peri.IsActive = false;
-						}
+						if (v.orbit.PeA < 0)
+							peri.IsActive = Math.Abs(v.orbit.PeA) < v.mainBody.Radius / 5;
 						else
 							peri.IsActive = true;
 						
@@ -255,29 +245,43 @@ namespace BasicOrbit
 				}
 				else
 				{
-					if (BasicTargetting.IsCelestial)
+					switch (v.situation)
 					{
-						angToPro.IsActive = true;
-						closest.IsActive = true;
-						closestVel.IsActive = false;
+						case Vessel.Situations.LANDED:
+						case Vessel.Situations.PRELAUNCH:
+						case Vessel.Situations.SPLASHED:
+							angToPro.IsActive = false;
+							closest.IsActive = false;
+							closestVel.IsActive = false;
+							distance.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
+							relVel.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
+							relInc.IsActive = false;
+							break;
+						case Vessel.Situations.FLYING:
+							angToPro.IsActive = false;
+							closest.IsActive = ((BasicTargetting.IsCelestial && BasicTargetting.BodyIntersect) || (BasicTargetting.IsVessel && BasicTargetting.VesselIntersect)) && v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 3;
+							closestVel.IsActive = BasicTargetting.IsVessel && BasicTargetting.VesselIntersect && v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 3;
+							distance.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
+							relVel.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
+							relInc.IsActive = (BasicTargetting.IsCelestial || BasicTargetting.IsVessel) && v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 3;
+							break;
+						case Vessel.Situations.SUB_ORBITAL:
+							angToPro.IsActive = BasicTargetting.IsCelestial;
+							closest.IsActive = (BasicTargetting.IsCelestial && BasicTargetting.BodyIntersect) || (BasicTargetting.IsVessel && BasicTargetting.VesselIntersect);
+							closestVel.IsActive =  BasicTargetting.IsVessel && BasicTargetting.VesselIntersect;
+							distance.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
+							relVel.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
+							relInc.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
+							break;
+						default:
+							angToPro.IsActive = BasicTargetting.IsCelestial;
+							closest.IsActive = (BasicTargetting.IsCelestial && BasicTargetting.BodyIntersect) || (BasicTargetting.IsVessel && BasicTargetting.VesselIntersect);
+							closestVel.IsActive = BasicTargetting.IsVessel && BasicTargetting.VesselIntersect;
+							distance.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
+							relVel.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
+							relInc.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
+							break;
 					}
-					else if (BasicTargetting.IsVessel)
-					{
-						angToPro.IsActive = false;
-						closest.IsActive = true;
-						closestVel.IsActive = true;
-					}
-					else
-					{
-						closest.IsActive = false;
-						closestVel.IsActive = false;
-						angToPro.IsActive = false;
-					}
-
-					distance.IsActive = true;
-					relVel.IsActive = true;
-
-					relInc.IsActive = (v.situation |= Vessel.Situations.DOCKED | Vessel.Situations.ESCAPING | Vessel.Situations.ORBITING | Vessel.Situations.SUB_ORBITAL) != 0;
 
 					BasicTargetting.UpdateOn = true;
 				}
