@@ -58,9 +58,17 @@ namespace BasicOrbit
 		[Persistent]
 		public bool showRadarAlways = false;
 		[Persistent]
+		public bool showOrbitAltitude = true;
+		[Persistent]
+		public bool showOrbitAltitudeAlways = true;
+		[Persistent]
 		public bool showTerrain = true;
 		[Persistent]
 		public bool showTerrainAlways = false;
+		[Persistent]
+		public bool showLocation = true;
+		[Persistent]
+		public bool showLocationAlways = false;
 		[Persistent]
 		public bool showLAN = false;
 		[Persistent]
