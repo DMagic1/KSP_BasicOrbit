@@ -49,7 +49,7 @@ namespace BasicOrbit.Modules.OrbitModules
 
 		private string result(double d)
 		{
-			return string.Format("{0}", d.Distance());
+			return string.Format("{0}", d.Distance(1));
 		}
 	}
 }
