@@ -49,8 +49,10 @@ namespace BasicOrbit
 		private SemiMajorAxis SMA;
 		private LongAscending LAN;
 		private ArgOfPeriapsis AoPE;
+		private OrbitAltitude altitude;
 		private RadarAltitude radar;
 		private TerrainAltitude terrain;
+		private Location location;
 
 		private ClosestApproach closest;
 		private RelVelocityAtClosest closestVel;
@@ -162,70 +164,80 @@ namespace BasicOrbit
 				{
 					case Vessel.Situations.LANDED:
 					case Vessel.Situations.PRELAUNCH:
-						apo.IsActive = false;
-						peri.IsActive = false;
-						inc.IsActive = false;
-						ecc.IsActive = false;
-						LAN.IsActive = false;
-						AoPE.IsActive = false;
-						SMA.IsActive = false;
-						period.IsActive = false;
-						radar.IsActive = false;
+						apo.IsActive = apo.AlwaysShow;
+						peri.IsActive = peri.AlwaysShow;
+						inc.IsActive = inc.AlwaysShow;
+						ecc.IsActive = ecc.AlwaysShow;
+						LAN.IsActive = LAN.AlwaysShow;
+						AoPE.IsActive = AoPE.AlwaysShow;
+						SMA.IsActive = SMA.AlwaysShow;
+						period.IsActive = period.AlwaysShow;
+						altitude.IsActive = altitude.AlwaysShow;
+						radar.IsActive = radar.AlwaysShow;
+						location.IsActive = true;
 						terrain.IsActive = true;
 						break;
 					case Vessel.Situations.SPLASHED:
-						apo.IsActive = false;
-						peri.IsActive = false;
-						inc.IsActive = false;
-						ecc.IsActive = false;
-						LAN.IsActive = false;
-						AoPE.IsActive = false;
-						SMA.IsActive = false;
-						period.IsActive = false;
+						apo.IsActive = apo.AlwaysShow;
+						peri.IsActive = peri.AlwaysShow;
+						inc.IsActive = inc.AlwaysShow;
+						ecc.IsActive = ecc.AlwaysShow;
+						LAN.IsActive = LAN.AlwaysShow;
+						AoPE.IsActive = AoPE.AlwaysShow;
+						SMA.IsActive = SMA.AlwaysShow;
+						period.IsActive = period.AlwaysShow;
+						altitude.IsActive = altitude.AlwaysShow;
+						location.IsActive = true;
 						radar.IsActive = true;
 						terrain.IsActive = true;
 						break;
 					case Vessel.Situations.FLYING:
-						apo.IsActive = true;
+						apo.IsActive = apo.AlwaysShow || v.orbit.eccentricity < 1;
 						radar.IsActive = true;
 						terrain.IsActive = true;
-						inc.IsActive = v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 3;
-						LAN.IsActive = false;
-						AoPE.IsActive = false;
-						SMA.IsActive = false;
-						ecc.IsActive = false;
-						peri.IsActive = false;
-						period.IsActive = false;
+						location.IsActive = true;
+						inc.IsActive = inc.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 3;
+						altitude.IsActive = altitude.AlwaysShow;
+						LAN.IsActive = LAN.AlwaysShow;
+						AoPE.IsActive = AoPE.AlwaysShow;
+						SMA.IsActive = SMA.AlwaysShow;
+						ecc.IsActive = ecc.AlwaysShow;
+						peri.IsActive = v.orbit.PeA > 0;
+						period.IsActive = period.AlwaysShow;
 						break;
 					case Vessel.Situations.SUB_ORBITAL:
-						apo.IsActive = true;
+						apo.IsActive = apo.AlwaysShow || v.orbit.eccentricity < 1;
 						radar.IsActive = true;
 						inc.IsActive = true;
 						ecc.IsActive = true;
+						location.IsActive = true;
 
 						if (v.orbit.PeA < 0)
-							peri.IsActive = Math.Abs(v.orbit.PeA) < v.mainBody.Radius / 5;
+							peri.IsActive = peri.AlwaysShow || Math.Abs(v.orbit.PeA) < v.mainBody.Radius / 5 || (v.orbit.eccentricity >= 1 && v.orbit.timeToPe > 0);
 						else
-							peri.IsActive = true;
+							peri.IsActive = peri.AlwaysShow || v.orbit.eccentricity < 1 || v.orbit.timeToPe > 0;
 						
-						LAN.IsActive = false;
-						AoPE.IsActive = false;
-						SMA.IsActive = false;
-						period.IsActive = false;
-						terrain.IsActive = false;
+						altitude.IsActive = altitude.AlwaysShow;
+						LAN.IsActive = LAN.AlwaysShow;
+						AoPE.IsActive = AoPE.AlwaysShow;
+						SMA.IsActive = SMA.AlwaysShow;
+						period.IsActive = period.AlwaysShow;
+						terrain.IsActive = terrain.AlwaysShow;
 						break;
 					default:
-						apo.IsActive = true;
-						peri.IsActive = true;
+						apo.IsActive = apo.AlwaysShow || v.orbit.eccentricity < 1;
+						peri.IsActive = peri.AlwaysShow || v.orbit.eccentricity < 1 || v.orbit.timeToPe > 0;
 						inc.IsActive = true;
 						ecc.IsActive = true;
 						LAN.IsActive = true;
 						AoPE.IsActive = true;
 						SMA.IsActive = true;
-						period.IsActive = true;
+						period.IsActive = period.AlwaysShow || v.orbit.eccentricity < 1;
+						altitude.IsActive = true;
 
-						radar.IsActive = false;
-						terrain.IsActive = false;
+						location.IsActive = location.AlwaysShow;
+						radar.IsActive = radar.AlwaysShow;
+						terrain.IsActive = terrain.AlwaysShow;
 						break;
 				}
 			}
@@ -250,33 +262,25 @@ namespace BasicOrbit
 						case Vessel.Situations.LANDED:
 						case Vessel.Situations.PRELAUNCH:
 						case Vessel.Situations.SPLASHED:
-							angToPro.IsActive = false;
-							closest.IsActive = false;
-							closestVel.IsActive = false;
+							angToPro.IsActive = angToPro.AlwaysShow && (BasicTargetting.IsCelestial && FlightGlobals.currentMainBody.referenceBody != null && FlightGlobals.currentMainBody.referenceBody != FlightGlobals.currentMainBody);
+							closest.IsActive = closest.AlwaysShow && ((BasicTargetting.IsCelestial && (closest.CachedBody || BasicTargetting.BodyIntersect)) || (BasicTargetting.IsVessel && (closestVel.Cached || BasicTargetting.VesselIntersect)));
+							closestVel.IsActive = closestVel.AlwaysShow && (BasicTargetting.IsVessel && (closestVel.Cached || BasicTargetting.VesselIntersect));
 							distance.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
-							relVel.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
-							relInc.IsActive = false;
+							relVel.IsActive = relVel.AlwaysShow && (BasicTargetting.IsCelestial || BasicTargetting.IsVessel);
+							relInc.IsActive = relInc.AlwaysShow && (BasicTargetting.IsCelestial || BasicTargetting.IsVessel);
 							break;
 						case Vessel.Situations.FLYING:
-							angToPro.IsActive = false;
-							closest.IsActive = ((BasicTargetting.IsCelestial && BasicTargetting.BodyIntersect) || (BasicTargetting.IsVessel && BasicTargetting.VesselIntersect)) && v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 3;
-							closestVel.IsActive = BasicTargetting.IsVessel && BasicTargetting.VesselIntersect && v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 3;
+							angToPro.IsActive = angToPro.AlwaysShow && (BasicTargetting.IsCelestial && FlightGlobals.currentMainBody.referenceBody != null && FlightGlobals.currentMainBody.referenceBody != FlightGlobals.currentMainBody);
+							closest.IsActive = ((BasicTargetting.IsCelestial && (closest.CachedBody || BasicTargetting.BodyIntersect)) || (BasicTargetting.IsVessel && closest.CachedVessel)) && (closest.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold);
+							closestVel.IsActive = (BasicTargetting.IsVessel && (closestVel.Cached || BasicTargetting.VesselIntersect)) && (closestVel.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold);
 							distance.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
 							relVel.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
-							relInc.IsActive = (BasicTargetting.IsCelestial || BasicTargetting.IsVessel) && v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 3;
-							break;
-						case Vessel.Situations.SUB_ORBITAL:
-							angToPro.IsActive = BasicTargetting.IsCelestial;
-							closest.IsActive = (BasicTargetting.IsCelestial && BasicTargetting.BodyIntersect) || (BasicTargetting.IsVessel && BasicTargetting.VesselIntersect);
-							closestVel.IsActive =  BasicTargetting.IsVessel && BasicTargetting.VesselIntersect;
-							distance.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
-							relVel.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
-							relInc.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
+							relInc.IsActive = (BasicTargetting.IsCelestial || BasicTargetting.IsVessel) && (relInc.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 3);
 							break;
 						default:
-							angToPro.IsActive = BasicTargetting.IsCelestial;
-							closest.IsActive = (BasicTargetting.IsCelestial && BasicTargetting.BodyIntersect) || (BasicTargetting.IsVessel && BasicTargetting.VesselIntersect);
-							closestVel.IsActive = BasicTargetting.IsVessel && BasicTargetting.VesselIntersect;
+							angToPro.IsActive = BasicTargetting.IsCelestial && FlightGlobals.currentMainBody.referenceBody != null && FlightGlobals.currentMainBody.referenceBody != FlightGlobals.currentMainBody;
+							closest.IsActive = (BasicTargetting.IsCelestial && (closest.CachedBody || BasicTargetting.BodyIntersect)) || (BasicTargetting.IsVessel && (closestVel.Cached || BasicTargetting.VesselIntersect));
+							closestVel.IsActive = BasicTargetting.IsVessel && (closestVel.Cached || BasicTargetting.VesselIntersect);
 							distance.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
 							relVel.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
 							relInc.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
@@ -385,8 +389,10 @@ namespace BasicOrbit
 			SMA = new SemiMajorAxis("Semi Major Axis");
 			LAN = new LongAscending("LAN");
 			AoPE = new ArgOfPeriapsis("Arg of Pe");
+			altitude = new OrbitAltitude("Altitude");
 			radar =new RadarAltitude("Radar Altitude");
 			terrain = new TerrainAltitude("Terrain Altitude");
+			location = new Location("Location");
 
 			apo.IsVisible = settings.showApoapsis;
 			apo.AlwaysShow = settings.showApoapsisAlways;
@@ -404,16 +410,22 @@ namespace BasicOrbit
 			LAN.AlwaysShow = settings.showLANAlways;
 			AoPE.IsVisible = settings.showAoPe;
 			AoPE.AlwaysShow = settings.showAoPeAlways;
+			altitude.IsVisible = settings.showOrbitAltitude;
+			altitude.AlwaysShow = settings.showOrbitAltitudeAlways;
 			radar.IsVisible = settings.showRadar;
 			radar.AlwaysShow = settings.showRadarAlways;
 			terrain.IsVisible = settings.showTerrain;
 			terrain.AlwaysShow = settings.showTerrainAlways;
+			location.IsVisible = settings.showLocation;
+			location.AlwaysShow = settings.showLocationAlways;
 
 			modules.Add(AoPE);
 			modules.Add(LAN);
 			modules.Add(SMA);
 			modules.Add(terrain);
 			modules.Add(radar);
+			modules.Add(altitude);
+			modules.Add(location);
 			modules.Add(period);
 			modules.Add(ecc);
 			modules.Add(inc);
