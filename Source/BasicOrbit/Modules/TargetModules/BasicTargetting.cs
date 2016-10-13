@@ -279,19 +279,41 @@ namespace BasicOrbit.Modules.TargetModules
 							{
 								double Pe = double.MaxValue;
 
-								for (int i = solver.flightPlan.Count - 1; i >= 0; i--)
+								if (solver.flightPlan.Count > 0)
 								{
-									Orbit o = solver.flightPlan[i];
-
-									if (o == null)
-										continue;
-
-									if (o.timeToPe > 0 && o.referenceBody == _targetBody && (o.StartUT + o.timeToPe < o.EndUT) && o.PeR > o.referenceBody.Radius && o.PeR < o.referenceBody.sphereOfInfluence)
+									for (int i = solver.flightPlan.Count - 1; i >= 0; i--)
 									{
-										if (Pe > o.PeA)
+										Orbit o = solver.flightPlan[i];
+
+										if (o == null)
+											continue;
+
+										if (o.timeToPe > 0 && o.referenceBody == _targetBody && (o.StartUT + o.timeToPe < o.EndUT) && o.PeR > o.referenceBody.Radius && o.PeR < o.referenceBody.sphereOfInfluence)
 										{
-											Pe = o.PeA;
-											_closestTime = o.StartUT + o.timeToPe;
+											if (Pe > o.PeA)
+											{
+												Pe = o.PeA;
+												_closestTime = o.StartUT + o.timeToPe;
+											}
+										}
+									}
+								}
+								else
+								{
+									for (int i = solver.patches.Count - 1; i >= 0; i--)
+									{
+										Orbit o = solver.patches[i];
+
+										if (o == null)
+											continue;
+
+										if (o.timeToPe > 0 && o.referenceBody == _targetBody && (o.StartUT + o.timeToPe < o.EndUT) && o.PeR > o.referenceBody.Radius && o.PeR < o.referenceBody.sphereOfInfluence)
+										{
+											if (Pe > o.PeA)
+											{
+												Pe = o.PeA;
+												_closestTime = o.StartUT + o.timeToPe;
+											}
 										}
 									}
 								}
@@ -307,7 +329,6 @@ namespace BasicOrbit.Modules.TargetModules
 
 							if (!_bodyIntersect)
 							{
-
 								OrbitTargeter.ClApprMarker _approach = null;
 
 								for (int i = _markers.Count - 1; i >= 0; i--)
