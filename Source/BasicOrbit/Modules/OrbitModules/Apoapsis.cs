@@ -47,6 +47,9 @@ namespace BasicOrbit.Modules.OrbitModules
 			if (FlightGlobals.ActiveVessel.orbit == null)
 				return "---";
 
+			if (FlightGlobals.ActiveVessel.orbit.eccentricity >= 1)
+				return "---";
+
 			return result(FlightGlobals.ActiveVessel.orbit.ApA, FlightGlobals.ActiveVessel.orbit.timeToAp);
 		}
 
