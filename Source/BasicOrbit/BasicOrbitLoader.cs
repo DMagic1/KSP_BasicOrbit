@@ -68,7 +68,7 @@ namespace BasicOrbit
 			{
 				string path = KSPUtil.ApplicationRootPath + "GameData/BasicOrbit/Resources";
 
-				AssetBundle prefabs = AssetBundle.LoadFromFile(path + "/basic_orbit_prefabs.ksp");
+				AssetBundle prefabs = AssetBundle.LoadFromFile(path + "/basic_orbit_prefabs");
 
 				if (prefabs != null)
 					loadedPrefabs = prefabs.LoadAllAssets<GameObject>();		
