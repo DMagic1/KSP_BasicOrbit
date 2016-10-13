@@ -36,6 +36,11 @@ namespace BasicOrbit.Modules.TargetModules
 
 		}
 
+		public bool Cached
+		{
+			get { return _cached; }
+		}
+
 		protected override void UpdateSettings()
 		{
 			BasicSettings.Instance.showClosestApproachVelocity = IsVisible;

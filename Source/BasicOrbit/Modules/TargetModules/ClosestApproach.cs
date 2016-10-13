@@ -38,6 +38,16 @@ namespace BasicOrbit.Modules.TargetModules
 
 		}
 
+		public bool CachedVessel
+		{
+			get { return _cachedVessel; }
+		}
+
+		public bool CachedBody
+		{
+			get { return _cachedBody; }
+		}
+
 		protected override void UpdateSettings()
 		{
 			BasicSettings.Instance.showClosestApproach = IsVisible;
