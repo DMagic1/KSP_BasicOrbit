@@ -324,15 +324,6 @@ namespace BasicOrbit.Unity.Unity
 					continue;
 				}
 
-				if (mod.AlwaysShow)
-				{
-					if (!mod.gameObject.activeSelf)
-						mod.gameObject.SetActive(true);
-
-					mod.UpdateModule();
-					continue;
-				}
-
 				if (mod.IsActive)
 				{
 					if (!mod.gameObject.activeSelf)
