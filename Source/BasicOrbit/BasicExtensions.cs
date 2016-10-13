@@ -35,10 +35,10 @@ namespace BasicOrbit
 		private static int[] times = new int[5];
 		private static string[] units = new string[5] { "s", "m", "h", "d", "y" };
 
-		public static string Distance(this double d)
+		public static string Distance(this double d, int figs = 2)
 		{
 			if (d < 1000000)
-				return string.Format("{0:N2}m", d);
+				return string.Format("{0:N" + figs + "}m", d);
 			else if (d < 1000000000)
 				return string.Format("{0:N1}km", d / 1000);
 			else if (d < 1000000000000)
@@ -64,6 +64,19 @@ namespace BasicOrbit
 				return string.Format("{0:N0}Mm", d / 1000000);
 		}
 
+		public static string DMS(this double d, char neg, char pos)
+		{
+			char unit = d < 0 ? neg : pos;
+			d = Math.Abs(d);
+			int deg = (int)Math.Floor(d);
+			d = (d - deg) * 60;
+			int min = (int)Math.Floor(d);
+			d = (d - min) * 60;
+			int sec = (int)Math.Floor(d);
+
+			return string.Format("{0:0}° {1:00}' {2:00}\"{3}", deg, min, sec, unit);
+		}
+
 		public static string Speed(this double d)
 		{
 			if (Math.Abs(d) < 1)
@@ -76,6 +89,9 @@ namespace BasicOrbit
 
 		public static string Time(this double d, int values)
 		{
+			if (Math.Abs(d) > int.MaxValue)
+				return "---";
+
 			d.SetTimes();
 
 			StringBuilder sb = StringBuilderCache.Acquire();
@@ -109,7 +125,7 @@ namespace BasicOrbit
 
 				sb.Append(String.Format(format, Math.Abs(t), units[i]));
 
-				if (values > 1)
+				if (values > 1 && i > 0)
 					sb.Append(", ");
 
 				values--;
