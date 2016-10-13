@@ -60,6 +60,8 @@
     <Compile Include="Modules\BasicModule.cs" />
     <Compile Include="BasicHUD.cs" />
     <Compile Include="Modules\OrbitModules\ArgOfPeriapsis.cs" />
+    <Compile Include="Modules\OrbitModules\Location.cs" />
+    <Compile Include="Modules\OrbitModules\OrbitAltitude.cs" />
     <Compile Include="Modules\OrbitModules\RadarAltitude.cs" />
     <Compile Include="Modules\OrbitModules\Inclination.cs" />
     <Compile Include="Modules\OrbitModules\LongAscending.cs" />
