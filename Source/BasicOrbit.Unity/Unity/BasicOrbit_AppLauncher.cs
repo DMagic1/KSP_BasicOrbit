@@ -46,9 +46,9 @@ namespace BasicOrbit.Unity.Unity
 		[SerializeField]
 		private Toggle m_TargetDragToggle = null;
 		[SerializeField]
-		private Text m_AlphaText = null;
+		private TextHandler m_AlphaText = null;
 		[SerializeField]
-		private Text m_ScaleText = null;
+		private TextHandler m_ScaleText = null;
 		[SerializeField]
 		private Slider m_AlphaSlider = null;
 		[SerializeField]
@@ -114,14 +114,14 @@ namespace BasicOrbit.Unity.Unity
 
 			if (m_AlphaText != null && m_AlphaSlider != null)
 			{
-				m_AlphaText.text = basic.Alpha.ToString("P0");
+				m_AlphaText.OnTextUpdate.Invoke(basic.Alpha.ToString("P0"));
 
 				m_AlphaSlider.value = basic.Alpha * 50;
 			}
 
 			if (m_ScaleText != null && m_ScaleSlider != null)
 			{
-				m_ScaleText.text = basic.Scale.ToString("P0");
+				m_ScaleText.OnTextUpdate.Invoke(basic.Scale.ToString("P0"));
 
 				m_ScaleSlider.value = basic.Scale * 10;
 			}
@@ -346,7 +346,7 @@ namespace BasicOrbit.Unity.Unity
 				return;
 
 			if (m_ScaleText != null)
-				m_ScaleText.text = (scale / 10).ToString("P0");
+				m_ScaleText.OnTextUpdate.Invoke((scale / 10).ToString("P0"));
 		}
 
 		/// <summary>
@@ -359,7 +359,7 @@ namespace BasicOrbit.Unity.Unity
 				return;
 
 			if (m_AlphaText != null)
-				m_AlphaText.text = (alpha / 50).ToString("P0");
+				m_AlphaText.OnTextUpdate.Invoke((alpha / 50).ToString("P0"));
 			
 			if (basicInterface == null)
 				return;
