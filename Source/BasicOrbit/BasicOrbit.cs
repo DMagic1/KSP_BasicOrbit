@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using BasicOrbit.Modules.OrbitModules;
 using BasicOrbit.Modules.TargetModules;
+using BasicOrbit.Modules.ManeuverModules;
 using BasicOrbit.Unity.Unity;
 using BasicOrbit.Unity.Interface;
 using UnityEngine;
@@ -40,6 +41,7 @@ namespace BasicOrbit
     {
 		private BasicHUD orbitHUD;
 		private BasicHUD targetHUD;
+		private BasicHUD maneuverHUD;
 
 		private Apoapsis apo;
 		private Periapsis peri;
@@ -54,6 +56,7 @@ namespace BasicOrbit
 		private TerrainAltitude terrain;
 		private Location location;
 
+		private TargetName targetName;
 		private ClosestApproach closest;
 		private RelVelocityAtClosest closestVel;
 		private DistanceToTarget distance;
@@ -61,12 +64,18 @@ namespace BasicOrbit
 		private RelVelocity relVel;
 		private AngleToPrograde angToPro;
 
+		private Maneuver maneuver;
+		private BurnTime burnTime;
+		private ManClosestApproach maneuverCloseApproach;
+		private ManClosestRelVel maneuverCloseRelVel;
+
 		private BasicSettings settings;
 
 		private static BasicOrbit instance = null;
 
 		private BasicOrbit_Panel orbitPanel;
 		private BasicOrbit_Panel targetPanel;
+		private BasicOrbit_Panel maneuverPanel;
 
 		private BasicOrbitAppLauncher appLauncher;
 		private string _version;
@@ -94,6 +103,9 @@ namespace BasicOrbit
 			targetHUD = new BasicHUD(AddTargetModules());
 			targetHUD.Position = settings.targetPosition;
 
+			maneuverHUD = new BasicHUD(AddManeuverModules());
+			maneuverHUD.Position = settings.maneuverPosition;
+
 			Assembly assembly = AssemblyLoader.loadedAssemblies.GetByAssembly(Assembly.GetExecutingAssembly()).assembly;
 			var ainfoV = Attribute.GetCustomAttribute(assembly, typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
 			switch (ainfoV == null)
@@ -108,7 +120,13 @@ namespace BasicOrbit
 			if (settings.showTargetPanel)
 				AddTargetPanel();
 
+			if (settings.showManeuverPanel)
+				AddManeuverPanel();
+
 			appLauncher = gameObject.AddComponent<BasicOrbitAppLauncher>();
+
+			onGameSettings();
+			GameEvents.OnGameSettingsApplied.Add(onGameSettings);
 		}
 
 		private void OnDestroy()
@@ -135,14 +153,25 @@ namespace BasicOrbit
 			if (targetPanel != null)
 				Destroy(targetPanel.gameObject);
 
+			if (maneuverPanel != null)
+				Destroy(maneuverPanel.gameObject);
+
 			settings.orbitPosition = orbitHUD.Position;
 			settings.targetPosition = targetHUD.Position;
+			settings.maneuverPosition = maneuverHUD.Position;
 
 			if (appLauncher != null)
 				Destroy(appLauncher);
 
 			if (settings.Save())
 				BasicOrbit.BasicLogging("Settings file saved");
+
+			GameEvents.OnGameSettingsApplied.Remove(onGameSettings);
+		}
+
+		private void onGameSettings()
+		{
+			BasicTargetting.PatchLimit = GameSettings.CONIC_PATCH_LIMIT;
 		}
 		
 		private void Update()
@@ -150,7 +179,7 @@ namespace BasicOrbit
 			if (!FlightGlobals.ready)
 				return;
 
-			if (orbitHUD == null || targetHUD == null)
+			if (orbitHUD == null || targetHUD == null || maneuverHUD == null)
 				return;
 
 			Vessel v = FlightGlobals.ActiveVessel;
@@ -242,16 +271,21 @@ namespace BasicOrbit
 				}
 			}
 
+			bool targetFlag = true;
+
 			if (targetHUD.IsVisible)
 			{
 				if (!BasicTargetting.TargetValid())
 				{
+					targetName.IsActive = false;
 					closest.IsActive = false;
 					distance.IsActive = false;
 					relInc.IsActive = false;
 					relVel.IsActive = false;
 					angToPro.IsActive = false;
 					closestVel.IsActive = false;
+
+					targetFlag = false;
 
 					BasicTargetting.UpdateOn = false;
 				}
@@ -262,25 +296,28 @@ namespace BasicOrbit
 						case Vessel.Situations.LANDED:
 						case Vessel.Situations.PRELAUNCH:
 						case Vessel.Situations.SPLASHED:
+							targetName.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
 							angToPro.IsActive = angToPro.AlwaysShow && (BasicTargetting.IsCelestial && FlightGlobals.currentMainBody.referenceBody != null && FlightGlobals.currentMainBody.referenceBody != FlightGlobals.currentMainBody);
-							closest.IsActive = closest.AlwaysShow && ((BasicTargetting.IsCelestial && (closest.CachedBody || BasicTargetting.BodyIntersect)) || (BasicTargetting.IsVessel && (closestVel.Cached || BasicTargetting.VesselIntersect)));
-							closestVel.IsActive = closestVel.AlwaysShow && (BasicTargetting.IsVessel && (closestVel.Cached || BasicTargetting.VesselIntersect));
+							closest.IsActive = closest.AlwaysShow && ((BasicTargetting.IsCelestial && BasicTargetting.BodyIntersect) || (BasicTargetting.IsVessel &&  BasicTargetting.VesselIntersect));
+							closestVel.IsActive = closestVel.AlwaysShow && BasicTargetting.IsVessel && BasicTargetting.VesselIntersect;
 							distance.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
 							relVel.IsActive = relVel.AlwaysShow && (BasicTargetting.IsCelestial || BasicTargetting.IsVessel);
 							relInc.IsActive = relInc.AlwaysShow && (BasicTargetting.IsCelestial || BasicTargetting.IsVessel);
 							break;
 						case Vessel.Situations.FLYING:
+							targetName.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
 							angToPro.IsActive = angToPro.AlwaysShow && (BasicTargetting.IsCelestial && FlightGlobals.currentMainBody.referenceBody != null && FlightGlobals.currentMainBody.referenceBody != FlightGlobals.currentMainBody);
-							closest.IsActive = ((BasicTargetting.IsCelestial && (closest.CachedBody || BasicTargetting.BodyIntersect)) || (BasicTargetting.IsVessel && closest.CachedVessel)) && (closest.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold);
-							closestVel.IsActive = (BasicTargetting.IsVessel && (closestVel.Cached || BasicTargetting.VesselIntersect)) && (closestVel.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold);
+							closest.IsActive = ((BasicTargetting.IsCelestial && BasicTargetting.BodyIntersect) || (BasicTargetting.IsVessel && BasicTargetting.VesselIntersect)) && (closest.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold);
+							closestVel.IsActive = (BasicTargetting.IsVessel && BasicTargetting.VesselIntersect) && (closestVel.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold);
 							distance.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
 							relVel.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
 							relInc.IsActive = (BasicTargetting.IsCelestial || BasicTargetting.IsVessel) && (relInc.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 3);
 							break;
 						default:
+							targetName.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
 							angToPro.IsActive = BasicTargetting.IsCelestial && FlightGlobals.currentMainBody.referenceBody != null && FlightGlobals.currentMainBody.referenceBody != FlightGlobals.currentMainBody;
-							closest.IsActive = (BasicTargetting.IsCelestial && (closest.CachedBody || BasicTargetting.BodyIntersect)) || (BasicTargetting.IsVessel && (closestVel.Cached || BasicTargetting.VesselIntersect));
-							closestVel.IsActive = BasicTargetting.IsVessel && (closestVel.Cached || BasicTargetting.VesselIntersect);
+							closest.IsActive = (BasicTargetting.IsCelestial && BasicTargetting.BodyIntersect) || (BasicTargetting.IsVessel && BasicTargetting.VesselIntersect);
+							closestVel.IsActive = BasicTargetting.IsVessel && BasicTargetting.VesselIntersect;
 							distance.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
 							relVel.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
 							relInc.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
@@ -295,6 +332,60 @@ namespace BasicOrbit
 
 			if (BasicTargetting.UpdateOn)
 				BasicTargetting.Update();
+
+			if (maneuverHUD.IsVisible)
+			{
+				if (!targetHUD.IsVisible)
+				{
+					if (!BasicTargetting.TargetValid())
+						targetFlag = false;
+				}
+
+				PatchedConicSolver solver = v.patchedConicSolver;
+
+				if (solver == null || solver.maneuverNodes.Count <= 0)
+				{
+					maneuver.IsActive = false;
+					burnTime.IsActive = false;
+					maneuverCloseApproach.IsActive = false;
+					maneuverCloseRelVel.IsActive = false;
+
+					BasicManeuvering.UpdateOn = false;
+				}
+				else
+				{
+					switch (v.situation)
+					{
+						case Vessel.Situations.LANDED:
+						case Vessel.Situations.PRELAUNCH:
+						case Vessel.Situations.SPLASHED:
+							maneuver.IsActive = maneuver.AlwaysShow;
+							burnTime.IsActive = burnTime.AlwaysShow;
+							maneuverCloseApproach.IsActive = targetFlag && maneuverCloseApproach.AlwaysShow && ((BasicTargetting.IsCelestial && BasicManeuvering.BodyIntersect) || (BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect));
+							maneuverCloseRelVel.IsActive = targetFlag && maneuverCloseRelVel.AlwaysShow && BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect;
+							break;
+						case Vessel.Situations.FLYING:
+							maneuver.IsActive = maneuver.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2;
+							burnTime.IsActive = burnTime.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2;
+							maneuverCloseApproach.IsActive = targetFlag && ((BasicTargetting.IsCelestial && BasicManeuvering.BodyIntersect) || (BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect)) && (maneuverCloseApproach.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2);
+							maneuverCloseRelVel.IsActive = targetFlag && BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect && (maneuverCloseRelVel.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2);
+							break;
+						default:
+							maneuver.IsActive = true;
+							burnTime.IsActive = true;
+							maneuverCloseApproach.IsActive = targetFlag && ((BasicTargetting.IsCelestial && BasicManeuvering.BodyIntersect) || (BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect));
+							maneuverCloseRelVel.IsActive = targetFlag && BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect;
+							break;
+					}
+
+					BasicManeuvering.UpdateOn = true;
+				}
+			}
+			else
+				BasicManeuvering.UpdateOn = false;
+
+			if (BasicManeuvering.UpdateOn)
+				BasicManeuvering.Update();
 		}
 
 		public string Version
@@ -327,6 +418,20 @@ namespace BasicOrbit
 					AddTargetPanel();
 				else
 					CloseTarget();
+			}
+		}
+
+		public bool ShowManeuver
+		{
+			get { return settings.showManeuverPanel; }
+			set
+			{
+				settings.showManeuverPanel = value;
+
+				if (value)
+					AddManeuverPanel();
+				else
+					CloseManeuver();
 			}
 		}
 
@@ -367,6 +472,11 @@ namespace BasicOrbit
 			get { return targetPanel; }
 		}
 
+		public BasicOrbit_Panel GetManeuver
+		{
+			get { return maneuverPanel; }
+		}
+
 		public IBasicPanel GetOrbitPanel
 		{
 			get { return orbitHUD; }
@@ -375,6 +485,11 @@ namespace BasicOrbit
 		public IBasicPanel GetTargetPanel
 		{
 			get { return targetHUD; }
+		}
+
+		public IBasicPanel GetManeuverPanel
+		{
+			get { return maneuverHUD; }
 		}
 
 		private List<IBasicModule> AddOrbitModules()
@@ -439,6 +554,7 @@ namespace BasicOrbit
 		{
 			List<IBasicModule> modules = new List<IBasicModule>();
 
+			targetName = new TargetName("Target Name");
 			closest = new ClosestApproach("Closest Approach");
 			closestVel = new RelVelocityAtClosest("Rel Vel At Appr");
 			distance = new DistanceToTarget("Dist To Target");
@@ -446,6 +562,8 @@ namespace BasicOrbit
 			relVel = new RelVelocity("Rel Velocity");
 			angToPro = new AngleToPrograde("Ang To Prograde");
 
+			targetName.IsVisible = settings.showTargetName;
+			targetName.AlwaysShow = settings.showTargetNameAlways;
 			closest.IsVisible = settings.showClosestApproach;
 			closest.AlwaysShow = settings.showClosestApproachAlways;
 			closestVel.IsVisible = settings.showClosestApproachVelocity;
@@ -465,6 +583,33 @@ namespace BasicOrbit
 			modules.Add(closestVel);
 			modules.Add(closest);
 			modules.Add(distance);
+			modules.Add(targetName);
+
+			return modules;
+		}
+
+		private List<IBasicModule> AddManeuverModules()
+		{
+			List<IBasicModule> modules = new List<IBasicModule>();
+
+			maneuver = new Maneuver("Maneuver Node");
+			burnTime = new BurnTime("Burn Time");
+			maneuverCloseApproach = new ManClosestApproach("Closest Approach");
+			maneuverCloseRelVel = new ManClosestRelVel("Rel Vel At Appr");
+
+			maneuver.IsVisible = settings.showManeuverNode;
+			maneuver.AlwaysShow = settings.showManeuverNodeAlways;
+			burnTime.IsVisible = settings.showManeuverBurn;
+			burnTime.AlwaysShow = settings.showManeuverBurnAlways;
+			maneuverCloseApproach.IsVisible = settings.showManeuverClosestApproach;
+			maneuverCloseApproach.AlwaysShow = settings.showManeuverClosestApproachAlways;
+			maneuverCloseRelVel.IsVisible = settings.showManeuverClosestVel;
+			maneuverCloseRelVel.AlwaysShow = settings.showManeuverClosestVelAlways;
+
+			modules.Add(maneuverCloseRelVel);
+			modules.Add(maneuverCloseApproach);
+			modules.Add(burnTime);
+			modules.Add(maneuver);
 
 			return modules;
 		}
@@ -563,6 +708,47 @@ namespace BasicOrbit
 			targetPanel = null;
 		}
 
+		private void AddManeuverPanel()
+		{
+			if (maneuverPanel != null)
+				return;
+
+			if (BasicOrbitLoader.PanelPrefab == null)
+				return;
+
+			if (maneuverHUD == null)
+				return;
+
+			GameObject obj = Instantiate(BasicOrbitLoader.PanelPrefab);
+
+			if (obj == null)
+				return;
+
+			obj.transform.SetParent(MainCanvasUtil.MainCanvas.transform, false);
+
+			maneuverPanel = obj.GetComponent<BasicOrbit_Panel>();
+
+			if (maneuverPanel == null)
+				return;
+
+			maneuverPanel.setPanel(maneuverHUD);
+
+			maneuverHUD.IsVisible = true;
+		}
+
+		private void CloseManeuver()
+		{
+			if (maneuverPanel == null)
+				return;
+
+			if (maneuverHUD != null)
+				maneuverHUD.IsVisible = false;
+
+			maneuverPanel.Close();
+
+			maneuverPanel = null;
+		}
+
 		private void SetPanelScale(float scale)
 		{
 			Vector3 old = new Vector3(1, 1, 1);
@@ -572,6 +758,9 @@ namespace BasicOrbit
 
 			if (orbitPanel != null)
 				orbitPanel.transform.localScale = old * scale;
+
+			if (maneuverPanel != null)
+				maneuverPanel.transform.localScale = old * scale;
 		}
 
 		private void SetPanelAlpha(float alpha)
@@ -586,6 +775,12 @@ namespace BasicOrbit
 			{
 				orbitPanel.SetAlpha(alpha);
 				orbitPanel.SetOldAlpha();
+			}
+
+			if (maneuverPanel != null)
+			{
+				maneuverPanel.SetAlpha(alpha);
+				maneuverPanel.SetOldAlpha();
 			}
 		}
 
