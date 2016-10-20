@@ -42,9 +42,19 @@ namespace BasicOrbit.Unity.Unity
 		[SerializeField]
 		private Toggle m_TargetToggle = null;
 		[SerializeField]
+		private Toggle m_ManeuverToggle = null;
+		[SerializeField]
 		private Toggle m_OrbitDragToggle = null;
 		[SerializeField]
 		private Toggle m_TargetDragToggle = null;
+		[SerializeField]
+		private Toggle m_ManeuverDragToggle = null;
+		[SerializeField]
+		private Toggle m_OrbitSettingsToggle = null;
+		[SerializeField]
+		private Toggle m_TargetSettingsToggle = null;
+		[SerializeField]
+		private Toggle m_ManeuverSettingsToggle = null;
 		[SerializeField]
 		private TextHandler m_AlphaText = null;
 		[SerializeField]
@@ -58,6 +68,7 @@ namespace BasicOrbit.Unity.Unity
 
 		private BasicOrbit_Settings orbitSettings;
 		private BasicOrbit_Settings targetSettings;
+		private BasicOrbit_Settings maneuverSettings;
 
 		private IBasicOrbit basicInterface;
 		private RectTransform rect;
@@ -88,6 +99,9 @@ namespace BasicOrbit.Unity.Unity
 
 			if (basicInterface.GetTarget != null)
 				basicInterface.GetTarget.Dragging = false;
+
+			if (basicInterface.GetManeuver != null)
+				basicInterface.GetManeuver.Dragging = false;
 		}
 
 		private void Kill()
@@ -111,6 +125,8 @@ namespace BasicOrbit.Unity.Unity
 			m_OrbitToggle.isOn = basic.ShowOrbit;
 
 			m_TargetToggle.isOn = basic.ShowTarget;
+
+			m_ManeuverToggle.isOn = basic.ShowManeuver;
 
 			if (m_AlphaText != null && m_AlphaSlider != null)
 			{
@@ -173,6 +189,25 @@ namespace BasicOrbit.Unity.Unity
 		}
 
 		/// <summary>
+		/// Toggle to control the visibility of the maneuver readout panel
+		/// </summary>
+		/// <param name="isOn">Display the panel?</param>
+		public void ToggleManueverPanel(bool isOn)
+		{
+			if (!loaded)
+				return;
+
+			if (basicInterface == null)
+				return;
+
+			basicInterface.ShowManeuver = isOn;
+
+			//Disable dragging toggle if it is active when the panel is closed
+			if (!isOn && m_ManeuverDragToggle != null)
+				m_ManeuverDragToggle.isOn = false;
+		}
+
+		/// <summary>
 		/// Toggle to control the drag state of the orbit readout panel
 		/// </summary>
 		/// <param name="isOn">Drag state active?</param>
@@ -217,6 +252,28 @@ namespace BasicOrbit.Unity.Unity
 		}
 
 		/// <summary>
+		/// Toggle to control the drag state of the maneuver readout panel
+		/// </summary>
+		/// <param name="isOn">Drag state active?</param>
+		public void ToggleManeuverDrag(bool isOn)
+		{
+			if (basicInterface == null)
+				return;
+
+			if (basicInterface.GetManeuver == null)
+				return;
+
+			//If the target panel is closed activate it
+			if (isOn && basicInterface.GetManeuverPanel != null)
+			{
+				if (!basicInterface.GetManeuverPanel.IsVisible && m_ManeuverToggle != null)
+					m_ManeuverToggle.isOn = true;
+			}
+
+			basicInterface.GetManeuver.Dragging = isOn;
+		}
+
+		/// <summary>
 		/// Toggle to display the orbit readout settings panel
 		/// </summary>
 		/// <param name="isOn">Display the settings panel?</param>
@@ -228,20 +285,17 @@ namespace BasicOrbit.Unity.Unity
 				orbitSettings.gameObject.SetActive(false);
 
 				Destroy(orbitSettings);
-
-				//If the other settings panel is open update its position
-				if (targetSettings != null)
-				{
-					RectTransform r1 = targetSettings.GetComponent<RectTransform>();
-
-					float y1 = rect.sizeDelta.y * basicInterface.Scale * basicInterface.MasterScale;
-
-					r1.position = new Vector3(rect.position.x, rect.position.y - y1, rect.position.z);
-				}
+				return;
 			}
 
 			if (!isOn)
 				return;
+
+			if (m_TargetSettingsToggle != null)
+				m_TargetSettingsToggle.isOn = false;
+
+			if (m_ManeuverSettingsToggle != null)
+				m_ManeuverSettingsToggle.isOn = false;
 
 			if (m_SettingsPrefab == null)
 				return;
@@ -260,20 +314,21 @@ namespace BasicOrbit.Unity.Unity
 
 			orbitSettings.createSettings(basicInterface.GetOrbitPanel.GetModules, "Orbit Panel Settings");
 
-			//Position the panel below the main settings window and below any other active settings panels
+			//Position the panel above or below the main settings window depending on its position on screen
 			RectTransform r = orbitSettings.GetComponent<RectTransform>();
 
-			float y = rect.sizeDelta.y * basicInterface.Scale * basicInterface.MasterScale;
-
-			if (targetSettings != null)
+			if (rect.position.y - (125 * basicInterface.Scale * basicInterface.MasterScale) < 0)
 			{
-				RectTransform tRect = targetSettings.GetComponent<RectTransform>();
+				float height = 358 * basicInterface.Scale * basicInterface.MasterScale;
 
-				y += tRect.sizeDelta.y * basicInterface.Scale * basicInterface.MasterScale;
+				r.position = new Vector3(rect.position.x, rect.position.y + height, rect.position.z);
 			}
+			else
+			{
+				float y = rect.sizeDelta.y * basicInterface.Scale * basicInterface.MasterScale;
 
-			r.position = new Vector3(rect.position.x, rect.position.y - y, rect.position.z);
-
+				r.position = new Vector3(rect.position.x, rect.position.y - y, rect.position.z);
+			}
 		}
 
 		/// <summary>
@@ -288,20 +343,17 @@ namespace BasicOrbit.Unity.Unity
 				targetSettings.gameObject.SetActive(false);
 
 				Destroy(targetSettings);
-
-				//If the other settings panel is open update its position
-				if (orbitSettings != null)
-				{
-					RectTransform r1 = orbitSettings.GetComponent<RectTransform>();
-
-					float y1 = rect.sizeDelta.y * basicInterface.Scale * basicInterface.MasterScale;
-
-					r1.position = new Vector3(rect.position.x, rect.position.y - y1, rect.position.z);
-				}
+				return;
 			}
 
 			if (!isOn)
 				return;
+
+			if (m_OrbitSettingsToggle != null)
+				m_OrbitSettingsToggle.isOn = false;
+
+			if (m_ManeuverSettingsToggle != null)
+				m_ManeuverSettingsToggle.isOn = false;
 
 			if (m_SettingsPrefab == null)
 				return;
@@ -320,20 +372,79 @@ namespace BasicOrbit.Unity.Unity
 
 			targetSettings.createSettings(basicInterface.GetTargetPanel.GetModules, "Target Panel Settings");
 
-			//Position the panel below the main settings window and below any other active settings panels
+			//Position the panel above or below the main settings window depending on its position on screen
 			RectTransform r = targetSettings.GetComponent<RectTransform>();
 
-			float y = rect.sizeDelta.y * basicInterface.Scale * basicInterface.MasterScale;
-
-			if (orbitSettings != null)
+			if (rect.position.y - (125 * basicInterface.Scale * basicInterface.MasterScale) < 0)
 			{
-				RectTransform oRect = orbitSettings.GetComponent<RectTransform>();
+				float height = 223 * basicInterface.Scale * basicInterface.MasterScale;
 
-				y += oRect.sizeDelta.y * basicInterface.Scale * basicInterface.MasterScale;
+				r.position = new Vector3(rect.position.x, rect.position.y + height, rect.position.z);
+			}
+			else
+			{
+				float y = rect.sizeDelta.y * basicInterface.Scale * basicInterface.MasterScale;
+
+				r.position = new Vector3(rect.position.x, rect.position.y - y, rect.position.z);
+			}
+		}
+
+		/// <summary>
+		/// Toggle to display the maneuver readout settings panel
+		/// </summary>
+		/// <param name="isOn">Display the maneuver panel?</param>
+		public void ShowManeuverSettings(bool isOn)
+		{
+			//Destroy the settings panel if it is already active
+			if (maneuverSettings != null)
+			{
+				maneuverSettings.gameObject.SetActive(false);
+
+				Destroy(maneuverSettings);
+				return;
 			}
 
-			r.position = new Vector3(rect.position.x, rect.position.y - y, rect.position.z);
+			if (!isOn)
+				return;
 
+			if (m_OrbitSettingsToggle != null)
+				m_OrbitSettingsToggle.isOn = false;
+
+			if (m_TargetSettingsToggle != null)
+				m_TargetSettingsToggle.isOn = false;
+
+			if (m_SettingsPrefab == null)
+				return;
+
+			GameObject obj = Instantiate(m_SettingsPrefab);
+
+			if (obj == null)
+				return;
+
+			obj.transform.SetParent(transform, false);
+
+			maneuverSettings = obj.GetComponent<BasicOrbit_Settings>();
+
+			if (maneuverSettings == null)
+				return;
+
+			maneuverSettings.createSettings(basicInterface.GetManeuverPanel.GetModules, "Maneuver Panel Settings");
+
+			//Position the panel above or below the main settings window depending on its position on screen
+			RectTransform r = maneuverSettings.GetComponent<RectTransform>();
+
+			if (rect.position.y - (125 * basicInterface.Scale * basicInterface.MasterScale) < 0)
+			{
+				float height = 142 * basicInterface.Scale * basicInterface.MasterScale;
+
+				r.position = new Vector3(rect.position.x, rect.position.y + height, rect.position.z);
+			}
+			else
+			{
+				float y = rect.sizeDelta.y * basicInterface.Scale * basicInterface.MasterScale;
+
+				r.position = new Vector3(rect.position.x, rect.position.y - y, rect.position.z);
+			}
 		}
 
 		/// <summary>
