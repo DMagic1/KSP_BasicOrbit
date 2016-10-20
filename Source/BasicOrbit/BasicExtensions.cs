@@ -89,6 +89,9 @@ namespace BasicOrbit
 
 		public static string Time(this double d, int values)
 		{
+			if (d == 0)
+				return "0s";
+
 			if (Math.Abs(d) > int.MaxValue)
 				return "---";
 
