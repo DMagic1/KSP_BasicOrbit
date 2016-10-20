@@ -82,6 +82,10 @@ namespace BasicOrbit
 		[Persistent]
 		public bool showSMAAlways = false;
 		[Persistent]
+		public bool showTargetName = false;
+		[Persistent]
+		public bool showTargetNameAlways = false;
+		[Persistent]
 		public bool showClosestApproach = true;
 		[Persistent]
 		public bool showClosestApproachAlways = false;
@@ -106,9 +110,27 @@ namespace BasicOrbit
 		[Persistent]
 		public bool showAngleToProgradeAlways = false;
 		[Persistent]
+		public bool showManeuverNode = true;
+		[Persistent]
+		public bool showManeuverNodeAlways = false;
+		[Persistent]
+		public bool showManeuverBurn = true;
+		[Persistent]
+		public bool showManeuverBurnAlways = false;
+		[Persistent]
+		public bool showManeuverClosestApproach = true;
+		[Persistent]
+		public bool showManeuverClosestApproachAlways = false;
+		[Persistent]
+		public bool showManeuverClosestVel = true;
+		[Persistent]
+		public bool showManeuverClosestVelAlways = false;
+		[Persistent]
 		public bool showOrbitPanel = true;
 		[Persistent]
 		public bool showTargetPanel = true;
+		[Persistent]
+		public bool showManeuverPanel = true;
 		[Persistent]
 		public float panelAlpha = 0.5f;
 		[Persistent]
@@ -117,6 +139,8 @@ namespace BasicOrbit
 		public Vector2 orbitPosition = new Vector2(100, 20);
 		[Persistent]
 		public Vector2 targetPosition = new Vector2(200, 20);
+		[Persistent]
+		public Vector2 maneuverPosition = new Vector2(300, 20);
 
 		private const string fileName = "PluginData/Settings.cfg";
 		private string fullPath;
