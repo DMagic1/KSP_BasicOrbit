@@ -27,25 +27,10 @@ namespace BasicOrbit.Modules.TargetModules
 {
 	public class ClosestApproach : BasicModule
 	{
-		private double _cachedDistance;
-		private double _cachedTime;
-		private bool _cachedVessel;
-		private bool _cachedBody;
-
 		public ClosestApproach(string t)
 			: base(t)
 		{
 
-		}
-
-		public bool CachedVessel
-		{
-			get { return _cachedVessel; }
-		}
-
-		public bool CachedBody
-		{
-			get { return _cachedBody; }
 		}
 
 		protected override void UpdateSettings()
@@ -59,75 +44,9 @@ namespace BasicOrbit.Modules.TargetModules
 			if (!BasicTargetting.Updated)
 				return "---";
 
-			if (BasicTargetting.IsVessel)
-			{
-				if (MapView.MapIsEnabled)
-				{
-					if (!BasicTargetting.VesselIntersect)
-					{
-						_cachedVessel = false;
-						_cachedBody = false;
-						_cachedDistance = 0;
-						_cachedTime = 0;
-						return "---";
-					}
+			if (BasicTargetting.VesselIntersect || BasicTargetting.BodyIntersect)
+				return result(BasicTargetting.ClosestDistance, BasicTargetting.ClosestTime - Planetarium.GetUniversalTime());
 
-					double distance = BasicTargetting.ClosestDistance;
-					double time = BasicTargetting.ClosestTime;
-
-					_cachedVessel = true;
-					_cachedBody = false;
-					_cachedDistance = distance;
-					_cachedTime = time;
-
-					return result(distance, time - Planetarium.GetUniversalTime());
-				}
-				else if (_cachedVessel)
-					return "~" + result(_cachedDistance, _cachedTime - Planetarium.GetUniversalTime());
-
-				_cachedVessel = false;
-				_cachedBody = false;
-				_cachedDistance = 0;
-				_cachedTime = 0;
-				return "---";
-			}
-			else if (BasicTargetting.IsCelestial)
-			{
-				if (MapView.MapIsEnabled)
-				{
-					if (!BasicTargetting.BodyIntersect)
-					{
-						_cachedVessel = false;
-						_cachedBody = false;
-						_cachedDistance = 0;
-						_cachedTime = 0;
-						return "---";
-					}
-
-					double distance = BasicTargetting.ClosestDistance;
-					double time = BasicTargetting.ClosestTime;
-
-					_cachedVessel = false;
-					_cachedBody = true;
-					_cachedDistance = distance;
-					_cachedTime = time;
-
-					return result(distance, time - Planetarium.GetUniversalTime());
-				}
-				else if (_cachedBody)
-					return "~" + result(_cachedDistance, _cachedTime - Planetarium.GetUniversalTime());
-
-				_cachedVessel = false;
-				_cachedBody = false;
-				_cachedDistance = 0;
-				_cachedTime = 0;
-				return "---";
-			}
-
-			_cachedVessel = false;
-			_cachedBody = false;
-			_cachedDistance = 0;
-			_cachedTime = 0;
 			return "---";
 		}
 

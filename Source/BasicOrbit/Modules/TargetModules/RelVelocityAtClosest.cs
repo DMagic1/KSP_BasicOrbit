@@ -27,18 +27,10 @@ namespace BasicOrbit.Modules.TargetModules
 {
 	public class RelVelocityAtClosest : BasicModule
 	{
-		private double _cachedVelocity;
-		private bool _cached;
-
 		public RelVelocityAtClosest(string t)
 			: base(t)
 		{
 
-		}
-
-		public bool Cached
-		{
-			get { return _cached; }
 		}
 
 		protected override void UpdateSettings()
@@ -52,34 +44,9 @@ namespace BasicOrbit.Modules.TargetModules
 			if (!BasicTargetting.Updated)
 				return "---";
 
-			if (BasicTargetting.IsVessel)
-			{
-				if (MapView.MapIsEnabled)
-				{
-					if (!BasicTargetting.VesselIntersect)
-					{
-						_cached = false;
-						_cachedVelocity = 0;
-						return "---";
-					}
+			if (BasicTargetting.VesselIntersect)
+				return result(BasicTargetting.ClosestRelVelocity);
 
-					double vel = BasicTargetting.ClosestRelVelocity;
-
-					_cached = true;
-					_cachedVelocity = vel;
-
-					return result(vel);
-				}
-				else if (_cached)
-					return "~" + result(_cachedVelocity);
-
-				_cached = false;
-				_cachedVelocity = 0;
-				return "---";
-			}
-
-			_cached = false;
-			_cachedVelocity = 0;
 			return "---";
 		}
 
