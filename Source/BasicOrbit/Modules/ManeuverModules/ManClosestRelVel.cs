@@ -2,7 +2,7 @@
 /*
  * Basic Orbit
  * 
- * IBasicOrbit - Interface for transferring information to and from the main toolbar UI window
+ * BasicOrbit ManClosestRelVel - Readout module for relative velocity at closest approach after maneuver node
  * 
  * Copyright (C) 2016 DMagic
  * 
@@ -23,37 +23,36 @@
  */
 #endregion
 
-using System.Collections.Generic;
-using BasicOrbit.Unity.Unity;
-
-namespace BasicOrbit.Unity.Interface
+namespace BasicOrbit.Modules.ManeuverModules
 {
-	public interface IBasicOrbit
+	public class ManClosestRelVel : BasicModule
 	{
-		string Version { get; }
+		public ManClosestRelVel(string t)
+			: base(t)
+		{
 
-		bool ShowOrbit { get; set; }
+		}
 
-		bool ShowTarget { get; set; }
+		protected override void UpdateSettings()
+		{
+			BasicSettings.Instance.showManeuverClosestVel = IsVisible;
+			BasicSettings.Instance.showManeuverClosestVelAlways = AlwaysShow;
+		}
 
-		bool ShowManeuver { get; set; }
+		protected override string fieldUpdate()
+		{
+			if (!BasicManeuvering.Updated)
+				return "---";
 
-		float Alpha { get; set; }
+			if (BasicManeuvering.VesselIntersect)
+				return result(BasicManeuvering.ClosestRelVelocity);
 
-		float Scale { get; set; }
+			return "---";
+		}
 
-		float MasterScale { get; }
-
-		IBasicPanel GetOrbitPanel { get; }
-
-		BasicOrbit_Panel GetOrbit { get; }
-
-		IBasicPanel GetTargetPanel { get; }
-
-		BasicOrbit_Panel GetTarget { get; }
-
-		IBasicPanel GetManeuverPanel { get; }
-
-		BasicOrbit_Panel GetManeuver { get; }
+		private string result(double d)
+		{
+			return string.Format("{0}", d.Speed());
+		}
 	}
 }

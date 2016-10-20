@@ -2,7 +2,7 @@
 /*
  * Basic Orbit
  * 
- * IBasicOrbit - Interface for transferring information to and from the main toolbar UI window
+ * BasicOrbit Maneuver - Readout module for maneuver nodes
  * 
  * Copyright (C) 2016 DMagic
  * 
@@ -23,37 +23,33 @@
  */
 #endregion
 
-using System.Collections.Generic;
-using BasicOrbit.Unity.Unity;
-
-namespace BasicOrbit.Unity.Interface
+namespace BasicOrbit.Modules.ManeuverModules
 {
-	public interface IBasicOrbit
+	public class Maneuver : BasicModule
 	{
-		string Version { get; }
+		public Maneuver(string t)
+			: base(t)
+		{
 
-		bool ShowOrbit { get; set; }
+		}
 
-		bool ShowTarget { get; set; }
+		protected override void UpdateSettings()
+		{
+			BasicSettings.Instance.showManeuverNode = IsVisible;
+			BasicSettings.Instance.showManeuverNodeAlways = AlwaysShow;
+		}
 
-		bool ShowManeuver { get; set; }
+		protected override string fieldUpdate()
+		{
+			if (!BasicManeuvering.Updated)
+				return "---";
 
-		float Alpha { get; set; }
+			return result(BasicManeuvering.ManeuverRemaining, BasicManeuvering.ManeuverTotal);
+		}
 
-		float Scale { get; set; }
-
-		float MasterScale { get; }
-
-		IBasicPanel GetOrbitPanel { get; }
-
-		BasicOrbit_Panel GetOrbit { get; }
-
-		IBasicPanel GetTargetPanel { get; }
-
-		BasicOrbit_Panel GetTarget { get; }
-
-		IBasicPanel GetManeuverPanel { get; }
-
-		BasicOrbit_Panel GetManeuver { get; }
+		private string result(double r, double t)
+		{
+			return string.Format("{0:N1} / {1:N1}m/s", r, t);
+		}
 	}
 }
