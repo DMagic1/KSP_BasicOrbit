@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 using UnityEngine;
 
 namespace BasicOrbit
@@ -36,7 +37,16 @@ namespace BasicOrbit
 		private static bool reflectionLoaded;
 
 		private static FieldInfo orbitMarkers = null;
+		private static FieldInfo referencePatch = null;
+		private static FieldInfo targetReferencePatch = null;
 
+		private const string betterBurnName = "BetterBurnTime";
+		private static bool betterBurnTimeLoaded;
+
+		public static bool BetterBurnTimeLoaded
+		{
+			get { return betterBurnTimeLoaded; }
+		}
 		public static List<OrbitTargeter.Marker> GetOrbitMarkers(OrbitTargeter targeter)
 		{
 			if (targeter == null)
@@ -56,12 +66,54 @@ namespace BasicOrbit
 			}
 		}
 
+		public static Orbit GetRefPatch(OrbitTargeter targeter)
+		{
+			if (targeter == null)
+				return null;
+
+			if (referencePatch == null)
+				return null;
+
+			try
+			{
+				return referencePatch.GetValue(targeter) as Orbit;
+			}
+			catch (Exception e)
+			{
+				Debug.LogWarning("[Basic Orbit] Error while assigning Orbit Targeter Reference Patch\n" + e);
+				return null;
+			}
+		}
+
+		public static Orbit GetTargetRefPatch(OrbitTargeter targeter)
+		{
+			if (targeter == null)
+				return null;
+
+			if (targetReferencePatch == null)
+				return null;
+
+			try
+			{
+				return targetReferencePatch.GetValue(targeter) as Orbit;
+			}
+			catch (Exception e)
+			{
+				Debug.LogWarning("[Basic Orbit] Error while assigning Orbit Targeter Target Reference Patch\n" + e);
+				return null;
+			}
+		}
+
 		private void Awake()
 		{
 			if (reflectionLoaded)
 				Destroy(gameObject);
 
 			orbitMarkers = typeof(OrbitTargeter).GetField("markers", BindingFlags.NonPublic | BindingFlags.Instance);
+			referencePatch = typeof(OrbitTargeter).GetField("refPatch", BindingFlags.NonPublic | BindingFlags.Instance);
+			targetReferencePatch = typeof(OrbitTargeter).GetField("tgtRefPatch", BindingFlags.NonPublic | BindingFlags.Instance);
+
+			betterBurnTimeLoaded = AssemblyLoader.loadedAssemblies.FirstOrDefault(a => a.assembly.GetName().Name == betterBurnName) != null;
 
 			reflectionLoaded = true;
 
