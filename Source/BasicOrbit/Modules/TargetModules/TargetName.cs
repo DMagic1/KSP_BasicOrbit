@@ -45,9 +45,17 @@ namespace BasicOrbit.Modules.TargetModules
 				return "---";
 
 			if (BasicTargetting.IsCelestial)
+			{
+				if (BasicTargetting.TargetBody == null)
+					return "---";
+
 				return BasicTargetting.TargetBody.theName;
+			}
 			else if (BasicTargetting.IsVessel)
 			{
+				if (FlightGlobals.ActiveVessel == null)
+					return "---";
+
 				if (FlightGlobals.ActiveVessel.targetObject == null)
 					return "---";
 
@@ -58,7 +66,7 @@ namespace BasicOrbit.Modules.TargetModules
 				if (targetVessel == null)
 					return "---";
 
-				if (targetVessel.loaded && targetVessel.GetReferenceTransformPart().FindModulesImplementing<ModuleDockingNode>().Count > 0)
+				if (targetVessel.loaded && targetVessel.GetReferenceTransformPart() != null && targetVessel.GetReferenceTransformPart().FindModulesImplementing<ModuleDockingNode>().Count > 0)
 					return string.Format("{0} [{1}]", targetVessel.vesselName, targetVessel.GetReferenceTransformPart().partInfo.title);
 				else
 					return targetVessel.vesselName;
