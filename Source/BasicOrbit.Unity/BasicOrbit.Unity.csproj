@@ -43,7 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CanvasFader.cs" />
-    <Compile Include="CanvasGrower.cs" />
     <Compile Include="Interface\IBasicModule.cs" />
     <Compile Include="Interface\IBasicOrbit.cs" />
     <Compile Include="Interface\IBasicPanel.cs" />
