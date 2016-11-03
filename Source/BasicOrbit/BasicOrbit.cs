@@ -33,6 +33,7 @@ using BasicOrbit.Modules.ManeuverModules;
 using BasicOrbit.Unity.Unity;
 using BasicOrbit.Unity.Interface;
 using UnityEngine;
+using KSP.UI;
 
 namespace BasicOrbit
 {
@@ -54,6 +55,7 @@ namespace BasicOrbit
 		private OrbitAltitude altitude;
 		private RadarAltitude radar;
 		private TerrainAltitude terrain;
+		private Velocity velocity;
 		private Location location;
 
 		private TargetName targetName;
@@ -63,13 +65,14 @@ namespace BasicOrbit
 		private RelInclination relInc;
 		private RelVelocity relVel;
 		private AngleToPrograde angToPro;
+		private PhaseAngle phaseAngle;
 
 		private Maneuver maneuver;
 		private BurnTime burnTime;
 		private ManClosestApproach maneuverCloseApproach;
 		private ManClosestRelVel maneuverCloseRelVel;
-
-		private BasicSettings settings;
+		private ManAngleToPro maneuverAngleToPro;
+		private ManPhaseAngle maneuverPhaseAngle;
 
 		private static BasicOrbit instance = null;
 
@@ -91,20 +94,18 @@ namespace BasicOrbit
 				Destroy(gameObject);
 
 			instance = this;
-
-			settings = BasicSettings.Instance;
 		}
 
 		private void Start()
 		{
 			orbitHUD = new BasicHUD(AddOrbitModules());
-			orbitHUD.Position = settings.orbitPosition;
+			orbitHUD.Position = BasicSettings.Instance.orbitPosition;
 
 			targetHUD = new BasicHUD(AddTargetModules());
-			targetHUD.Position = settings.targetPosition;
+			targetHUD.Position = BasicSettings.Instance.targetPosition;
 
 			maneuverHUD = new BasicHUD(AddManeuverModules());
-			maneuverHUD.Position = settings.maneuverPosition;
+			maneuverHUD.Position = BasicSettings.Instance.maneuverPosition;
 
 			Assembly assembly = AssemblyLoader.loadedAssemblies.GetByAssembly(Assembly.GetExecutingAssembly()).assembly;
 			var ainfoV = Attribute.GetCustomAttribute(assembly, typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
@@ -114,13 +115,13 @@ namespace BasicOrbit
 				default: _version = ainfoV.InformationalVersion; break;
 			}
 
-			if (settings.showOrbitPanel)
+			if (BasicSettings.Instance.showOrbitPanel)
 				AddOrbitPanel();
 
-			if (settings.showTargetPanel)
+			if (BasicSettings.Instance.showTargetPanel)
 				AddTargetPanel();
 
-			if (settings.showManeuverPanel)
+			if (BasicSettings.Instance.showManeuverPanel)
 				AddManeuverPanel();
 
 			appLauncher = gameObject.AddComponent<BasicOrbitAppLauncher>();
@@ -138,14 +139,30 @@ namespace BasicOrbit
 			inc.IsActive = false;
 			ecc.IsActive = false;
 			LAN.IsActive = false;
+			AoPE.IsActive = false;
+			SMA.IsActive = false;
 			period.IsActive = false;
 			radar.IsActive = false;
+			altitude.IsActive = false;
 			terrain.IsActive = false;
+			velocity.IsActive = false;
+			location.IsActive = false;
 
+			targetName.IsActive = false;
 			closest.IsActive = false;
 			distance.IsActive = false;
 			relInc.IsActive = false;
 			relVel.IsActive = false;
+			angToPro.IsActive = false;
+			closestVel.IsActive = false;
+			phaseAngle.IsActive = false;
+
+			maneuver.IsActive = false;
+			burnTime.IsActive = false;
+			maneuverAngleToPro.IsActive = false;
+			maneuverPhaseAngle.IsActive = false;
+			maneuverCloseApproach.IsActive = false;
+			maneuverCloseRelVel.IsActive = false;
 
 			if (orbitPanel != null)
 				Destroy(orbitPanel.gameObject);
@@ -156,14 +173,14 @@ namespace BasicOrbit
 			if (maneuverPanel != null)
 				Destroy(maneuverPanel.gameObject);
 
-			settings.orbitPosition = orbitHUD.Position;
-			settings.targetPosition = targetHUD.Position;
-			settings.maneuverPosition = maneuverHUD.Position;
+			BasicSettings.Instance.orbitPosition = orbitHUD.Position;
+			BasicSettings.Instance.targetPosition = targetHUD.Position;
+			BasicSettings.Instance.maneuverPosition = maneuverHUD.Position;
 
 			if (appLauncher != null)
 				Destroy(appLauncher);
 
-			if (settings.Save())
+			if (BasicSettings.Instance.Save())
 				BasicOrbit.BasicLogging("Settings file saved");
 
 			GameEvents.OnGameSettingsApplied.Remove(onGameSettings);
@@ -189,6 +206,8 @@ namespace BasicOrbit
 
 			if (orbitHUD.IsVisible)
 			{
+				bool pqs = v.mainBody != null && v.mainBody.pqsController != null;
+
 				switch (v.situation)
 				{
 					case Vessel.Situations.LANDED:
@@ -203,8 +222,9 @@ namespace BasicOrbit
 						period.IsActive = period.AlwaysShow;
 						altitude.IsActive = altitude.AlwaysShow;
 						radar.IsActive = radar.AlwaysShow;
+						velocity.IsActive = true;
 						location.IsActive = true;
-						terrain.IsActive = true;
+						terrain.IsActive = pqs || terrain.AlwaysShow;
 						break;
 					case Vessel.Situations.SPLASHED:
 						apo.IsActive = apo.AlwaysShow;
@@ -216,17 +236,19 @@ namespace BasicOrbit
 						SMA.IsActive = SMA.AlwaysShow;
 						period.IsActive = period.AlwaysShow;
 						altitude.IsActive = altitude.AlwaysShow;
+						velocity.IsActive = true;
 						location.IsActive = true;
-						radar.IsActive = true;
-						terrain.IsActive = true;
+						radar.IsActive = pqs || radar.AlwaysShow;
+						terrain.IsActive = pqs || terrain.AlwaysShow;
 						break;
 					case Vessel.Situations.FLYING:
 						apo.IsActive = apo.AlwaysShow || v.orbit.eccentricity < 1;
-						radar.IsActive = true;
-						terrain.IsActive = true;
+						radar.IsActive = pqs || radar.AlwaysShow;
+						terrain.IsActive = pqs || terrain.AlwaysShow;
 						location.IsActive = true;
+						velocity.IsActive = true;
 						inc.IsActive = inc.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 3;
-						altitude.IsActive = altitude.AlwaysShow;
+						altitude.IsActive = !pqs || altitude.AlwaysShow;
 						LAN.IsActive = LAN.AlwaysShow;
 						AoPE.IsActive = AoPE.AlwaysShow;
 						SMA.IsActive = SMA.AlwaysShow;
@@ -236,22 +258,24 @@ namespace BasicOrbit
 						break;
 					case Vessel.Situations.SUB_ORBITAL:
 						apo.IsActive = apo.AlwaysShow || v.orbit.eccentricity < 1;
-						radar.IsActive = true;
 						inc.IsActive = true;
 						ecc.IsActive = true;
 						location.IsActive = true;
+						velocity.IsActive = true;
+
+						radar.IsActive = pqs || radar.AlwaysShow;
+						terrain.IsActive = pqs || terrain.AlwaysShow;
+						altitude.IsActive = !pqs || altitude.AlwaysShow;
 
 						if (v.orbit.PeA < 0)
-							peri.IsActive = peri.AlwaysShow || Math.Abs(v.orbit.PeA) < v.mainBody.Radius / 5 || (v.orbit.eccentricity >= 1 && v.orbit.timeToPe > 0);
+							peri.IsActive = peri.AlwaysShow || Math.Abs(v.orbit.PeA) < v.mainBody.Radius || (v.orbit.eccentricity >= 1 && v.orbit.timeToPe > 0);
 						else
 							peri.IsActive = peri.AlwaysShow || v.orbit.eccentricity < 1 || v.orbit.timeToPe > 0;
 						
-						altitude.IsActive = altitude.AlwaysShow;
 						LAN.IsActive = LAN.AlwaysShow;
 						AoPE.IsActive = AoPE.AlwaysShow;
 						SMA.IsActive = SMA.AlwaysShow;
 						period.IsActive = period.AlwaysShow;
-						terrain.IsActive = terrain.AlwaysShow;
 						break;
 					default:
 						apo.IsActive = apo.AlwaysShow || v.orbit.eccentricity < 1;
@@ -264,11 +288,15 @@ namespace BasicOrbit
 						period.IsActive = period.AlwaysShow || v.orbit.eccentricity < 1;
 						altitude.IsActive = true;
 
+						velocity.IsActive = velocity.AlwaysShow;
 						location.IsActive = location.AlwaysShow;
-						radar.IsActive = radar.AlwaysShow;
-						terrain.IsActive = terrain.AlwaysShow;
+						radar.IsActive = (v.altitude < (v.mainBody.minOrbitalDistance - v.mainBody.Radius) && pqs) || radar.AlwaysShow;
+						terrain.IsActive = (v.altitude < (v.mainBody.minOrbitalDistance - v.mainBody.Radius) && pqs) || terrain.AlwaysShow;
 						break;
 				}
+
+				if (terrain.IsActive || radar.IsActive)
+					BasicOrbiting.Update();
 			}
 
 			bool targetFlag = true;
@@ -284,6 +312,7 @@ namespace BasicOrbit
 					relVel.IsActive = false;
 					angToPro.IsActive = false;
 					closestVel.IsActive = false;
+					phaseAngle.IsActive = false;
 
 					targetFlag = false;
 
@@ -297,7 +326,8 @@ namespace BasicOrbit
 						case Vessel.Situations.PRELAUNCH:
 						case Vessel.Situations.SPLASHED:
 							targetName.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
-							angToPro.IsActive = angToPro.AlwaysShow && (BasicTargetting.IsCelestial && FlightGlobals.currentMainBody.referenceBody != null && FlightGlobals.currentMainBody.referenceBody != FlightGlobals.currentMainBody);
+							angToPro.IsActive = angToPro.AlwaysShow && BasicTargetting.ShowAngle && BasicTargetting.IsCelestial;
+							phaseAngle.IsActive = phaseAngle.AlwaysShow && (BasicTargetting.ShipPhasingOrbit != null && BasicTargetting.TargetPhasingOrbit != null);
 							closest.IsActive = closest.AlwaysShow && ((BasicTargetting.IsCelestial && BasicTargetting.BodyIntersect) || (BasicTargetting.IsVessel &&  BasicTargetting.VesselIntersect));
 							closestVel.IsActive = closestVel.AlwaysShow && BasicTargetting.IsVessel && BasicTargetting.VesselIntersect;
 							distance.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
@@ -306,7 +336,8 @@ namespace BasicOrbit
 							break;
 						case Vessel.Situations.FLYING:
 							targetName.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
-							angToPro.IsActive = angToPro.AlwaysShow && (BasicTargetting.IsCelestial && FlightGlobals.currentMainBody.referenceBody != null && FlightGlobals.currentMainBody.referenceBody != FlightGlobals.currentMainBody);
+							angToPro.IsActive = angToPro.AlwaysShow && BasicTargetting.ShowAngle && BasicTargetting.IsCelestial;
+							phaseAngle.IsActive = phaseAngle.AlwaysShow && (BasicTargetting.ShipPhasingOrbit != null && BasicTargetting.TargetPhasingOrbit != null);
 							closest.IsActive = ((BasicTargetting.IsCelestial && BasicTargetting.BodyIntersect) || (BasicTargetting.IsVessel && BasicTargetting.VesselIntersect)) && (closest.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold);
 							closestVel.IsActive = (BasicTargetting.IsVessel && BasicTargetting.VesselIntersect) && (closestVel.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold);
 							distance.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
@@ -315,7 +346,8 @@ namespace BasicOrbit
 							break;
 						default:
 							targetName.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
-							angToPro.IsActive = BasicTargetting.IsCelestial && FlightGlobals.currentMainBody.referenceBody != null && FlightGlobals.currentMainBody.referenceBody != FlightGlobals.currentMainBody;
+							angToPro.IsActive = BasicTargetting.ShowAngle && BasicTargetting.IsCelestial;
+							phaseAngle.IsActive = BasicTargetting.ShipPhasingOrbit != null && BasicTargetting.TargetPhasingOrbit != null;
 							closest.IsActive = (BasicTargetting.IsCelestial && BasicTargetting.BodyIntersect) || (BasicTargetting.IsVessel && BasicTargetting.VesselIntersect);
 							closestVel.IsActive = BasicTargetting.IsVessel && BasicTargetting.VesselIntersect;
 							distance.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
@@ -347,9 +379,12 @@ namespace BasicOrbit
 				{
 					maneuver.IsActive = false;
 					burnTime.IsActive = false;
+					maneuverAngleToPro.IsActive = false;
+					maneuverPhaseAngle.IsActive = false;
 					maneuverCloseApproach.IsActive = false;
 					maneuverCloseRelVel.IsActive = false;
 
+					BasicManeuvering.Updated = false;
 					BasicManeuvering.UpdateOn = false;
 				}
 				else
@@ -361,18 +396,24 @@ namespace BasicOrbit
 						case Vessel.Situations.SPLASHED:
 							maneuver.IsActive = maneuver.AlwaysShow;
 							burnTime.IsActive = burnTime.AlwaysShow;
+							maneuverAngleToPro.IsActive = maneuverAngleToPro.AlwaysShow && BasicTargetting.ShowAngle && BasicTargetting.IsCelestial;
+							maneuverPhaseAngle.IsActive = maneuverPhaseAngle.AlwaysShow && BasicManeuvering.PhasingNodePatch != null && BasicTargetting.TargetPhasingOrbit != null;
 							maneuverCloseApproach.IsActive = targetFlag && maneuverCloseApproach.AlwaysShow && ((BasicTargetting.IsCelestial && BasicManeuvering.BodyIntersect) || (BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect));
 							maneuverCloseRelVel.IsActive = targetFlag && maneuverCloseRelVel.AlwaysShow && BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect;
 							break;
 						case Vessel.Situations.FLYING:
 							maneuver.IsActive = maneuver.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2;
 							burnTime.IsActive = burnTime.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2;
+							maneuverAngleToPro.IsActive = (maneuverAngleToPro.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2) && BasicTargetting.ShowAngle && BasicTargetting.IsCelestial;
+							maneuverPhaseAngle.IsActive = (maneuverPhaseAngle.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2) && (BasicManeuvering.PhasingNodePatch != null && BasicTargetting.TargetPhasingOrbit != null);
 							maneuverCloseApproach.IsActive = targetFlag && ((BasicTargetting.IsCelestial && BasicManeuvering.BodyIntersect) || (BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect)) && (maneuverCloseApproach.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2);
 							maneuverCloseRelVel.IsActive = targetFlag && BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect && (maneuverCloseRelVel.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2);
 							break;
 						default:
 							maneuver.IsActive = true;
 							burnTime.IsActive = true;
+							maneuverAngleToPro.IsActive = BasicTargetting.ShowAngle && BasicTargetting.IsCelestial;
+							maneuverPhaseAngle.IsActive = BasicManeuvering.PhasingNodePatch != null && BasicTargetting.TargetPhasingOrbit != null;
 							maneuverCloseApproach.IsActive = targetFlag && ((BasicTargetting.IsCelestial && BasicManeuvering.BodyIntersect) || (BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect));
 							maneuverCloseRelVel.IsActive = targetFlag && BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect;
 							break;
@@ -395,10 +436,10 @@ namespace BasicOrbit
 
 		public bool ShowOrbit
 		{
-			get { return settings.showOrbitPanel; }
+			get { return BasicSettings.Instance.showOrbitPanel; }
 			set
 			{
-				settings.showOrbitPanel = value;
+				BasicSettings.Instance.showOrbitPanel = value;
 
 				if (value)
 					AddOrbitPanel();
@@ -409,10 +450,10 @@ namespace BasicOrbit
 
 		public bool ShowTarget
 		{
-			get { return settings.showTargetPanel; }
+			get { return BasicSettings.Instance.showTargetPanel; }
 			set
 			{
-				settings.showTargetPanel = value;
+				BasicSettings.Instance.showTargetPanel = value;
 
 				if (value)
 					AddTargetPanel();
@@ -423,10 +464,10 @@ namespace BasicOrbit
 
 		public bool ShowManeuver
 		{
-			get { return settings.showManeuverPanel; }
+			get { return BasicSettings.Instance.showManeuverPanel; }
 			set
 			{
-				settings.showManeuverPanel = value;
+				BasicSettings.Instance.showManeuverPanel = value;
 
 				if (value)
 					AddManeuverPanel();
@@ -507,32 +548,35 @@ namespace BasicOrbit
 			altitude = new OrbitAltitude("Altitude");
 			radar =new RadarAltitude("Radar Altitude");
 			terrain = new TerrainAltitude("Terrain Altitude");
+			velocity = new Velocity("Velocity");
 			location = new Location("Location");
 
-			apo.IsVisible = settings.showApoapsis;
-			apo.AlwaysShow = settings.showApoapsisAlways;
-			peri.IsVisible = settings.showPeriapsis;
-			peri.AlwaysShow = settings.showPeriapsisAlways;
-			inc.IsVisible = settings.showInclination;
-			inc.AlwaysShow = settings.showInclinationAlways;
-			ecc.IsVisible = settings.showEccentricity;
-			ecc.AlwaysShow = settings.showEccentricityAlways;
-			period.IsVisible = settings.showPeriod;
-			period.AlwaysShow = settings.showPeriodAlways;
-			SMA.IsVisible = settings.showSMA;
-			SMA.AlwaysShow = settings.showSMAAlways;
-			LAN.IsVisible = settings.showLAN;
-			LAN.AlwaysShow = settings.showLANAlways;
-			AoPE.IsVisible = settings.showAoPe;
-			AoPE.AlwaysShow = settings.showAoPeAlways;
-			altitude.IsVisible = settings.showOrbitAltitude;
-			altitude.AlwaysShow = settings.showOrbitAltitudeAlways;
-			radar.IsVisible = settings.showRadar;
-			radar.AlwaysShow = settings.showRadarAlways;
-			terrain.IsVisible = settings.showTerrain;
-			terrain.AlwaysShow = settings.showTerrainAlways;
-			location.IsVisible = settings.showLocation;
-			location.AlwaysShow = settings.showLocationAlways;
+			apo.IsVisible = BasicSettings.Instance.showApoapsis;
+			apo.AlwaysShow = BasicSettings.Instance.showApoapsisAlways;
+			peri.IsVisible = BasicSettings.Instance.showPeriapsis;
+			peri.AlwaysShow = BasicSettings.Instance.showPeriapsisAlways;
+			inc.IsVisible = BasicSettings.Instance.showInclination;
+			inc.AlwaysShow = BasicSettings.Instance.showInclinationAlways;
+			ecc.IsVisible = BasicSettings.Instance.showEccentricity;
+			ecc.AlwaysShow = BasicSettings.Instance.showEccentricityAlways;
+			period.IsVisible = BasicSettings.Instance.showPeriod;
+			period.AlwaysShow = BasicSettings.Instance.showPeriodAlways;
+			SMA.IsVisible = BasicSettings.Instance.showSMA;
+			SMA.AlwaysShow = BasicSettings.Instance.showSMAAlways;
+			LAN.IsVisible = BasicSettings.Instance.showLAN;
+			LAN.AlwaysShow = BasicSettings.Instance.showLANAlways;
+			AoPE.IsVisible = BasicSettings.Instance.showAoPe;
+			AoPE.AlwaysShow = BasicSettings.Instance.showAoPeAlways;
+			altitude.IsVisible = BasicSettings.Instance.showOrbitAltitude;
+			altitude.AlwaysShow = BasicSettings.Instance.showOrbitAltitudeAlways;
+			radar.IsVisible = BasicSettings.Instance.showRadar;
+			radar.AlwaysShow = BasicSettings.Instance.showRadarAlways;
+			terrain.IsVisible = BasicSettings.Instance.showTerrain;
+			terrain.AlwaysShow = BasicSettings.Instance.showTerrainAlways;
+			velocity.IsVisible = BasicSettings.Instance.showVelocity;
+			velocity.AlwaysShow = BasicSettings.Instance.showVelocityAlways;
+			location.IsVisible = BasicSettings.Instance.showLocation;
+			location.AlwaysShow = BasicSettings.Instance.showLocationAlways;
 
 			modules.Add(AoPE);
 			modules.Add(LAN);
@@ -540,6 +584,7 @@ namespace BasicOrbit
 			modules.Add(terrain);
 			modules.Add(radar);
 			modules.Add(altitude);
+			modules.Add(velocity);
 			modules.Add(location);
 			modules.Add(period);
 			modules.Add(ecc);
@@ -560,26 +605,30 @@ namespace BasicOrbit
 			distance = new DistanceToTarget("Dist To Target");
 			relInc = new RelInclination("Rel Inclination");
 			relVel = new RelVelocity("Rel Velocity");
-			angToPro = new AngleToPrograde("Ang To Prograde");
+			angToPro = new AngleToPrograde("Ang To Pro");
+			phaseAngle = new PhaseAngle("Phase Angle");
 
-			targetName.IsVisible = settings.showTargetName;
-			targetName.AlwaysShow = settings.showTargetNameAlways;
-			closest.IsVisible = settings.showClosestApproach;
-			closest.AlwaysShow = settings.showClosestApproachAlways;
-			closestVel.IsVisible = settings.showClosestApproachVelocity;
-			closestVel.AlwaysShow = settings.showClosestApproachVelocityAlways;
-			distance.IsVisible = settings.showDistance;
-			distance.AlwaysShow = settings.showDistanceAlways;
-			relInc.IsVisible = settings.showRelInclination;
-			relInc.AlwaysShow = settings.showRelInclinationAlways;
-			relVel.IsVisible = settings.showRelVelocity;
-			relVel.AlwaysShow = settings.showRelVelocityAlways;
-			angToPro.IsVisible = settings.showAngleToPrograde;
-			angToPro.AlwaysShow = settings.showAngleToProgradeAlways;
+			targetName.IsVisible = BasicSettings.Instance.showTargetName;
+			targetName.AlwaysShow = BasicSettings.Instance.showTargetNameAlways;
+			closest.IsVisible = BasicSettings.Instance.showClosestApproach;
+			closest.AlwaysShow = BasicSettings.Instance.showClosestApproachAlways;
+			closestVel.IsVisible = BasicSettings.Instance.showClosestApproachVelocity;
+			closestVel.AlwaysShow = BasicSettings.Instance.showClosestApproachVelocityAlways;
+			distance.IsVisible = BasicSettings.Instance.showDistance;
+			distance.AlwaysShow = BasicSettings.Instance.showDistanceAlways;
+			relInc.IsVisible = BasicSettings.Instance.showRelInclination;
+			relInc.AlwaysShow = BasicSettings.Instance.showRelInclinationAlways;
+			relVel.IsVisible = BasicSettings.Instance.showRelVelocity;
+			relVel.AlwaysShow = BasicSettings.Instance.showRelVelocityAlways;
+			angToPro.IsVisible = BasicSettings.Instance.showAngleToPrograde;
+			angToPro.AlwaysShow = BasicSettings.Instance.showAngleToProgradeAlways;
+			phaseAngle.IsVisible = BasicSettings.Instance.showPhaseAngle;
+			phaseAngle.AlwaysShow = BasicSettings.Instance.showPhaseAngleAlways;
 
 			modules.Add(relVel);
 			modules.Add(relInc);
 			modules.Add(angToPro);
+			modules.Add(phaseAngle);
 			modules.Add(closestVel);
 			modules.Add(closest);
 			modules.Add(distance);
@@ -596,34 +645,30 @@ namespace BasicOrbit
 			burnTime = new BurnTime("Burn Time");
 			maneuverCloseApproach = new ManClosestApproach("Closest Approach");
 			maneuverCloseRelVel = new ManClosestRelVel("Rel Vel At Appr");
+			maneuverAngleToPro = new ManAngleToPro("Angle To Pro");
+			maneuverPhaseAngle = new ManPhaseAngle("Phase Angle");
 
-			maneuver.IsVisible = settings.showManeuverNode;
-			maneuver.AlwaysShow = settings.showManeuverNodeAlways;
-			burnTime.IsVisible = settings.showManeuverBurn;
-			burnTime.AlwaysShow = settings.showManeuverBurnAlways;
-			maneuverCloseApproach.IsVisible = settings.showManeuverClosestApproach;
-			maneuverCloseApproach.AlwaysShow = settings.showManeuverClosestApproachAlways;
-			maneuverCloseRelVel.IsVisible = settings.showManeuverClosestVel;
-			maneuverCloseRelVel.AlwaysShow = settings.showManeuverClosestVelAlways;
+			maneuver.IsVisible = BasicSettings.Instance.showManeuverNode;
+			maneuver.AlwaysShow = BasicSettings.Instance.showManeuverNodeAlways;
+			burnTime.IsVisible = BasicSettings.Instance.showManeuverBurn;
+			burnTime.AlwaysShow = BasicSettings.Instance.showManeuverBurnAlways;
+			maneuverCloseApproach.IsVisible = BasicSettings.Instance.showManeuverClosestApproach;
+			maneuverCloseApproach.AlwaysShow = BasicSettings.Instance.showManeuverClosestApproachAlways;
+			maneuverCloseRelVel.IsVisible = BasicSettings.Instance.showManeuverClosestVel;
+			maneuverCloseRelVel.AlwaysShow = BasicSettings.Instance.showManeuverClosestVelAlways;
+			maneuverAngleToPro.IsVisible = BasicSettings.Instance.showManeuverAngleToPrograde;
+			maneuverAngleToPro.AlwaysShow = BasicSettings.Instance.showManeuverAngleToProgradeAlways;
+			maneuverPhaseAngle.IsVisible = BasicSettings.Instance.showManeuverPhaseAngle;
+			maneuverPhaseAngle.AlwaysShow = BasicSettings.Instance.showManeuverPhaseAngleAlways;
 
+			modules.Add(maneuverAngleToPro);
+			modules.Add(maneuverPhaseAngle);
 			modules.Add(maneuverCloseRelVel);
 			modules.Add(maneuverCloseApproach);
 			modules.Add(burnTime);
 			modules.Add(maneuver);
 
 			return modules;
-		}
-
-		private IEnumerator PanelStartup()
-		{
-			while (!FlightGlobals.ready || FlightGlobals.ActiveVessel == null)
-				yield return null;
-
-			if (settings.showOrbitPanel)
-				AddOrbitPanel();
-
-			if (settings.showTargetPanel)
-				AddTargetPanel();
 		}
 
 		private void AddOrbitPanel()
@@ -782,6 +827,11 @@ namespace BasicOrbit
 				maneuverPanel.SetAlpha(alpha);
 				maneuverPanel.SetOldAlpha();
 			}
+		}
+
+		public void ClampToScreen(RectTransform rect)
+		{
+			UIMasterController.ClampToScreen(rect, Vector2.zero);
 		}
 
 		public static void BasicLogging(string s, params object[] m)
