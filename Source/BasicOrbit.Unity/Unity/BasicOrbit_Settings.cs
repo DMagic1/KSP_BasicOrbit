@@ -32,7 +32,7 @@ namespace BasicOrbit.Unity.Unity
 	/// <summary>
 	/// This class controls the creation of the settings panels and populates it with the available modules
 	/// </summary>
-	public class BasicOrbit_Settings : CanvasGrower
+	public class BasicOrbit_Settings : CanvasFader
 	{
 		[SerializeField]
 		private GameObject m_SettingModulePrefab = null;
