@@ -44,6 +44,18 @@ namespace BasicOrbit.Modules.TargetModules
 			if (!BasicTargetting.Updated)
 				return "---";
 
+			ITargetable tgt = FlightGlobals.ActiveVessel.targetObject;
+
+			if (tgt.GetVessel() != null)
+			{
+				if (tgt.GetVessel().LandedOrSplashed)
+				{
+					Vector3d relative = FlightGlobals.ActiveVessel.srf_velocity - tgt.GetSrfVelocity();
+
+					return result(relative.magnitude);
+				}
+			}
+
 			return result(FlightGlobals.ship_tgtSpeed);
 		}
 
