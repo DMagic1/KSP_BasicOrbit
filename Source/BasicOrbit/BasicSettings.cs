@@ -66,6 +66,10 @@ namespace BasicOrbit
 		[Persistent]
 		public bool showTerrainAlways = false;
 		[Persistent]
+		public bool showVelocity = true;
+		[Persistent]
+		public bool showVelocityAlways = false;
+		[Persistent]
 		public bool showLocation = true;
 		[Persistent]
 		public bool showLocationAlways = false;
@@ -110,6 +114,10 @@ namespace BasicOrbit
 		[Persistent]
 		public bool showAngleToProgradeAlways = false;
 		[Persistent]
+		public bool showPhaseAngle = true;
+		[Persistent]
+		public bool showPhaseAngleAlways = false;
+		[Persistent]
 		public bool showManeuverNode = true;
 		[Persistent]
 		public bool showManeuverNodeAlways = false;
@@ -125,6 +133,14 @@ namespace BasicOrbit
 		public bool showManeuverClosestVel = true;
 		[Persistent]
 		public bool showManeuverClosestVelAlways = false;
+		[Persistent]
+		public bool showManeuverAngleToPrograde = true;
+		[Persistent]
+		public bool showManeuverAngleToProgradeAlways = false;
+		[Persistent]
+		public bool showManeuverPhaseAngle = true;
+		[Persistent]
+		public bool showManeuverPhaseAngleAlways = false;
 		[Persistent]
 		public bool showOrbitPanel = true;
 		[Persistent]
