@@ -55,6 +55,8 @@ namespace BasicOrbit.Modules.ManeuverModules
 		private static VesselModule _bbVesselModule;
 		private static Vessel _bbVesselReference;
 
+		private static Orbit _phasingNodePatch;
+
 		private static ManeuverNode _node;
 
 		public static bool UpdateOn
@@ -66,6 +68,7 @@ namespace BasicOrbit.Modules.ManeuverModules
 		public static bool Updated
 		{
 			get { return _updated; }
+			set { _updated = value; }
 		}
 
 		public static bool VesselIntersect
@@ -118,6 +121,16 @@ namespace BasicOrbit.Modules.ManeuverModules
 			get { return _closestRelVel; }
 		}
 
+		public static Orbit PhasingNodePatch
+		{
+			get { return _phasingNodePatch; }
+		}
+
+		public static ManeuverNode Node
+		{
+			get { return _node; }
+		}
+
 		public static void Update()
 		{
 			_update = false;
@@ -135,6 +148,8 @@ namespace BasicOrbit.Modules.ManeuverModules
 
 			if (_node != null)
 			{
+				DrillDownOrbits(_node.patch, BasicTargetting.TargetPhasingOrbit);
+
 				_maneuverTotal = _node.DeltaV.magnitude;
 
 				_maneuverRemaining = _node.GetBurnVector(_node.patch).magnitude;
@@ -344,6 +359,47 @@ namespace BasicOrbit.Modules.ManeuverModules
 				}
 
 				_updated = true;
+			}
+		}
+
+		private static void DrillDownOrbits(Orbit s, Orbit t)
+		{
+			_phasingNodePatch = null;
+
+			if (t == null)
+				return;
+
+			bool sIsOrbitingPlanet = s.referenceBody.referenceBody.referenceBody == null || s.referenceBody.referenceBody.referenceBody == s.referenceBody.referenceBody;
+			bool tIsPlanet = t.referenceBody.referenceBody == null || t.referenceBody.referenceBody == t.referenceBody;
+
+			if (tIsPlanet)
+			{
+				while (!(s.referenceBody.referenceBody == null || s.referenceBody.referenceBody == s.referenceBody))
+					s = s.referenceBody.orbit;
+
+				_phasingNodePatch = s;
+			}
+			else
+			{
+				CelestialBody targetParent = t.referenceBody;
+
+				while (!(targetParent.referenceBody.referenceBody == null || targetParent.referenceBody.referenceBody == targetParent.referenceBody))
+					targetParent = targetParent.referenceBody;
+
+				if (sIsOrbitingPlanet)
+					_phasingNodePatch = s;
+				else
+				{
+					CelestialBody shipParent = s.referenceBody;
+
+					while (!(shipParent.referenceBody.referenceBody.referenceBody == null || shipParent.referenceBody.referenceBody.referenceBody == shipParent.referenceBody.referenceBody))
+						shipParent = shipParent.referenceBody;
+
+					if (shipParent == targetParent)
+						_phasingNodePatch = s.referenceBody.orbit;
+					else
+						_phasingNodePatch = shipParent.orbit;
+				}
 			}
 		}
 
