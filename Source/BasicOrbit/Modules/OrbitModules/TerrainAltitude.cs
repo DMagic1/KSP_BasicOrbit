@@ -44,7 +44,10 @@ namespace BasicOrbit.Modules.OrbitModules
 			if (FlightGlobals.ActiveVessel == null)
 				return "---";
 
-			return result(FlightGlobals.ActiveVessel.terrainAltitude);
+			if (!BasicOrbiting.Updated)
+				return "---";
+
+			return result(BasicOrbiting.TerrainHeight);
 		}
 
 		private string result(double d)
