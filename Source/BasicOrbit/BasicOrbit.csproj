@@ -35,10 +35,6 @@
       <HintPath>..\..\KSP Dev\Kerbal Space Program\KSP_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="BasicOrbit.Unity">
-      <HintPath>..\BasicOrbit.Unity\Output\BasicOrbit.Unity.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="UnityEngine">
       <HintPath>..\..\KSP Dev\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
@@ -61,10 +57,13 @@
     <Compile Include="BasicHUD.cs" />
     <Compile Include="Modules\ManeuverModules\BasicManeuvering.cs" />
     <Compile Include="Modules\ManeuverModules\BurnTime.cs" />
+    <Compile Include="Modules\ManeuverModules\ManAngleToPro.cs" />
     <Compile Include="Modules\ManeuverModules\ManClosestApproach.cs" />
     <Compile Include="Modules\ManeuverModules\ManClosestRelVel.cs" />
     <Compile Include="Modules\ManeuverModules\Maneuver.cs" />
+    <Compile Include="Modules\ManeuverModules\ManPhaseAngle.cs" />
     <Compile Include="Modules\OrbitModules\ArgOfPeriapsis.cs" />
+    <Compile Include="Modules\OrbitModules\BasicOrbiting.cs" />
     <Compile Include="Modules\OrbitModules\Location.cs" />
     <Compile Include="Modules\OrbitModules\OrbitAltitude.cs" />
     <Compile Include="Modules\OrbitModules\RadarAltitude.cs" />
@@ -76,17 +75,25 @@
     <Compile Include="Modules\OrbitModules\Apoapsis.cs" />
     <Compile Include="Modules\OrbitModules\SemiMajorAxis.cs" />
     <Compile Include="Modules\OrbitModules\TerrainAltitude.cs" />
+    <Compile Include="Modules\OrbitModules\Velocity.cs" />
     <Compile Include="Modules\TargetModules\AngleToPrograde.cs" />
     <Compile Include="Modules\TargetModules\BasicTargetting.cs" />
     <Compile Include="Modules\TargetModules\ClosestApproach.cs" />
     <Compile Include="Modules\TargetModules\DistanceToTarget.cs" />
+    <Compile Include="Modules\TargetModules\PhaseAngle.cs" />
     <Compile Include="Modules\TargetModules\RelInclination.cs" />
     <Compile Include="Modules\TargetModules\RelVelocity.cs" />
     <Compile Include="Modules\TargetModules\RelVelocityAtClosest.cs" />
     <Compile Include="Modules\TargetModules\TargetName.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\BasicOrbit.Unity\BasicOrbit.Unity.csproj">
+      <Project>{9783e3a9-fd79-4f38-8401-c2c54664b0ea}</Project>
+      <Name>BasicOrbit.Unity</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
