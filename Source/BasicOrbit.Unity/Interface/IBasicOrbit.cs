@@ -25,6 +25,7 @@
 
 using System.Collections.Generic;
 using BasicOrbit.Unity.Unity;
+using UnityEngine;
 
 namespace BasicOrbit.Unity.Interface
 {
@@ -55,5 +56,7 @@ namespace BasicOrbit.Unity.Interface
 		IBasicPanel GetManeuverPanel { get; }
 
 		BasicOrbit_Panel GetManeuver { get; }
+
+		void ClampToScreen(RectTransform rect);
 	}
 }
