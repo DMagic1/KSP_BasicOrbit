@@ -26,6 +26,7 @@
 using BasicOrbit.Unity.Interface;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace BasicOrbit.Unity.Unity
 {
@@ -33,7 +34,7 @@ namespace BasicOrbit.Unity.Unity
 	/// This class controls the main toolbar settings window UI element
 	/// </summary>
 	[RequireComponent(typeof(RectTransform))]
-	public class BasicOrbit_AppLauncher : CanvasFader
+	public class BasicOrbit_AppLauncher : CanvasFader, IBeginDragHandler, IDragHandler, IEndDragHandler
 	{
 		[SerializeField]
 		private GameObject m_SettingsPrefab = null;
@@ -72,6 +73,8 @@ namespace BasicOrbit.Unity.Unity
 
 		private IBasicOrbit basicInterface;
 		private RectTransform rect;
+		private Vector2 mouseStart;
+		private Vector3 windowStart;
 
 		private bool loaded;
 
@@ -82,6 +85,37 @@ namespace BasicOrbit.Unity.Unity
 			Alpha(0);
 
 			Fade(1, true);
+		}
+
+		public void OnBeginDrag(PointerEventData eventData)
+		{
+			if (rect == null)
+				return;
+
+			mouseStart = eventData.position;
+			windowStart = rect.position;
+		}
+
+		public void OnDrag(PointerEventData eventData)
+		{
+			if (rect == null)
+				return;
+
+			rect.position = windowStart + (Vector3)(eventData.position - mouseStart);
+		}
+
+		public void OnEndDrag(PointerEventData eventData)
+		{
+			if (rect == null)
+				return;
+
+			if (rect == null)
+				return;
+
+			if (basicInterface == null)
+				return;
+
+			basicInterface.ClampToScreen(rect);
 		}
 
 		/// <summary>
@@ -319,7 +353,7 @@ namespace BasicOrbit.Unity.Unity
 
 			if (rect.position.y - (125 * basicInterface.Scale * basicInterface.MasterScale) < 0)
 			{
-				float height = 358 * basicInterface.Scale * basicInterface.MasterScale;
+				float height = 385 * basicInterface.Scale * basicInterface.MasterScale;
 
 				r.position = new Vector3(rect.position.x, rect.position.y + height, rect.position.z);
 			}
@@ -377,7 +411,7 @@ namespace BasicOrbit.Unity.Unity
 
 			if (rect.position.y - (125 * basicInterface.Scale * basicInterface.MasterScale) < 0)
 			{
-				float height = 223 * basicInterface.Scale * basicInterface.MasterScale;
+				float height = 250 * basicInterface.Scale * basicInterface.MasterScale;
 
 				r.position = new Vector3(rect.position.x, rect.position.y + height, rect.position.z);
 			}
@@ -435,7 +469,7 @@ namespace BasicOrbit.Unity.Unity
 
 			if (rect.position.y - (125 * basicInterface.Scale * basicInterface.MasterScale) < 0)
 			{
-				float height = 142 * basicInterface.Scale * basicInterface.MasterScale;
+				float height = 196 * basicInterface.Scale * basicInterface.MasterScale;
 
 				r.position = new Vector3(rect.position.x, rect.position.y + height, rect.position.z);
 			}
