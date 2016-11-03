@@ -52,11 +52,11 @@ namespace BasicOrbit
 			if (Math.Abs(d) < 10000)
 			{
 				if (Math.Abs(d) > 10)
-					return string.Format("{0:N3}m", d);
+					return string.Format("{0:N1}m", d);
 				else if (Math.Abs(d) > 0.1)
 					return string.Format("{0:N2}cm", d * 100);
 				else
-					return string.Format("{0:N0}mm", d * 1000);
+					return string.Format("{0:N2}mm", d * 1000);
 			}
 			else if (d < 1000000000)
 				return string.Format("{0:N1}km", d / 1000);
@@ -77,14 +77,14 @@ namespace BasicOrbit
 			return string.Format("{0:0}° {1:00}' {2:00}\"{3}", deg, min, sec, unit);
 		}
 
-		public static string Speed(this double d)
+		public static string Speed(this double d, int figs = 2, int cmFigs = 3)
 		{
 			if (Math.Abs(d) < 1)
-				return string.Format("{0:N3}cm/s", d * 100);
+				return string.Format("{0:N" + cmFigs + "}cm/s", d * 100);
 			else if (Math.Abs(d) < 1000)
-				return string.Format("{0:N2}m/s", d);
+				return string.Format("{0:N" + figs + "}m/s", d);
 			else
-				return string.Format("{0:N2}km/s", d / 1000);
+				return string.Format("{0:N" + figs + "}km/s", d / 1000);
 		}
 
 		public static string Time(this double d, int values)
@@ -92,7 +92,9 @@ namespace BasicOrbit
 			if (d == 0)
 				return "0s";
 
-			if (Math.Abs(d) > int.MaxValue)
+			if (d >= int.MaxValue)
+				return "---";
+			else if (d <= int.MinValue)
 				return "---";
 
 			d.SetTimes();
