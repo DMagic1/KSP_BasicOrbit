@@ -49,6 +49,14 @@ namespace BasicOrbit.Modules.TargetModules
 			if (!BasicTargetting.Updated)
 				return "---";
 
+			if (FlightGlobals.ActiveVessel.targetObject == null)
+				return "---";
+
+			Transform tgtTransform = FlightGlobals.ActiveVessel.targetObject.GetTransform();
+
+			if (tgtTransform == null)
+				return "---";
+
 			if (BasicTargetting.IsVessel)
 			{
 				if (FlightGlobals.ActiveVessel.targetObject == null)
@@ -61,8 +69,8 @@ namespace BasicOrbit.Modules.TargetModules
 				if (targetVessel == null)
 					return "---";
 
-				Vector3d targetPos = BasicTargetting.TargetOrbit.pos;
-				Vector3d originPos = BasicTargetting.ShipOrbit.pos;
+				Vector3d targetPos = tgtTransform.position;
+				Vector3d originPos = FlightGlobals.ActiveVessel.transform.position;
 
 				if (targetVessel.loaded)
 				{
@@ -88,7 +96,7 @@ namespace BasicOrbit.Modules.TargetModules
 				return result(Vector3d.Distance(targetPos, originPos));
 			}
 			else if (BasicTargetting.IsCelestial)
-				return result(Vector3d.Distance(BasicTargetting.TargetOrbit.pos, BasicTargetting.ShipOrbit.pos));
+				return result(Vector3d.Distance(tgtTransform.position, FlightGlobals.ActiveVessel.transform.position));
 			else
 				return "---";
 		}
