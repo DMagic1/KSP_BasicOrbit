@@ -33,9 +33,13 @@ namespace BasicOrbit.Modules.ManeuverModules
 
 		}
 
-		protected override void UpdateSettings()
+		protected override void UpdateVisible()
 		{
 			BasicSettings.Instance.showManeuverClosestApproach = IsVisible;
+		}
+
+		protected override void UpdateAlways()
+		{
 			BasicSettings.Instance.showManeuverClosestApproachAlways = AlwaysShow;
 		}
 

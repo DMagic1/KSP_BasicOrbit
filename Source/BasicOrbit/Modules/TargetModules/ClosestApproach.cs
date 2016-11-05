@@ -33,9 +33,13 @@ namespace BasicOrbit.Modules.TargetModules
 
 		}
 
-		protected override void UpdateSettings()
+		protected override void UpdateVisible()
 		{
 			BasicSettings.Instance.showClosestApproach = IsVisible;
+		}
+
+		protected override void UpdateAlways()
+		{
 			BasicSettings.Instance.showClosestApproachAlways = AlwaysShow;
 		}
 

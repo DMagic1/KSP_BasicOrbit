@@ -35,9 +35,13 @@ namespace BasicOrbit.Modules.ManeuverModules
 
 		}
 
-		protected override void UpdateSettings()
+		protected override void UpdateVisible()
 		{
 			BasicSettings.Instance.showManeuverAngleToPrograde = IsVisible;
+		}
+
+		protected override void UpdateAlways()
+		{
 			BasicSettings.Instance.showManeuverAngleToProgradeAlways = AlwaysShow;
 		}
 

@@ -33,9 +33,13 @@ namespace BasicOrbit.Modules.OrbitModules
 
 		}
 
-		protected override void UpdateSettings()
+		protected override void UpdateVisible()
 		{
 			BasicSettings.Instance.showRadar = IsVisible;
+		}
+
+		protected override void UpdateAlways()
+		{
 			BasicSettings.Instance.showRadarAlways = AlwaysShow;
 		}
 

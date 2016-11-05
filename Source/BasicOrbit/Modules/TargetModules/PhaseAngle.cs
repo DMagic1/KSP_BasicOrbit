@@ -35,9 +35,13 @@ namespace BasicOrbit.Modules.TargetModules
 
 		}
 
-		protected override void UpdateSettings()
+		protected override void UpdateVisible()
 		{
 			BasicSettings.Instance.showPhaseAngle = IsVisible;
+		}
+
+		protected override void UpdateAlways()
+		{
 			BasicSettings.Instance.showPhaseAngleAlways = AlwaysShow;
 		}
 

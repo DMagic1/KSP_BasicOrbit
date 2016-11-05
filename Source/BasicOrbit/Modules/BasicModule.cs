@@ -57,7 +57,7 @@ namespace BasicOrbit.Modules
 			{
 				_isVisible = value;
 
-				UpdateSettings();
+				UpdateVisible();
 			}
 		}
 
@@ -68,11 +68,12 @@ namespace BasicOrbit.Modules
 			{
 				_alwaysShow = value;
 
-				UpdateSettings();
+				UpdateAlways();
 			}
 		}
 
-		protected abstract void UpdateSettings();
+		protected abstract void UpdateVisible();
+		protected abstract void UpdateAlways();
 
 		public bool IsActive
 		{

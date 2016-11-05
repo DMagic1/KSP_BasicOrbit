@@ -33,9 +33,13 @@ namespace BasicOrbit.Modules.OrbitModules
 
 		}
 
-		protected override void UpdateSettings()
+		protected override void UpdateVisible()
 		{
 			BasicSettings.Instance.showLocation = IsVisible;
+		}
+
+		protected override void UpdateAlways()
+		{
 			BasicSettings.Instance.showLocationAlways = AlwaysShow;
 		}
 
