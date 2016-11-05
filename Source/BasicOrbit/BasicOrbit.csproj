@@ -91,7 +91,7 @@
     <ProjectReference Include="..\BasicOrbit.Unity\BasicOrbit.Unity.csproj">
       <Project>{9783e3a9-fd79-4f38-8401-c2c54664b0ea}</Project>
       <Name>BasicOrbit.Unity</Name>
-      <Private>False</Private>
+      <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
