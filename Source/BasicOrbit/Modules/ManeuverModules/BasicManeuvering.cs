@@ -240,6 +240,14 @@ namespace BasicOrbit.Modules.ManeuverModules
 							{
 								_bodyIntersect = false;
 
+								Vessel tgt = FlightGlobals.ActiveVessel.targetObject.GetVessel();
+
+								if (tgt == null || tgt.LandedOrSplashed)
+								{
+									_vesselIntersect = false;
+									return;
+								}
+
 								Orbit _refPatch = BasicOrbitReflection.GetRefPatch(oTargeter);
 								Orbit _tgtRefPatch = BasicOrbitReflection.GetTargetRefPatch(oTargeter);
 
@@ -260,6 +268,12 @@ namespace BasicOrbit.Modules.ManeuverModules
 								{
 									Orbit _refPatch = BasicOrbitReflection.GetRefPatch(oTargeter);
 									Orbit _tgtRefPatch = BasicOrbitReflection.GetTargetRefPatch(oTargeter);
+
+									if (_refPatch != null && _refPatch.closestTgtApprUT <= 0)
+									{
+										_bodyIntersect = false;
+										return;
+									}
 
 									_bodyIntersect = GetClosestCelestial(_refPatch, _tgtRefPatch);
 								}
