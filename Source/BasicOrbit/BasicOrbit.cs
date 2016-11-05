@@ -796,16 +796,14 @@ namespace BasicOrbit
 
 		private void SetPanelScale(float scale)
 		{
-			Vector3 old = new Vector3(1, 1, 1);
-
 			if (targetPanel != null)
-				targetPanel.transform.localScale = old * scale;
+				targetPanel.transform.localScale = Vector3.one * scale;
 
 			if (orbitPanel != null)
-				orbitPanel.transform.localScale = old * scale;
+				orbitPanel.transform.localScale = Vector3.one * scale;
 
 			if (maneuverPanel != null)
-				maneuverPanel.transform.localScale = old * scale;
+				maneuverPanel.transform.localScale = Vector3.one * scale;
 		}
 
 		private void SetPanelAlpha(float alpha)
