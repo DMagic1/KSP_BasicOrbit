@@ -97,7 +97,7 @@ namespace BasicOrbit.Unity.Unity
 		}
 
 		/// <summary>
-		/// Method used to update to upstream readout module controller and to update the readout text field
+		/// Method used to update the upstream readout module controller and to update the readout text field
 		/// </summary>
 		public void UpdateModule()
 		{
