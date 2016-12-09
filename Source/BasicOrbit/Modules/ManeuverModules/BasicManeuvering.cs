@@ -131,7 +131,7 @@ namespace BasicOrbit.Modules.ManeuverModules
 			get { return _node; }
 		}
 
-		public static void Update()
+		public static void Update(bool target)
 		{
 			_update = false;
 
@@ -156,6 +156,7 @@ namespace BasicOrbit.Modules.ManeuverModules
 
 				if (BasicOrbitReflection.BetterBurnTimeLoaded)
 				{
+
 					if (_bbVesselModule == null || _bbVesselReference != FlightGlobals.ActiveVessel)
 					{
 						for (int i = FlightGlobals.ActiveVessel.vesselModules.Count - 1; i >= 0; i--)
@@ -211,139 +212,87 @@ namespace BasicOrbit.Modules.ManeuverModules
 				else
 					_burnTime = _node.UT;
 
-				if (!BasicTargetting.IsVessel && !BasicTargetting.IsCelestial)
+				if (target)
 				{
-					_vesselIntersect = false;
-					_bodyIntersect = false;
-				}
-				else
-				{
-					Vessel.Situations sit = FlightGlobals.ActiveVessel.situation;
-
-					if ((sit |= Vessel.Situations.LANDED | Vessel.Situations.SPLASHED | Vessel.Situations.PRELAUNCH) == 0)
+					if (!BasicTargetting.IsVessel && !BasicTargetting.IsCelestial)
 					{
 						_vesselIntersect = false;
 						_bodyIntersect = false;
 					}
 					else
 					{
-						OrbitTargeter oTargeter = FlightGlobals.ActiveVessel.orbitTargeter;
+						Vessel.Situations sit = FlightGlobals.ActiveVessel.situation;
 
-						if (oTargeter == null || solver == null)
+						if ((sit |= Vessel.Situations.LANDED | Vessel.Situations.SPLASHED | Vessel.Situations.PRELAUNCH) == 0)
 						{
 							_vesselIntersect = false;
 							_bodyIntersect = false;
 						}
-						else if (!MapView.MapIsEnabled)
+						else
 						{
-							if (BasicTargetting.IsVessel)
-							{
-								_bodyIntersect = false;
+							OrbitTargeter oTargeter = FlightGlobals.ActiveVessel.orbitTargeter;
 
-								Vessel tgt = FlightGlobals.ActiveVessel.targetObject.GetVessel();
-
-								if (tgt == null || tgt.LandedOrSplashed)
-								{
-									_vesselIntersect = false;
-									return;
-								}
-
-								Orbit _refPatch = BasicOrbitReflection.GetRefPatch(oTargeter);
-								Orbit _tgtRefPatch = BasicOrbitReflection.GetTargetRefPatch(oTargeter);
-
-								_vesselIntersect = GetClosestVessel(_refPatch, _tgtRefPatch);
-							}
-							else
+							if (oTargeter == null || solver == null)
 							{
 								_vesselIntersect = false;
-
-								double Pe = GetLowestPeA(solver, BasicTargetting.TargetBody, _node.patch);
-
-								if (Pe < double.MaxValue - 1000)
+								_bodyIntersect = false;
+							}
+							else if (!MapView.MapIsEnabled)
+							{
+								if (BasicTargetting.IsVessel)
 								{
-									_closestDist = Pe;
-									_bodyIntersect = true;
-								}
-								else
-								{
-									Orbit _refPatch = BasicOrbitReflection.GetRefPatch(oTargeter);
-									Orbit _tgtRefPatch = BasicOrbitReflection.GetTargetRefPatch(oTargeter);
+									_bodyIntersect = false;
 
-									if (_refPatch != null && _refPatch.closestTgtApprUT <= 0)
+									Vessel tgt = FlightGlobals.ActiveVessel.targetObject.GetVessel();
+
+									if (tgt == null || tgt.LandedOrSplashed)
 									{
-										_bodyIntersect = false;
+										_vesselIntersect = false;
 										return;
 									}
 
-									_bodyIntersect = GetClosestCelestial(_refPatch, _tgtRefPatch);
+									Orbit _refPatch = BasicOrbitReflection.GetRefPatch(oTargeter);
+									Orbit _tgtRefPatch = BasicOrbitReflection.GetTargetRefPatch(oTargeter);
+
+									_vesselIntersect = GetClosestVessel(_refPatch, _tgtRefPatch);
 								}
-							}
-						}
-						else
-						{
-							if (BasicTargetting.Markers == null || BasicTargetting.Markers.Count <= 0)
-								BasicTargetting.Markers = BasicOrbitReflection.GetOrbitMarkers(oTargeter);
-
-							if (BasicTargetting.IsVessel)
-							{
-								_bodyIntersect = false;
-
-								OrbitTargeter.ISectMarker _intersectOne = null;
-								OrbitTargeter.ISectMarker _intersectTwo = null;
-
-								for (int i = BasicTargetting.Markers.Count - 1; i >= 0; i--)
-								{
-									OrbitTargeter.Marker m = BasicTargetting.Markers[i];
-
-									if (m == null)
-										continue;
-
-									if (!(m is OrbitTargeter.ISectMarker))
-										continue;
-
-									int num = ((OrbitTargeter.ISectMarker)m).num;
-
-									if (num == 1)
-										_intersectOne = m as OrbitTargeter.ISectMarker;
-									else if (num == 2)
-										_intersectTwo = m as OrbitTargeter.ISectMarker;
-								}
-
-								OrbitTargeter.ISectMarker _closestIntersect = null;
-
-								if (_intersectOne != null && _intersectTwo != null)
-									_closestIntersect = _intersectOne.separation > _intersectTwo.separation ? _intersectTwo : _intersectOne;
-								else if (_intersectOne != null)
-									_closestIntersect = _intersectOne;
-								else if (_intersectTwo != null)
-									_closestIntersect = _intersectTwo;
 								else
-									_closestIntersect = null;
-
-								if (_closestIntersect == null)
+								{
 									_vesselIntersect = false;
-								else
-								{
-									_vesselIntersect = true;
-									_closestDist = _closestIntersect.separation * 1000;
-									_closestRelVel = _closestIntersect.relSpeed;
-									_closestTime = _closestIntersect.UT;
+
+									double Pe = GetLowestPeA(solver, BasicTargetting.TargetBody, _node.patch);
+
+									if (Pe < double.MaxValue - 1000)
+									{
+										_closestDist = Pe;
+										_bodyIntersect = true;
+									}
+									else
+									{
+										Orbit _refPatch = BasicOrbitReflection.GetRefPatch(oTargeter);
+										Orbit _tgtRefPatch = BasicOrbitReflection.GetTargetRefPatch(oTargeter);
+
+										if (_refPatch != null && _refPatch.closestTgtApprUT <= 0)
+										{
+											_bodyIntersect = false;
+											return;
+										}
+
+										_bodyIntersect = GetClosestCelestial(_refPatch, _tgtRefPatch);
+									}
 								}
 							}
 							else
 							{
-								_vesselIntersect = false;
+								if (BasicTargetting.Markers == null || BasicTargetting.Markers.Count <= 0)
+									BasicTargetting.Markers = BasicOrbitReflection.GetOrbitMarkers(oTargeter);
 
-								double Pe = GetLowestPeA(solver, BasicTargetting.TargetBody, _node.patch);
+								if (BasicTargetting.IsVessel)
+								{
+									_bodyIntersect = false;
 
-								if (Pe < double.MaxValue - 1000)
-								{
-									_closestDist = Pe;
-									_bodyIntersect = true;
-								}
-								else
-								{
-									OrbitTargeter.ClApprMarker _approach = null;
+									OrbitTargeter.ISectMarker _intersectOne = null;
+									OrbitTargeter.ISectMarker _intersectTwo = null;
 
 									for (int i = BasicTargetting.Markers.Count - 1; i >= 0; i--)
 									{
@@ -352,19 +301,74 @@ namespace BasicOrbit.Modules.ManeuverModules
 										if (m == null)
 											continue;
 
-										if (!(m is OrbitTargeter.ClApprMarker))
+										if (!(m is OrbitTargeter.ISectMarker))
 											continue;
 
-										_approach = m as OrbitTargeter.ClApprMarker;
+										int num = ((OrbitTargeter.ISectMarker)m).num;
+
+										if (num == 1)
+											_intersectOne = m as OrbitTargeter.ISectMarker;
+										else if (num == 2)
+											_intersectTwo = m as OrbitTargeter.ISectMarker;
 									}
 
-									if (_approach == null)
-										_bodyIntersect = false;
+									OrbitTargeter.ISectMarker _closestIntersect = null;
+
+									if (_intersectOne != null && _intersectTwo != null)
+										_closestIntersect = _intersectOne.separation > _intersectTwo.separation ? _intersectTwo : _intersectOne;
+									else if (_intersectOne != null)
+										_closestIntersect = _intersectOne;
+									else if (_intersectTwo != null)
+										_closestIntersect = _intersectTwo;
+									else
+										_closestIntersect = null;
+
+									if (_closestIntersect == null)
+										_vesselIntersect = false;
 									else
 									{
+										_vesselIntersect = true;
+										_closestDist = _closestIntersect.separation * 1000;
+										_closestRelVel = _closestIntersect.relSpeed;
+										_closestTime = _closestIntersect.UT;
+									}
+								}
+								else
+								{
+									_vesselIntersect = false;
+
+									double Pe = GetLowestPeA(solver, BasicTargetting.TargetBody, _node.patch);
+
+									if (Pe < double.MaxValue - 1000)
+									{
+										_closestDist = Pe;
 										_bodyIntersect = true;
-										_closestDist = _approach.separation * 1000;
-										_closestTime = (_approach.dT * -1) + Planetarium.GetUniversalTime();
+									}
+									else
+									{
+										OrbitTargeter.ClApprMarker _approach = null;
+
+										for (int i = BasicTargetting.Markers.Count - 1; i >= 0; i--)
+										{
+											OrbitTargeter.Marker m = BasicTargetting.Markers[i];
+
+											if (m == null)
+												continue;
+
+											if (!(m is OrbitTargeter.ClApprMarker))
+												continue;
+
+											_approach = m as OrbitTargeter.ClApprMarker;
+										}
+
+										if (_approach == null)
+											_bodyIntersect = false;
+										else
+										{
+											_bodyIntersect = true;
+											_closestDist = _approach.separation * 1000;
+											_closestTime = (_approach.dT * -1) + Planetarium.GetUniversalTime();
+										}
 									}
 								}
 							}
