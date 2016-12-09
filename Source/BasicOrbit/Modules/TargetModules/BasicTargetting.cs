@@ -679,7 +679,6 @@ namespace BasicOrbit.Modules.TargetModules
 			{
 				for (int i = s.patchesAhead; i >= 0; i--)
 				{
-
 					Orbit patch = s.patches[i];
 
 					if (patch == null)
