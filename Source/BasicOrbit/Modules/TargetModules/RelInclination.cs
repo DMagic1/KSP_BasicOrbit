@@ -69,10 +69,10 @@ namespace BasicOrbit.Modules.TargetModules
 
 			double timeDsc = BasicTargetting.ShipOrbit.GetDTforTrueAnomaly(anomalyDsc * Mathf.Deg2Rad, BasicTargetting.ShipOrbit.period);
 
-			if (timeAsc < 0)
+			if (timeAsc < 0 && !double.IsNaN(BasicTargetting.ShipOrbit.period) && !double.IsInfinity(BasicTargetting.ShipOrbit.period))
 				timeAsc += BasicTargetting.ShipOrbit.period;
 
-			if (timeDsc < 0)
+			if (timeDsc < 0 && !double.IsNaN(BasicTargetting.ShipOrbit.period) && !double.IsInfinity(BasicTargetting.ShipOrbit.period))
 				timeDsc += BasicTargetting.ShipOrbit.period;
 
 			return timeAsc < timeDsc ? timeAsc : timeDsc;

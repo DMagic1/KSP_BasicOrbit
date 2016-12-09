@@ -54,7 +54,12 @@ namespace BasicOrbit.Modules.OrbitModules
 			if (FlightGlobals.ActiveVessel.orbit.eccentricity >= 1)
 				return "---";
 
-			return result(FlightGlobals.ActiveVessel.orbit.period);
+			double period = FlightGlobals.ActiveVessel.orbit.period;
+
+			if (double.IsNaN(period) || double.IsInfinity(period))
+				return "---";
+
+			return result(period);
 		}
 
 		private string result(double t)
