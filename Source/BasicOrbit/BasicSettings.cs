@@ -126,6 +126,22 @@ namespace BasicOrbit
 		[Persistent]
 		public bool showManeuverBurnAlways = false;
 		[Persistent]
+		public bool showManeuverApoapsis = true;
+		[Persistent]
+		public bool showManeuverApoapsisAlways = false;
+		[Persistent]
+		public bool showManeuverPeriapsis = true;
+		[Persistent]
+		public bool showManeuverPeriapsisAlways = false;
+		[Persistent]
+		public bool showManeuverInclination = true;
+		[Persistent]
+		public bool showManeuverInclinationAlways = false;
+		[Persistent]
+		public bool showManeuverEccentricity = true;
+		[Persistent]
+		public bool showManeuverEccentricityAlways = false;
+		[Persistent]
 		public bool showManeuverClosestApproach = true;
 		[Persistent]
 		public bool showManeuverClosestApproachAlways = false;
