@@ -92,6 +92,9 @@ namespace BasicOrbit
 			if (d == 0)
 				return "0s";
 
+			if (double.IsNaN(d) || double.IsInfinity(d))
+				return "---";
+
 			if (d >= int.MaxValue)
 				return "---";
 			else if (d <= int.MinValue)
