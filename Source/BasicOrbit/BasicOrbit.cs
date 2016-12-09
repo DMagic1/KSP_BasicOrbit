@@ -69,6 +69,10 @@ namespace BasicOrbit
 
 		private Maneuver maneuver;
 		private BurnTime burnTime;
+		private ManApoapsis maneuverApoapsis;
+		private ManPeriapsis maneuverPeriapsis;
+		private ManInclination maneuverInclination;
+		private ManEccentricity maneuverEccentricity;
 		private ManClosestApproach maneuverCloseApproach;
 		private ManClosestRelVel maneuverCloseRelVel;
 		private ManAngleToPro maneuverAngleToPro;
@@ -159,6 +163,10 @@ namespace BasicOrbit
 
 			maneuver.IsActive = false;
 			burnTime.IsActive = false;
+			maneuverApoapsis.IsActive = false;
+			maneuverPeriapsis.IsActive = false; 
+			maneuverInclination.IsActive = false;
+			maneuverEccentricity.IsActive = false;
 			maneuverAngleToPro.IsActive = false;
 			maneuverPhaseAngle.IsActive = false;
 			maneuverCloseApproach.IsActive = false;
@@ -204,6 +212,9 @@ namespace BasicOrbit
 			if (v == null)
 				return;
 
+			bool jumper = v.isEVA || v.vesselType == VesselType.Rover;
+			bool highRadar = v.isEVA ? v.radarAltitude > 10 : v.radarAltitude > 5;
+
 			if (orbitHUD.IsVisible)
 			{
 				bool pqs = v.mainBody != null && v.mainBody.pqsController != null;
@@ -242,35 +253,35 @@ namespace BasicOrbit
 						terrain.IsActive = pqs || terrain.AlwaysShow;
 						break;
 					case Vessel.Situations.FLYING:
-						apo.IsActive = apo.AlwaysShow || v.orbit.eccentricity < 1;
-						radar.IsActive = pqs || radar.AlwaysShow;
-						terrain.IsActive = pqs || terrain.AlwaysShow;
+						apo.IsActive = apo.AlwaysShow || (v.orbit.eccentricity < 1 && (!jumper || highRadar));
+						radar.IsActive = radar.AlwaysShow || (pqs && (!jumper || highRadar));
+						terrain.IsActive = terrain.AlwaysShow || pqs;
 						location.IsActive = true;
 						velocity.IsActive = true;
 						inc.IsActive = inc.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 3;
-						altitude.IsActive = !pqs || altitude.AlwaysShow;
+						altitude.IsActive = altitude.AlwaysShow || (!pqs && (!jumper || highRadar));
 						LAN.IsActive = LAN.AlwaysShow;
 						AoPE.IsActive = AoPE.AlwaysShow;
 						SMA.IsActive = SMA.AlwaysShow;
 						ecc.IsActive = ecc.AlwaysShow;
-						peri.IsActive = v.orbit.PeA > 0;
+						peri.IsActive = v.orbit.PeA > 0 && ((!jumper || highRadar));
 						period.IsActive = period.AlwaysShow;
 						break;
 					case Vessel.Situations.SUB_ORBITAL:
-						apo.IsActive = apo.AlwaysShow || v.orbit.eccentricity < 1;
-						inc.IsActive = true;
-						ecc.IsActive = true;
+						apo.IsActive = apo.AlwaysShow || (v.orbit.eccentricity < 1 && (!jumper || highRadar));
+						inc.IsActive = inc.AlwaysShow || !jumper || highRadar;
+						ecc.IsActive = ecc.AlwaysShow || !jumper || highRadar;
 						location.IsActive = true;
 						velocity.IsActive = true;
 
-						radar.IsActive = pqs || radar.AlwaysShow;
-						terrain.IsActive = pqs || terrain.AlwaysShow;
-						altitude.IsActive = !pqs || altitude.AlwaysShow;
+						radar.IsActive = radar.AlwaysShow || (pqs && (!jumper || highRadar));
+						terrain.IsActive = terrain.AlwaysShow || pqs;
+						altitude.IsActive = altitude.AlwaysShow || (!pqs && (!jumper || highRadar));
 
 						if (v.orbit.PeA < 0)
-							peri.IsActive = peri.AlwaysShow || Math.Abs(v.orbit.PeA) < v.mainBody.Radius || (v.orbit.eccentricity >= 1 && v.orbit.timeToPe > 0);
+							peri.IsActive = peri.AlwaysShow || ((Math.Abs(v.orbit.PeA) < v.mainBody.Radius || (v.orbit.eccentricity >= 1 && v.orbit.timeToPe > 0)) && (!jumper || highRadar));
 						else
-							peri.IsActive = peri.AlwaysShow || v.orbit.eccentricity < 1 || v.orbit.timeToPe > 0;
+							peri.IsActive = peri.AlwaysShow || ((v.orbit.eccentricity < 1 || v.orbit.timeToPe > 0) && (!jumper || highRadar));
 						
 						LAN.IsActive = LAN.AlwaysShow;
 						AoPE.IsActive = AoPE.AlwaysShow;
@@ -336,23 +347,23 @@ namespace BasicOrbit
 							break;
 						case Vessel.Situations.FLYING:
 							targetName.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
-							angToPro.IsActive = angToPro.AlwaysShow && BasicTargetting.ShowAngle && BasicTargetting.IsCelestial;
-							phaseAngle.IsActive = phaseAngle.AlwaysShow && (BasicTargetting.ShipPhasingOrbit != null && BasicTargetting.TargetPhasingOrbit != null);
+							angToPro.IsActive = (angToPro.AlwaysShow && BasicTargetting.ShowAngle && BasicTargetting.IsCelestial) && (!jumper || highRadar);
+							phaseAngle.IsActive = (phaseAngle.AlwaysShow && (BasicTargetting.ShipPhasingOrbit != null && BasicTargetting.TargetPhasingOrbit != null)) && (!jumper || highRadar);
 							closest.IsActive = ((BasicTargetting.IsCelestial && BasicTargetting.BodyIntersect) || (BasicTargetting.IsVessel && BasicTargetting.VesselIntersect)) && (closest.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold);
 							closestVel.IsActive = (BasicTargetting.IsVessel && BasicTargetting.VesselIntersect) && (closestVel.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold);
 							distance.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
-							relVel.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
+							relVel.IsActive = (BasicTargetting.IsCelestial || BasicTargetting.IsVessel) && (relVel.AlwaysShow || !jumper || highRadar);
 							relInc.IsActive = (BasicTargetting.IsCelestial || BasicTargetting.IsVessel) && (relInc.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 3);
 							break;
 						default:
 							targetName.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
-							angToPro.IsActive = BasicTargetting.ShowAngle && BasicTargetting.IsCelestial;
-							phaseAngle.IsActive = BasicTargetting.ShipPhasingOrbit != null && BasicTargetting.TargetPhasingOrbit != null;
-							closest.IsActive = (BasicTargetting.IsCelestial && BasicTargetting.BodyIntersect) || (BasicTargetting.IsVessel && BasicTargetting.VesselIntersect);
-							closestVel.IsActive = BasicTargetting.IsVessel && BasicTargetting.VesselIntersect;
+							angToPro.IsActive = (BasicTargetting.ShowAngle && BasicTargetting.IsCelestial) && (angToPro.AlwaysShow || !jumper || highRadar);
+							phaseAngle.IsActive = (BasicTargetting.ShipPhasingOrbit != null && BasicTargetting.TargetPhasingOrbit != null) && (phaseAngle.AlwaysShow || !jumper || highRadar);
+							closest.IsActive = ((BasicTargetting.IsCelestial && BasicTargetting.BodyIntersect) || (BasicTargetting.IsVessel && BasicTargetting.VesselIntersect)) && (closest.AlwaysShow || !jumper || highRadar);
+							closestVel.IsActive = (BasicTargetting.IsVessel && BasicTargetting.VesselIntersect) && (closestVel.AlwaysShow || !jumper || highRadar);
 							distance.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
-							relVel.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
-							relInc.IsActive = BasicTargetting.IsCelestial || BasicTargetting.IsVessel;
+							relVel.IsActive = (BasicTargetting.IsCelestial || BasicTargetting.IsVessel) && (relVel.AlwaysShow || !jumper || highRadar);
+							relInc.IsActive = (BasicTargetting.IsCelestial || BasicTargetting.IsVessel) && (relInc.AlwaysShow || !jumper || highRadar);
 							break;
 					}
 
@@ -379,6 +390,10 @@ namespace BasicOrbit
 				{
 					maneuver.IsActive = false;
 					burnTime.IsActive = false;
+					maneuverApoapsis.IsActive = false;
+					maneuverPeriapsis.IsActive = false;
+					maneuverInclination.IsActive = false;
+					maneuverEccentricity.IsActive = false;
 					maneuverAngleToPro.IsActive = false;
 					maneuverPhaseAngle.IsActive = false;
 					maneuverCloseApproach.IsActive = false;
@@ -396,26 +411,40 @@ namespace BasicOrbit
 						case Vessel.Situations.SPLASHED:
 							maneuver.IsActive = maneuver.AlwaysShow;
 							burnTime.IsActive = burnTime.AlwaysShow;
-							maneuverAngleToPro.IsActive = maneuverAngleToPro.AlwaysShow && BasicTargetting.ShowAngle && BasicTargetting.IsCelestial;
-							maneuverPhaseAngle.IsActive = maneuverPhaseAngle.AlwaysShow && BasicManeuvering.PhasingNodePatch != null && BasicTargetting.TargetPhasingOrbit != null;
+							maneuverApoapsis.IsActive = maneuverApoapsis.AlwaysShow;
+							maneuverPeriapsis.IsActive = maneuverPeriapsis.AlwaysShow;
+							maneuverInclination.IsActive = maneuverInclination.AlwaysShow;
+							maneuverEccentricity.IsActive = maneuverEccentricity.AlwaysShow;
+							maneuverAngleToPro.IsActive = targetFlag && maneuverAngleToPro.AlwaysShow && BasicTargetting.ShowAngle && BasicTargetting.IsCelestial;
+							maneuverPhaseAngle.IsActive = targetFlag && maneuverPhaseAngle.AlwaysShow && BasicManeuvering.PhasingNodePatch != null && BasicTargetting.TargetPhasingOrbit != null;
 							maneuverCloseApproach.IsActive = targetFlag && maneuverCloseApproach.AlwaysShow && ((BasicTargetting.IsCelestial && BasicManeuvering.BodyIntersect) || (BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect));
 							maneuverCloseRelVel.IsActive = targetFlag && maneuverCloseRelVel.AlwaysShow && BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect;
 							break;
 						case Vessel.Situations.FLYING:
 							maneuver.IsActive = maneuver.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2;
 							burnTime.IsActive = burnTime.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2;
-							maneuverAngleToPro.IsActive = (maneuverAngleToPro.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2) && BasicTargetting.ShowAngle && BasicTargetting.IsCelestial;
-							maneuverPhaseAngle.IsActive = (maneuverPhaseAngle.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2) && (BasicManeuvering.PhasingNodePatch != null && BasicTargetting.TargetPhasingOrbit != null);
+							maneuverApoapsis.IsActive = maneuverApoapsis.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2;
+							maneuverPeriapsis.IsActive = maneuverPeriapsis.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2;
+							maneuverInclination.IsActive = maneuverInclination.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2;
+							maneuverEccentricity.IsActive = maneuverEccentricity.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2;
+							maneuverAngleToPro.IsActive = (targetFlag && maneuverAngleToPro.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2) && BasicTargetting.ShowAngle && BasicTargetting.IsCelestial;
+							maneuverPhaseAngle.IsActive = (targetFlag && maneuverPhaseAngle.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2) && (BasicManeuvering.PhasingNodePatch != null && BasicTargetting.TargetPhasingOrbit != null);
 							maneuverCloseApproach.IsActive = targetFlag && ((BasicTargetting.IsCelestial && BasicManeuvering.BodyIntersect) || (BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect)) && (maneuverCloseApproach.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2);
 							maneuverCloseRelVel.IsActive = targetFlag && BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect && (maneuverCloseRelVel.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2);
 							break;
 						default:
-							maneuver.IsActive = true;
-							burnTime.IsActive = true;
-							maneuverAngleToPro.IsActive = BasicTargetting.ShowAngle && BasicTargetting.IsCelestial;
-							maneuverPhaseAngle.IsActive = BasicManeuvering.PhasingNodePatch != null && BasicTargetting.TargetPhasingOrbit != null;
-							maneuverCloseApproach.IsActive = targetFlag && ((BasicTargetting.IsCelestial && BasicManeuvering.BodyIntersect) || (BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect));
-							maneuverCloseRelVel.IsActive = targetFlag && BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect;
+							Orbit nextPatch = solver.maneuverNodes[0].nextPatch;
+
+							maneuver.IsActive = maneuver.AlwaysShow || !jumper || highRadar;
+							burnTime.IsActive = burnTime.AlwaysShow || !jumper || highRadar;
+							maneuverApoapsis.IsActive = maneuverApoapsis.AlwaysShow || ((nextPatch != null && nextPatch.eccentricity < 1) && (!jumper || highRadar));
+							maneuverPeriapsis.IsActive = maneuverPeriapsis.AlwaysShow || ((nextPatch != null && (nextPatch.eccentricity < 1 || nextPatch.timeToPe > 0)) && (!jumper || highRadar));
+							maneuverInclination.IsActive = maneuverInclination.AlwaysShow || !jumper || highRadar;
+							maneuverEccentricity.IsActive = maneuverEccentricity.AlwaysShow || !jumper || highRadar;
+							maneuverAngleToPro.IsActive = (targetFlag && BasicTargetting.ShowAngle && BasicTargetting.IsCelestial) && (maneuverAngleToPro.AlwaysShow || !jumper || highRadar);
+							maneuverPhaseAngle.IsActive = (targetFlag && BasicManeuvering.PhasingNodePatch != null && BasicTargetting.TargetPhasingOrbit != null) && (maneuverPhaseAngle.AlwaysShow || !jumper || highRadar);
+							maneuverCloseApproach.IsActive = (targetFlag && ((BasicTargetting.IsCelestial && BasicManeuvering.BodyIntersect) || (BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect))) && (maneuverCloseApproach.AlwaysShow || !jumper || highRadar);
+							maneuverCloseRelVel.IsActive = (targetFlag && BasicTargetting.IsVessel && BasicManeuvering.VesselIntersect) && (maneuverCloseRelVel.AlwaysShow || !jumper || highRadar);
 							break;
 					}
 
@@ -426,7 +455,7 @@ namespace BasicOrbit
 				BasicManeuvering.UpdateOn = false;
 
 			if (BasicManeuvering.UpdateOn)
-				BasicManeuvering.Update();
+				BasicManeuvering.Update(targetFlag);
 		}
 
 		public string Version
@@ -643,6 +672,10 @@ namespace BasicOrbit
 
 			maneuver = new Maneuver("Maneuver Node");
 			burnTime = new BurnTime("Burn Time");
+			maneuverApoapsis = new ManApoapsis("Apoapsis");
+			maneuverPeriapsis = new ManPeriapsis("Periapsis");
+			maneuverInclination = new ManInclination("Inclination");
+			maneuverEccentricity = new ManEccentricity("Eccentricity");
 			maneuverCloseApproach = new ManClosestApproach("Closest Approach");
 			maneuverCloseRelVel = new ManClosestRelVel("Rel Vel At Appr");
 			maneuverAngleToPro = new ManAngleToPro("Angle To Pro");
@@ -652,6 +685,14 @@ namespace BasicOrbit
 			maneuver.AlwaysShow = BasicSettings.Instance.showManeuverNodeAlways;
 			burnTime.IsVisible = BasicSettings.Instance.showManeuverBurn;
 			burnTime.AlwaysShow = BasicSettings.Instance.showManeuverBurnAlways;
+			maneuverApoapsis.IsVisible = BasicSettings.Instance.showManeuverApoapsis;
+			maneuverApoapsis.AlwaysShow = BasicSettings.Instance.showManeuverApoapsisAlways;
+			maneuverPeriapsis.IsVisible = BasicSettings.Instance.showManeuverPeriapsis;
+			maneuverPeriapsis.AlwaysShow = BasicSettings.Instance.showManeuverPeriapsisAlways;
+			maneuverInclination.IsVisible = BasicSettings.Instance.showManeuverInclination;
+			maneuverInclination.AlwaysShow = BasicSettings.Instance.showManeuverInclinationAlways;
+			maneuverEccentricity.IsVisible = BasicSettings.Instance.showManeuverEccentricity;
+			maneuverEccentricity.AlwaysShow = BasicSettings.Instance.showManeuverEccentricityAlways;
 			maneuverCloseApproach.IsVisible = BasicSettings.Instance.showManeuverClosestApproach;
 			maneuverCloseApproach.AlwaysShow = BasicSettings.Instance.showManeuverClosestApproachAlways;
 			maneuverCloseRelVel.IsVisible = BasicSettings.Instance.showManeuverClosestVel;
@@ -665,6 +706,10 @@ namespace BasicOrbit
 			modules.Add(maneuverPhaseAngle);
 			modules.Add(maneuverCloseRelVel);
 			modules.Add(maneuverCloseApproach);
+			modules.Add(maneuverEccentricity);
+			modules.Add(maneuverInclination);
+			modules.Add(maneuverPeriapsis);
+			modules.Add(maneuverApoapsis);
 			modules.Add(burnTime);
 			modules.Add(maneuver);
 
@@ -834,7 +879,7 @@ namespace BasicOrbit
 
 		public static void BasicLogging(string s, params object[] m)
 		{
-			Debug.Log(string.Format("[Basic Orbit] " + s, m));
+			Debug.Log(string.Format("[Basic_Orbit] " + s, m));
 		}
 
     }
