@@ -86,7 +86,7 @@ namespace BasicOrbit
 		[Persistent]
 		public bool showSMAAlways = false;
 		[Persistent]
-		public bool showTargetName = false;
+		public bool showTargetName = true;
 		[Persistent]
 		public bool showTargetNameAlways = false;
 		[Persistent]
