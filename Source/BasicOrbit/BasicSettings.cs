@@ -60,7 +60,7 @@ namespace BasicOrbit
 		[Persistent]
 		public bool showOrbitAltitude = true;
 		[Persistent]
-		public bool showOrbitAltitudeAlways = true;
+		public bool showOrbitAltitudeAlways = false;
 		[Persistent]
 		public bool showTerrain = true;
 		[Persistent]
@@ -168,11 +168,11 @@ namespace BasicOrbit
 		[Persistent]
 		public float UIScale = 1;
 		[Persistent]
-		public Vector2 orbitPosition = new Vector2(100, 20);
+		public Vector2 orbitPosition = new Vector2(100, 100);
 		[Persistent]
-		public Vector2 targetPosition = new Vector2(200, 20);
+		public Vector2 targetPosition = new Vector2(100, 400);
 		[Persistent]
-		public Vector2 maneuverPosition = new Vector2(300, 20);
+		public Vector2 maneuverPosition = new Vector2(400, 100);
 
 		private const string fileName = "PluginData/Settings.cfg";
 		private string fullPath;
