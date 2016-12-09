@@ -58,9 +58,13 @@
     <Compile Include="Modules\ManeuverModules\BasicManeuvering.cs" />
     <Compile Include="Modules\ManeuverModules\BurnTime.cs" />
     <Compile Include="Modules\ManeuverModules\ManAngleToPro.cs" />
+    <Compile Include="Modules\ManeuverModules\ManApoapsis.cs" />
     <Compile Include="Modules\ManeuverModules\ManClosestApproach.cs" />
     <Compile Include="Modules\ManeuverModules\ManClosestRelVel.cs" />
+    <Compile Include="Modules\ManeuverModules\ManEccentricity.cs" />
     <Compile Include="Modules\ManeuverModules\Maneuver.cs" />
+    <Compile Include="Modules\ManeuverModules\ManInclination.cs" />
+    <Compile Include="Modules\ManeuverModules\ManPeriapsis.cs" />
     <Compile Include="Modules\ManeuverModules\ManPhaseAngle.cs" />
     <Compile Include="Modules\OrbitModules\ArgOfPeriapsis.cs" />
     <Compile Include="Modules\OrbitModules\BasicOrbiting.cs" />
