@@ -26,6 +26,7 @@
 using System.Collections;
 using BasicOrbit.Unity.Unity;
 using KSP.UI.Screens;
+using KSP.UI;
 using UnityEngine;
 
 namespace BasicOrbit
@@ -37,10 +38,12 @@ namespace BasicOrbit
 
 		private static BasicOrbitAppLauncher instance;
 		private static Texture2D icon;
-		
-		private bool sticky;
 
-		private BasicOrbit_AppLauncher launcher;
+		private bool inMenu;
+		private bool sticky;
+		private bool hovering;
+
+		private BasicOrbit_AppWindow launcher;
 
 		public static BasicOrbitAppLauncher Instance
 		{
@@ -120,7 +123,9 @@ namespace BasicOrbit
 
 		private void OnHover()
 		{
-			if (sticky)
+			hovering = true;
+
+			if (sticky || launcher != null)
 				return;
 
 			Open();
@@ -128,10 +133,50 @@ namespace BasicOrbit
 
 		private void OnHoverOut()
 		{
-			if (sticky)
-				return;
+			hovering = false;
 
-			Close();
+			if (!sticky)
+				StartCoroutine(HoverOutWait());
+		}
+
+		private IEnumerator HoverOutWait()
+		{
+			int timer = 0;
+
+			while (timer < 2)
+			{
+				timer++;
+				yield return null;
+			}
+
+			if (! inMenu)
+				Close();
+		}
+
+		private IEnumerator MenuHoverOutWait()
+		{
+			int timer = 0;
+
+			while (timer < 2)
+			{
+				timer++;
+				yield return null;
+			}
+
+			if (!hovering && !sticky)
+				Close();
+		}
+
+		public bool InMenu
+		{
+			get { return inMenu; }
+			set
+			{
+				inMenu = value;
+
+				if (!value)
+					StartCoroutine(MenuHoverOutWait());
+			}
 		}
 
 		public Vector3 GetAnchor()
@@ -155,17 +200,12 @@ namespace BasicOrbit
 			if (BasicOrbitLoader.ToolbarPrefab == null)
 				return;
 
-			GameObject obj = Instantiate(BasicOrbitLoader.ToolbarPrefab, GetAnchor(), Quaternion.identity) as GameObject;
-
-			if (obj == null)
-				return;
-
-			obj.transform.SetParent(MainCanvasUtil.MainCanvas.transform);
-
-			launcher = obj.GetComponent<BasicOrbit_AppLauncher>();
+			launcher = (Instantiate(BasicOrbitLoader.ToolbarPrefab, GetAnchor(), Quaternion.identity) as GameObject).GetComponent<BasicOrbit_AppWindow>();
 
 			if (launcher == null)
 				return;
+
+			launcher.transform.SetParent(UIMasterController.Instance.appCanvas.transform);
 
 			launcher.setOrbit(BasicOrbit.Instance);
 		}
