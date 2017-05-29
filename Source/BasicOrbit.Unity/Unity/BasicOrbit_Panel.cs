@@ -68,9 +68,13 @@ namespace BasicOrbit.Unity.Unity
 				{
 					SetOldAlpha();
 					SetAlpha(1);
+					transform.SetAsLastSibling();
 				}
 				else
+				{
 					SetAlpha(oldAlpha);
+					transform.SetAsFirstSibling();
+				}
 			}
 		}
 
