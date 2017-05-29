@@ -168,6 +168,10 @@ namespace BasicOrbit
 		[Persistent]
 		public float UIScale = 1;
 		[Persistent]
+		public float UIPanelScale = 1;
+		[Persistent]
+		public float AppWindowHeight = 200;
+		[Persistent]
 		public Vector2 orbitPosition = new Vector2(100, 100);
 		[Persistent]
 		public Vector2 targetPosition = new Vector2(100, 400);
