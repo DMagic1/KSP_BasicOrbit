@@ -46,6 +46,8 @@ namespace BasicOrbit
 		/// </summary>
 		new private void Awake()
 		{
+			m_isAlignmentEnumConverted = true;
+
 			base.Awake();
 
 			_handler = GetComponent<TextHandler>();
