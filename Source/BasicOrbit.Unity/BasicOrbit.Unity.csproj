@@ -33,11 +33,11 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="UnityEngine">
-      <HintPath>..\..\KSP Dev\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\KSP Dev\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -47,11 +47,11 @@
     <Compile Include="Interface\IBasicOrbit.cs" />
     <Compile Include="Interface\IBasicPanel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StateToggle.cs" />
     <Compile Include="TextHandler.cs" />
-    <Compile Include="Unity\BasicOrbit_AppLauncher.cs" />
+    <Compile Include="Unity\BasicOrbit_AppWindow.cs" />
     <Compile Include="Unity\BasicOrbit_Module.cs" />
     <Compile Include="Unity\BasicOrbit_Panel.cs" />
-    <Compile Include="Unity\BasicOrbit_Settings.cs" />
     <Compile Include="Unity\BasicOrbit_SettingsModule.cs" />
     <Compile Include="Unity\BasicStyle.cs" />
   </ItemGroup>
