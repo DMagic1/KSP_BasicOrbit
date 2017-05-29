@@ -47,17 +47,15 @@ namespace BasicOrbit.Modules.TargetModules
 
 		protected override string fieldUpdate()
 		{
-			if (FlightGlobals.ActiveVessel == null)
+			if (!BasicTargetting.Updated)
 				return "---";
 
-			if (!BasicTargetting.Updated)
+			if (BasicTargetting.ActiveBody == null)
 				return "---";
 
 			double UT = Planetarium.GetUniversalTime();
 
-			CelestialBody b = FlightGlobals.ActiveVessel.mainBody;
-
-			if (b.referenceBody == null || b.referenceBody == b)
+			if (BasicTargetting.ActiveBody.referenceBody == null || BasicTargetting.ActiveBody.referenceBody == BasicTargetting.ActiveBody)
 				return "---";
 
 			Vector3d ship = BasicTargetting.TrueShipOrbit.getRelativePositionAtUT(UT);

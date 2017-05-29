@@ -52,6 +52,11 @@ namespace BasicOrbit.Modules.TargetModules
 		private static Orbit _trueShipOrbit;
 		private static Orbit _targetOrbit;
 		private static CelestialBody _targetBody;
+		private static Vessel _activeVessel;
+		private static CelestialBody _activeBody;
+		private static ITargetable _targetObject;
+		private static Transform _targetTransform;
+		private static Vector3 _vesselTargetDelta;
 
 		public static bool Updated
 		{
@@ -103,6 +108,31 @@ namespace BasicOrbit.Modules.TargetModules
 		public static CelestialBody TargetBody
 		{
 			get { return _targetBody; }
+		}
+
+		public static Vessel ActiveVessel
+		{
+			get { return _activeVessel; }
+		}
+
+		public static CelestialBody ActiveBody
+		{
+			get { return _activeBody; }
+		}
+
+		public static ITargetable TargetObject
+		{
+			get { return _targetObject; }
+		}
+
+		public static Transform TargetTransform
+		{
+			get { return _targetTransform; }
+		}
+
+		public static Vector3 VesselTargetDelta
+		{
+			get { return _vesselTargetDelta; }
 		}
 
 		public static Orbit ShipPhasingOrbit
@@ -164,20 +194,28 @@ namespace BasicOrbit.Modules.TargetModules
 				_vesselIntersect = false;
 				_bodyIntersect = false;
 				_updated = false;
+				_activeVessel = null;
+				_activeBody = null;
+				_targetObject = null;
+				_targetTransform = null;
 				return false;
 			}
 
-			if (FlightGlobals.ActiveVessel.targetObject.GetVessel() == null)
+			_activeVessel = FlightGlobals.ActiveVessel;
+			_activeBody = FlightGlobals.currentMainBody;
+			_targetObject = _activeVessel.targetObject;
+
+			if (_targetObject.GetVessel() == null)
 			{
-				if (FlightGlobals.ActiveVessel.targetObject.GetOrbit() == null)
+				if (_targetObject.GetOrbit() == null)
 				{
 					_targetBody = null;
 					_isCelestial = false;
 					_isVessel = false;
 				}
-				else if (FlightGlobals.ActiveVessel.targetObject.GetOrbitDriver().celestialBody != null)
+				else if (_targetObject.GetOrbitDriver().celestialBody != null)
 				{
-					_targetBody = FlightGlobals.ActiveVessel.targetObject.GetOrbitDriver().celestialBody;
+					_targetBody = _targetObject.GetOrbitDriver().celestialBody;
 					_isCelestial = true;
 					_isVessel = false;
 				}
@@ -193,6 +231,8 @@ namespace BasicOrbit.Modules.TargetModules
 				_targetBody = null;
 				_isCelestial = false;
 				_isVessel = true;
+				_targetTransform = FlightGlobals.fetch.vesselTargetTransform;
+				_vesselTargetDelta = FlightGlobals.fetch.vesselTargetDelta;
 			}
 
 			return true;
@@ -218,9 +258,9 @@ namespace BasicOrbit.Modules.TargetModules
 			_shipPhasingOrbit = null;
 			_targetPhasingOrbit = null;
 
-			_targetOrbit = FlightGlobals.ActiveVessel.targetObject.GetOrbit();
+			_targetOrbit = _targetObject.GetOrbit();
 
-			Orbit active = FlightGlobals.ActiveVessel.orbit;
+			Orbit active = _activeVessel.orbit;
 
 			_trueShipOrbit = active;
 
@@ -241,14 +281,14 @@ namespace BasicOrbit.Modules.TargetModules
 					_shipOrbit = active;
 				else
 				{
-					_shipOrbit = FlightGlobals.ActiveVessel.orbit.referenceBody.orbit;
+					_shipOrbit = active.referenceBody.orbit;
 					_showAngle = true;
 				}
 
 				DrillDownOrbits(active, _targetOrbit);
 			}
 
-			Vessel.Situations sit = FlightGlobals.ActiveVessel.situation;
+			Vessel.Situations sit = _activeVessel.situation;
 
 			if ((sit |= Vessel.Situations.LANDED | Vessel.Situations.SPLASHED | Vessel.Situations.PRELAUNCH) == 0)
 			{
@@ -264,8 +304,8 @@ namespace BasicOrbit.Modules.TargetModules
 				}
 				else
 				{
-					OrbitTargeter oTargeter = FlightGlobals.ActiveVessel.orbitTargeter;
-					PatchedConicSolver solver = FlightGlobals.ActiveVessel.patchedConicSolver;
+					OrbitTargeter oTargeter = _activeVessel.orbitTargeter;
+					PatchedConicSolver solver = _activeVessel.patchedConicSolver;
 
 					if (oTargeter == null || solver == null)
 					{
@@ -278,7 +318,7 @@ namespace BasicOrbit.Modules.TargetModules
 						{
 							_bodyIntersect = false;
 
-							Vessel tgt = FlightGlobals.ActiveVessel.targetObject.GetVessel();
+							Vessel tgt = _targetObject.GetVessel();
 
 							if (tgt == null || tgt.LandedOrSplashed)
 							{
@@ -451,7 +491,8 @@ namespace BasicOrbit.Modules.TargetModules
 
 		private static void DrillDownOrbits(Orbit s, Orbit t)
 		{
-			bool sIsOrbitingPlanet = s.referenceBody.referenceBody.referenceBody == null || s.referenceBody.referenceBody.referenceBody == s.referenceBody.referenceBody;
+			bool sIsOrbitingPlanet = s.referenceBody.referenceBody.referenceBody == null ||
+				s.referenceBody.referenceBody.referenceBody == s.referenceBody.referenceBody;
 			bool tIsPlanet = t.referenceBody.referenceBody == null || t.referenceBody.referenceBody == t.referenceBody;
 
 			if (tIsPlanet)

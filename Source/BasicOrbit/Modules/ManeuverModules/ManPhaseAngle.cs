@@ -48,21 +48,18 @@ namespace BasicOrbit.Modules.ManeuverModules
 
 		protected override string fieldUpdate()
 		{
-			if (FlightGlobals.ActiveVessel == null)
-				return "---";
-
 			if (!BasicManeuvering.Updated)
 				return "---";
 
 			if (BasicManeuvering.Node == null)
 				return "---";
 
-			if (BasicManeuvering.PhasingNodePatch == null || BasicTargetting.TargetPhasingOrbit == null)
+			if (BasicManeuvering.PhasingNodePatch == null || BasicManeuvering.TargetPhasingOrbit == null)
 				return "---";
 
 			double UT = BasicManeuvering.Node.UT;
 
-			Vector3d exclusion = Vector3d.Exclude(BasicManeuvering.PhasingNodePatch.GetOrbitNormal(), BasicTargetting.TargetPhasingOrbit.getRelativePositionAtUT(UT));
+			Vector3d exclusion = Vector3d.Exclude(BasicManeuvering.PhasingNodePatch.GetOrbitNormal(), BasicManeuvering.TargetPhasingOrbit.getRelativePositionAtUT(UT));
 
 			double angle = Vector3d.Angle(exclusion, BasicManeuvering.PhasingNodePatch.getRelativePositionAtUT(UT));
 

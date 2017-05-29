@@ -42,6 +42,7 @@ namespace BasicOrbit.Modules.ManeuverModules
 
 		private static bool _vesselIntersect;
 		private static bool _bodyIntersect;
+		private static bool _showAngle;
 		private static double _closestDist;
 		private static double _closestTime;
 		private static double _closestRelVel;
@@ -56,6 +57,7 @@ namespace BasicOrbit.Modules.ManeuverModules
 		private static Vessel _bbVesselReference;
 
 		private static Orbit _phasingNodePatch;
+		private static Orbit _targetPhasingOrbit;
 
 		private static ManeuverNode _node;
 
@@ -79,6 +81,11 @@ namespace BasicOrbit.Modules.ManeuverModules
 		public static bool BodyIntersect
 		{
 			get { return _bodyIntersect; }
+		}
+
+		public static bool ShowAngle
+		{
+			get { return _showAngle; }
 		}
 
 		public static double ManeuverRemaining
@@ -126,6 +133,11 @@ namespace BasicOrbit.Modules.ManeuverModules
 			get { return _phasingNodePatch; }
 		}
 
+		public static Orbit TargetPhasingOrbit
+		{
+			get { return _targetPhasingOrbit; }
+		}
+
 		public static ManeuverNode Node
 		{
 			get { return _node; }
@@ -148,8 +160,6 @@ namespace BasicOrbit.Modules.ManeuverModules
 
 			if (_node != null)
 			{
-				DrillDownOrbits(_node.patch, BasicTargetting.TargetPhasingOrbit);
-
 				_maneuverTotal = _node.DeltaV.magnitude;
 
 				_maneuverRemaining = _node.GetBurnVector(_node.patch).magnitude;
@@ -212,6 +222,8 @@ namespace BasicOrbit.Modules.ManeuverModules
 				else
 					_burnTime = _node.UT;
 
+				_showAngle = false;
+
 				if (target)
 				{
 					if (!BasicTargetting.IsVessel && !BasicTargetting.IsCelestial)
@@ -221,6 +233,25 @@ namespace BasicOrbit.Modules.ManeuverModules
 					}
 					else
 					{
+						Orbit targetOrbit = FlightGlobals.ActiveVessel.targetObject.GetOrbit();
+
+						Orbit active = FlightGlobals.ActiveVessel.orbit;
+
+						_targetPhasingOrbit = null;
+
+						if (active.referenceBody == targetOrbit.referenceBody)
+						{
+							_phasingNodePatch = active;
+							_targetPhasingOrbit = targetOrbit;
+						}
+						else
+						{
+							if (active.referenceBody != Planetarium.fetch.Sun)
+								_showAngle = true;
+
+							DrillDownOrbits(_node.patch, targetOrbit);
+						}
+
 						Vessel.Situations sit = FlightGlobals.ActiveVessel.situation;
 
 						if ((sit |= Vessel.Situations.LANDED | Vessel.Situations.SPLASHED | Vessel.Situations.PRELAUNCH) == 0)
@@ -387,7 +418,8 @@ namespace BasicOrbit.Modules.ManeuverModules
 			if (t == null)
 				return;
 
-			bool sIsOrbitingPlanet = s.referenceBody.referenceBody.referenceBody == null || s.referenceBody.referenceBody.referenceBody == s.referenceBody.referenceBody;
+			bool sIsOrbitingPlanet = s.referenceBody.referenceBody.referenceBody == null ||
+				s.referenceBody.referenceBody.referenceBody == s.referenceBody.referenceBody;
 			bool tIsPlanet = t.referenceBody.referenceBody == null || t.referenceBody.referenceBody == t.referenceBody;
 
 			if (tIsPlanet)
@@ -396,6 +428,7 @@ namespace BasicOrbit.Modules.ManeuverModules
 					s = s.referenceBody.orbit;
 
 				_phasingNodePatch = s;
+				_targetPhasingOrbit = t;
 			}
 			else
 			{
@@ -405,7 +438,14 @@ namespace BasicOrbit.Modules.ManeuverModules
 					targetParent = targetParent.referenceBody;
 
 				if (sIsOrbitingPlanet)
+				{
 					_phasingNodePatch = s;
+
+					if (s.referenceBody == targetParent)
+						_targetPhasingOrbit = t;
+					else
+						_targetPhasingOrbit = targetParent.orbit;
+				}
 				else
 				{
 					CelestialBody shipParent = s.referenceBody;
@@ -414,9 +454,15 @@ namespace BasicOrbit.Modules.ManeuverModules
 						shipParent = shipParent.referenceBody;
 
 					if (shipParent == targetParent)
+					{
 						_phasingNodePatch = s.referenceBody.orbit;
+						_targetPhasingOrbit = t;
+					}
 					else
+					{
 						_phasingNodePatch = shipParent.orbit;
+						_targetPhasingOrbit = targetParent.orbit;
+					}
 				}
 			}
 		}

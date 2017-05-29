@@ -48,13 +48,17 @@ namespace BasicOrbit.Modules.TargetModules
 			if (!BasicTargetting.Updated)
 				return "---";
 
-			ITargetable tgt = FlightGlobals.ActiveVessel.targetObject;
+			if (BasicTargetting.TargetObject == null)
+				return "---";
 
-			if (tgt.GetVessel() != null)
+			if (BasicTargetting.ActiveVessel == null)
+				return "---";
+
+			if (BasicTargetting.TargetObject.GetVessel() != null)
 			{
-				if (tgt.GetVessel().LandedOrSplashed)
+				if (BasicTargetting.TargetObject.GetVessel().LandedOrSplashed)
 				{
-					Vector3d relative = FlightGlobals.ActiveVessel.srf_velocity - tgt.GetSrfVelocity();
+					Vector3d relative = BasicTargetting.ActiveVessel.srf_velocity - BasicTargetting.TargetObject.GetSrfVelocity();
 
 					return result(relative.magnitude);
 				}

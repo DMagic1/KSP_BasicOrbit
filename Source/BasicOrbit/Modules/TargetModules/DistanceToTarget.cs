@@ -47,52 +47,47 @@ namespace BasicOrbit.Modules.TargetModules
 
 		protected override string fieldUpdate()
 		{
-			if (FlightGlobals.ActiveVessel == null)
-				return "---";
-
 			if (!BasicTargetting.Updated)
 				return "---";
 
-			if (FlightGlobals.ActiveVessel.targetObject == null)
+			if (BasicTargetting.ActiveVessel == null)
 				return "---";
 
-			Transform tgtTransform = FlightGlobals.ActiveVessel.targetObject.GetTransform();
+			if (BasicTargetting.TargetObject == null)
+				return "---";
+
+			Transform tgtTransform = BasicTargetting.TargetObject.GetTransform();
 
 			if (tgtTransform == null)
 				return "---";
 
 			if (BasicTargetting.IsVessel)
 			{
-				if (FlightGlobals.ActiveVessel.targetObject == null)
-					return "---";
-
-				ITargetable tgt = FlightGlobals.ActiveVessel.targetObject;
-
-				Vessel targetVessel = tgt.GetVessel();
+				Vessel targetVessel = BasicTargetting.TargetObject.GetVessel();
 
 				if (targetVessel == null)
 					return "---";
 
 				Vector3d targetPos = tgtTransform.position;
-				Vector3d originPos = FlightGlobals.ActiveVessel.transform.position;
+				Vector3d originPos = BasicTargetting.ActiveVessel.transform.position;
 
 				if (targetVessel.loaded)
 				{
-					if (FlightGlobals.ActiveVessel.GetReferenceTransformPart() != null &&
-						FlightGlobals.ActiveVessel.GetReferenceTransformPart().FindModulesImplementing<ModuleDockingNode>().Count > 0)
+					if (BasicTargetting.ActiveVessel.GetReferenceTransformPart() != null &&
+						BasicTargetting.ActiveVessel.GetReferenceTransformPart().FindModulesImplementing<ModuleDockingNode>().Count > 0)
 					{
-						originPos = FlightGlobals.ActiveVessel.GetReferenceTransformPart().FindModulesImplementing<ModuleDockingNode>()[0].nodeTransform.position;
+						originPos = BasicTargetting.ActiveVessel.GetReferenceTransformPart().FindModulesImplementing<ModuleDockingNode>()[0].nodeTransform.position;
 
-						if (FlightGlobals.fetch != null)
-							targetPos = FlightGlobals.fetch.vesselTargetTransform.position;
+						if (BasicTargetting.TargetTransform != null)
+							targetPos = BasicTargetting.TargetTransform.position;
 						else
 							targetPos = targetVessel.ReferenceTransform.position;
 					}
 					else if (FlightGlobals.fetch != null)
-						return result(FlightGlobals.fetch.vesselTargetDelta.magnitude);
+						return result(BasicTargetting.VesselTargetDelta.magnitude);
 					else
 					{
-						originPos = FlightGlobals.ActiveVessel.ReferenceTransform.position;
+						originPos = BasicTargetting.ActiveVessel.ReferenceTransform.position;
 						targetPos = targetVessel.ReferenceTransform.position;
 					}
 				}
@@ -100,7 +95,7 @@ namespace BasicOrbit.Modules.TargetModules
 				return result(Vector3d.Distance(targetPos, originPos));
 			}
 			else if (BasicTargetting.IsCelestial)
-				return result(Vector3d.Distance(tgtTransform.position, FlightGlobals.ActiveVessel.transform.position));
+				return result(Vector3d.Distance(tgtTransform.position, BasicTargetting.ActiveVessel.transform.position));
 			else
 				return "---";
 		}

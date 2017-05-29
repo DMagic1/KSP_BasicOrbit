@@ -47,9 +47,6 @@ namespace BasicOrbit.Modules.TargetModules
 
 		protected override string fieldUpdate()
 		{
-			if (FlightGlobals.ActiveVessel == null)
-				return "---";
-
 			if (!BasicTargetting.Updated)
 				return "---";
 
