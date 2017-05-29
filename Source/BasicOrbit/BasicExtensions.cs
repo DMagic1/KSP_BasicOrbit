@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using KSP.Localization;
 
 namespace BasicOrbit
 {
@@ -34,6 +35,11 @@ namespace BasicOrbit
 	{
 		private static int[] times = new int[5];
 		private static string[] units = new string[5] { "s", "m", "h", "d", "y" };
+
+		public static string LocalizeBodyName(this string input)
+		{
+			return Localizer.Format("<<1>>", input);
+		}
 
 		public static string Distance(this double d, int figs = 2)
 		{

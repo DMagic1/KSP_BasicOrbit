@@ -53,19 +53,14 @@ namespace BasicOrbit.Modules.TargetModules
 				if (BasicTargetting.TargetBody == null)
 					return "---";
 
-				return BasicTargetting.TargetBody.theName;
+				return BasicTargetting.TargetBody.displayName.LocalizeBodyName();
 			}
 			else if (BasicTargetting.IsVessel)
 			{
-				if (FlightGlobals.ActiveVessel == null)
+				if (BasicTargetting.TargetObject == null)
 					return "---";
 
-				if (FlightGlobals.ActiveVessel.targetObject == null)
-					return "---";
-
-				ITargetable tgt = FlightGlobals.ActiveVessel.targetObject;
-
-				Vessel targetVessel = tgt.GetVessel();
+				Vessel targetVessel = BasicTargetting.TargetObject.GetVessel();
 
 				if (targetVessel == null)
 					return "---";
