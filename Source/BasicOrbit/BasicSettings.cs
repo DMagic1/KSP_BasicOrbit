@@ -204,6 +204,11 @@ namespace BasicOrbit
 
 			if (Load())
 				BasicOrbit.BasicLogging("Settings file loaded");
+			else
+			{
+				if (Save())
+					BasicOrbit.BasicLogging("New Settings files generated at:\n{0}", fullPath);
+			}
 		}
 
 		public bool Load()
