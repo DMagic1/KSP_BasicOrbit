@@ -37,9 +37,9 @@ namespace BasicOrbit.Unity.Unity
 		[SerializeField]
 		private TextHandler m_Title = null;
 		[SerializeField]
-		private Toggle m_Toggle = null;
+		private StateToggle m_Toggle = null;
 		[SerializeField]
-		private Toggle m_ShowAlways = null;
+		private StateToggle m_ShowAlways = null;
 
 		private IBasicModule moduleInterface;
 		private bool loaded;

@@ -43,7 +43,12 @@ namespace BasicOrbit.Unity.Unity
 			Box,
 			Button,
 			Toggle,
-			Slider
+			Slider,
+			Header,
+			Footer,
+			Content,
+			ContentToggle,
+			ContentFooter
 		}
 
 		[SerializeField]
@@ -80,6 +85,18 @@ namespace BasicOrbit.Unity.Unity
 			select.spriteState = spriteState;
 		}
 
+		private void setSelectable(Sprite normal)
+		{
+			Selectable select = GetComponent<Selectable>();
+
+			if (select == null)
+				return;
+
+			select.image.sprite = normal;
+			select.image.type = Image.Type.Sliced;
+			select.transition = Selectable.Transition.None;
+		}
+
 		/// <summary>
 		/// Sets the background image for windows and panels
 		/// </summary>
@@ -112,26 +129,22 @@ namespace BasicOrbit.Unity.Unity
 		/// Setup UI style for toggles
 		/// </summary>
 		/// <param name="normal">The normal checkbox sprite</param>
-		/// <param name="highlight">Sprite when mouse is over the UI element</param>
-		/// <param name="active">Sprite when mouse is clicking on the UI element and when the toggle is activated</param>
-		/// <param name="inactive">Sprite when the element is disabled; not generally used</param>
-		public void setToggle(Sprite normal, Sprite highlight, Sprite active, Sprite inactive)
+		/// <param name="onMark">Sprite for the on state</param>
+		/// <param name="offMark">Sprite for the off state</param>
+		public void setToggle(Sprite normal, Sprite onMark, Sprite offMark)
 		{
-			setSelectable(normal, highlight, active, inactive);
+			setSelectable(normal);
 
-			Toggle toggle = GetComponent<Toggle>();
+			if (onMark == null || offMark == null)
+				return;
+
+			StateToggle toggle = GetComponent<StateToggle>();
 
 			if (toggle == null)
 				return;
 
-			//The "checkmark" sprite is replaced with the "active" sprite; this is only displayed when the toggle is in the true state
-			Image toggleImage = toggle.graphic as Image;
-
-			if (toggleImage == null)
-				return;
-
-			toggleImage.sprite = active;
-			toggleImage.type = Image.Type.Sliced;
+			toggle.OnSprite = onMark;
+			toggle.OffSprite = offMark;
 		}
 
 		/// <summary>

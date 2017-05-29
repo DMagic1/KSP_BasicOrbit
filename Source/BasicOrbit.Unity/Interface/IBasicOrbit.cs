@@ -39,9 +39,15 @@ namespace BasicOrbit.Unity.Interface
 
 		bool ShowManeuver { get; set; }
 
+		bool InMenu { get; set; }
+
 		float Alpha { get; set; }
 
-		float Scale { get; set; }
+		float ToolbarScale { get; set; }
+
+		float PanelScale { get; set; }
+
+		float Height { get; set; }
 
 		float MasterScale { get; }
 
