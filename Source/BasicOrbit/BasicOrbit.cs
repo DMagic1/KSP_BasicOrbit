@@ -44,9 +44,11 @@ namespace BasicOrbit
 		private BasicHUD targetHUD;
 		private BasicHUD maneuverHUD;
 
+		private VesselName vesselName;
 		private Apoapsis apo;
 		private Periapsis peri;
 		private Inclination inc;
+		private TimeToEqNode eqNode;
 		private Eccentricity ecc;
 		private Period period;
 		private SemiMajorAxis SMA;
@@ -142,9 +144,11 @@ namespace BasicOrbit
 		{
 			instance = null;
 
+			vesselName.IsActive = false;
 			apo.IsActive = false;
 			peri.IsActive = false;
 			inc.IsActive = false;
+			eqNode.IsActive = false;
 			ecc.IsActive = false;
 			LAN.IsActive = false;
 			AoPE.IsActive = false;
@@ -235,9 +239,11 @@ namespace BasicOrbit
 					{
 						case Vessel.Situations.LANDED:
 						case Vessel.Situations.PRELAUNCH:
+							vesselName.IsActive = true;
 							apo.IsActive = apo.AlwaysShow;
 							peri.IsActive = peri.AlwaysShow;
 							inc.IsActive = inc.AlwaysShow;
+							eqNode.IsActive = eqNode.AlwaysShow;
 							ecc.IsActive = ecc.AlwaysShow;
 							LAN.IsActive = LAN.AlwaysShow;
 							AoPE.IsActive = AoPE.AlwaysShow;
@@ -250,9 +256,11 @@ namespace BasicOrbit
 							terrain.IsActive = pqs || terrain.AlwaysShow;
 							break;
 						case Vessel.Situations.SPLASHED:
+							vesselName.IsActive = true;
 							apo.IsActive = apo.AlwaysShow;
 							peri.IsActive = peri.AlwaysShow;
 							inc.IsActive = inc.AlwaysShow;
+							eqNode.IsActive = eqNode.AlwaysShow;
 							ecc.IsActive = ecc.AlwaysShow;
 							LAN.IsActive = LAN.AlwaysShow;
 							AoPE.IsActive = AoPE.AlwaysShow;
@@ -265,12 +273,14 @@ namespace BasicOrbit
 							terrain.IsActive = pqs || terrain.AlwaysShow;
 							break;
 						case Vessel.Situations.FLYING:
+							vesselName.IsActive = true;
 							apo.IsActive = apo.AlwaysShow || (v.orbit.eccentricity < 1 && (!jumper || highRadar));
 							radar.IsActive = radar.AlwaysShow || (pqs && (!jumper || highRadar));
 							terrain.IsActive = terrain.AlwaysShow || pqs;
 							location.IsActive = true;
 							velocity.IsActive = true;
 							inc.IsActive = inc.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 3;
+							eqNode.IsActive = eqNode.AlwaysShow || (v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 3 && (Math.Abs(v.orbit.inclination) > 0.0001 && Math.Abs(v.orbit.inclination) < 179.9999));
 							altitude.IsActive = altitude.AlwaysShow || (!pqs && (!jumper || highRadar));
 							LAN.IsActive = LAN.AlwaysShow;
 							AoPE.IsActive = AoPE.AlwaysShow;
@@ -280,8 +290,10 @@ namespace BasicOrbit
 							period.IsActive = period.AlwaysShow;
 							break;
 						case Vessel.Situations.SUB_ORBITAL:
+							vesselName.IsActive = true;
 							apo.IsActive = apo.AlwaysShow || (v.orbit.eccentricity < 1 && (!jumper || highRadar));
 							inc.IsActive = inc.AlwaysShow || !jumper || highRadar;
+							eqNode.IsActive = eqNode.AlwaysShow || ((!jumper || highRadar) && (Math.Abs(v.orbit.inclination) > 0.0001 && Math.Abs(v.orbit.inclination) < 179.9999));
 							ecc.IsActive = ecc.AlwaysShow || !jumper || highRadar;
 							location.IsActive = true;
 							velocity.IsActive = true;
@@ -301,9 +313,11 @@ namespace BasicOrbit
 							period.IsActive = period.AlwaysShow;
 							break;
 						default:
+							vesselName.IsActive = true;
 							apo.IsActive = apo.AlwaysShow || v.orbit.eccentricity < 1;
 							peri.IsActive = peri.AlwaysShow || v.orbit.eccentricity < 1 || v.orbit.timeToPe > 0;
 							inc.IsActive = true;
+							eqNode.IsActive = eqNode.AlwaysShow || (Math.Abs(v.orbit.inclination) > 0.0001 && Math.Abs(v.orbit.inclination) < 179.9999);
 							ecc.IsActive = true;
 							LAN.IsActive = true;
 							AoPE.IsActive = true;
@@ -319,7 +333,7 @@ namespace BasicOrbit
 					}
 				}
 
-				if (terrain.IsActive || radar.IsActive)
+				if ((terrain.IsActive && terrain.IsVisible) || (radar.IsActive && radar.IsVisible))
 					BasicOrbiting.Update();
 			}
 
@@ -626,9 +640,11 @@ namespace BasicOrbit
 		{
 			List<IBasicModule> modules = new List<IBasicModule>();
 
+			vesselName = new VesselName("Vessel Name");
 			apo = new Apoapsis("Apoapsis");
 			peri = new Periapsis("Periapsis");
 			inc = new Inclination("Inclination");
+			eqNode = new TimeToEqNode("Equatorial Node");
 			ecc = new Eccentricity("Eccentricity");
 			period = new Period("Period");
 			SMA = new SemiMajorAxis("Semi Major Axis");
@@ -640,12 +656,16 @@ namespace BasicOrbit
 			velocity = new Velocity("Velocity");
 			location = new Location("Location");
 
+			vesselName.IsVisible = BasicSettings.Instance.showVesselName;
+			vesselName.AlwaysShow = BasicSettings.Instance.showVesselNameAlways;
 			apo.IsVisible = BasicSettings.Instance.showApoapsis;
 			apo.AlwaysShow = BasicSettings.Instance.showApoapsisAlways;
 			peri.IsVisible = BasicSettings.Instance.showPeriapsis;
 			peri.AlwaysShow = BasicSettings.Instance.showPeriapsisAlways;
 			inc.IsVisible = BasicSettings.Instance.showInclination;
 			inc.AlwaysShow = BasicSettings.Instance.showInclinationAlways;
+			eqNode.IsVisible = BasicSettings.Instance.showTimeToEqNode;
+			eqNode.AlwaysShow = BasicSettings.Instance.showTimeToEqNodeAlways;
 			ecc.IsVisible = BasicSettings.Instance.showEccentricity;
 			ecc.AlwaysShow = BasicSettings.Instance.showEccentricityAlways;
 			period.IsVisible = BasicSettings.Instance.showPeriod;
@@ -677,9 +697,11 @@ namespace BasicOrbit
 			modules.Add(location);
 			modules.Add(period);
 			modules.Add(ecc);
+			modules.Add(eqNode);
 			modules.Add(inc);
 			modules.Add(peri);
 			modules.Add(apo);
+			modules.Add(vesselName);
 
 			return modules;
 		}
