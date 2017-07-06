@@ -65,10 +65,58 @@ namespace BasicOrbit.Modules.TargetModules
 				if (targetVessel == null)
 					return "---";
 
-				if (targetVessel.loaded && targetVessel.GetReferenceTransformPart() != null && targetVessel.GetReferenceTransformPart().FindModulesImplementing<ModuleDockingNode>().Count > 0)
-					return string.Format("{0} [{1}]", targetVessel.vesselName, targetVessel.GetReferenceTransformPart().partInfo.title);
+				if (targetVessel.loaded && BasicTargetting.TargetObject is ModuleDockingNode)
+				{
+					ModuleDockingNode target = BasicTargetting.TargetObject as ModuleDockingNode;
+
+					if (target == null)
+					{
+						if (targetVessel.vesselName.Length > 28)
+							return targetVessel.vesselName.Substring(0, 28);
+
+						return targetVessel.vesselName;
+					}
+
+					int vL = targetVessel.vesselName.Length;
+					int dL = target.part.partInfo.title.Length;
+
+					string v = targetVessel.vesselName;
+					string d = target.part.partInfo.title;
+
+					if (vL + dL + 3 > 28)
+					{
+						if (vL > 12)
+						{
+							if (dL > 13)
+							{
+								v = v.Substring(0, 12);
+								d = d.Substring(0, 13);
+							}
+							else
+								v = v.Substring(0, 12);
+						}
+						else if (dL > 13)
+						{
+							if (vL > 12)
+							{
+								v = v.Substring(0, 12);
+								d = d.Substring(0, 13);
+							}
+							else
+								d = d.Substring(0, 13);
+						}
+
+					}
+
+					return string.Format("{0} [{1}]", v, d);
+				}
 				else
+				{
+					if (targetVessel.vesselName.Length > 28)
+						return targetVessel.vesselName.Substring(0, 28);
+
 					return targetVessel.vesselName;
+				}
 			}
 			else
 				return "---";
