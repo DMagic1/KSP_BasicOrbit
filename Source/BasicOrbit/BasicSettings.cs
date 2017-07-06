@@ -34,6 +34,10 @@ namespace BasicOrbit
 	public class BasicSettings : MonoBehaviour
 	{
 		[Persistent]
+		public bool showVesselName = true;
+		[Persistent]
+		public bool showVesselNameAlways = false;
+		[Persistent]
 		public bool showApoapsis = true;
 		[Persistent]
 		public bool showApoapsisAlways = false;
@@ -45,6 +49,10 @@ namespace BasicOrbit
 		public bool showInclination = true;
 		[Persistent]
 		public bool showInclinationAlways = false;
+		[Persistent]
+		public bool showTimeToEqNode = false;
+		[Persistent]
+		public bool showTimeToEqNodeAlways = false;
 		[Persistent]
 		public bool showEccentricity = true;
 		[Persistent]
