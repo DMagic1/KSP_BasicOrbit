@@ -79,7 +79,9 @@
     <Compile Include="Modules\OrbitModules\Apoapsis.cs" />
     <Compile Include="Modules\OrbitModules\SemiMajorAxis.cs" />
     <Compile Include="Modules\OrbitModules\TerrainAltitude.cs" />
+    <Compile Include="Modules\OrbitModules\TimeToEqNode.cs" />
     <Compile Include="Modules\OrbitModules\Velocity.cs" />
+    <Compile Include="Modules\OrbitModules\VesselName.cs" />
     <Compile Include="Modules\TargetModules\AngleToPrograde.cs" />
     <Compile Include="Modules\TargetModules\BasicTargetting.cs" />
     <Compile Include="Modules\TargetModules\ClosestApproach.cs" />
