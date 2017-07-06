@@ -41,6 +41,14 @@ namespace BasicOrbit
 			return Localizer.Format("<<1>>", input);
 		}
 
+		public static double doubleMax(this double val1, double val2)
+		{
+			if (val1 > val2)
+				return val1;
+			else
+				return val2;
+		}
+
 		public static string Distance(this double d, int figs = 2)
 		{
 			if (d < 1000000)
