@@ -39,7 +39,7 @@ namespace BasicOrbit
 	/// <summary>
 	/// KSPAddon script for processing the Unity UI prefabs, replacing Text elements with TextMeshPro elements, and updating the UI styling with KSP styles
 	/// </summary>
-	[KSPAddon(KSPAddon.Startup.MainMenu, false)]
+	[KSPAddon(KSPAddon.Startup.Flight, true)]
 	public class BasicOrbitLoader : MonoBehaviour
 	{
 		private const string bundleName = "/basic_orbit_prefabs";
@@ -64,6 +64,7 @@ namespace BasicOrbit
 		private static Sprite selectedSprite;
 		private static Sprite unselectedSprite;
 		private static Sprite windowSprite;
+		private static Sprite panelSprite;
 
 		public static GameObject ToolbarPrefab
 		{
@@ -131,49 +132,72 @@ namespace BasicOrbit
 				break;
 			}
 
-			if (prefab == null)
-				return;
-
-			GenericAppFrame appFrame = null;
-			GenericCascadingList cascadingList = null;
-			UIListItem_spacer spacer = null;
-
-			try
+			if (prefab != null)
 			{
-				var fields = typeof(ContractsApp).GetFields(BindingFlags.NonPublic | BindingFlags.Instance).ToArray();
 
-				appFrame = fields[6].GetValue(prefab) as GenericAppFrame;
+				GenericAppFrame appFrame = null;
+				GenericCascadingList cascadingList = null;
+				UIListItem_spacer spacer = null;
 
-				cascadingList = fields[8].GetValue(prefab) as GenericCascadingList;
+				try
+				{
+					var fields = typeof(ContractsApp).GetFields(BindingFlags.NonPublic | BindingFlags.Instance).ToArray();
 
-				spacer = fields[10].GetValue(prefab) as UIListItem_spacer;
+					appFrame = fields[6].GetValue(prefab) as GenericAppFrame;
+
+					cascadingList = fields[8].GetValue(prefab) as GenericCascadingList;
+
+					spacer = fields[10].GetValue(prefab) as UIListItem_spacer;
+				}
+				catch (Exception e)
+				{
+					BasicOrbit.BasicLogging("Error in processing toolbar panel UI: {0}", e);
+				}
+
+				if (appFrame != null)
+				{
+					windowSprite = appFrame.gfxBg.sprite;
+					titleSprite = appFrame.gfxHeader.sprite;
+					footerSprite = appFrame.gfxFooter.sprite;
+				}
+
+				if (cascadingList != null)
+				{
+					buttonSprite = cascadingList.cascadeHeader.GetComponent<Image>().sprite;
+					contentFooterSprite = cascadingList.cascadeFooter.GetComponent<Image>().sprite;
+				}
+
+				if (spacer != null)
+				{
+					componentSprite = spacer.GetComponent<Image>().sprite;
+
+					UIStateImage stateImage = spacer.GetComponentInChildren<UIStateImage>();
+
+					selectedSprite = stateImage.states[1].sprite;
+					unselectedSprite = stateImage.states[0].sprite;
+				}
 			}
-			catch (Exception e)
+
+			StageManager prefabFlight = null;
+
+			var stages = Resources.FindObjectsOfTypeAll<StageManager>();
+
+			for (int i = stages.Length - 1; i >= 0; i--)
 			{
-				BasicOrbit.BasicLogging("Error in processing toolbar panel UI: {0}", e);
+				var pre = stages[i];
+
+				if (pre.name == "StageManager")
+					prefabFlight = pre;
 			}
 
-			if (appFrame != null)
+			if (prefabFlight != null)
 			{
-				windowSprite = appFrame.gfxBg.sprite;
-				titleSprite = appFrame.gfxHeader.sprite;
-				footerSprite = appFrame.gfxFooter.sprite;
-			}
+				StageGroup group = prefabFlight.stageGroupPrefab;
 
-			if (cascadingList != null)
-			{
-				buttonSprite = cascadingList.cascadeHeader.GetComponent<Image>().sprite;
-				contentFooterSprite = cascadingList.cascadeFooter.GetComponent<Image>().sprite;
-			}
+				Transform layout = group.transform.FindChild("IconLayout");
 
-			if (spacer != null)
-			{
-				componentSprite = spacer.GetComponent<Image>().sprite;
-
-				UIStateImage stateImage = spacer.GetComponentInChildren<UIStateImage>();
-
-				selectedSprite = stateImage.states[1].sprite;
-				unselectedSprite = stateImage.states[0].sprite;
+				if (layout != null)
+					panelSprite = layout.GetComponent<Image>().sprite;
 			}
 
 			spritesLoaded = true;
@@ -312,7 +336,7 @@ namespace BasicOrbit
 			switch (style.ElementType)
 			{
 				case BasicStyle.ElementTypes.Window:
-					style.setImage(skin.window.normal.background, Image.Type.Sliced);
+					style.setImage(panelSprite, Image.Type.Sliced);
 					break;
 				case BasicStyle.ElementTypes.Box:
 					style.setImage(windowSprite, Image.Type.Sliced);
