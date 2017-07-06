@@ -87,7 +87,7 @@ namespace BasicOrbit
 
 		public float Scale
 		{
-			get { return BasicSettings.Instance.UIScale; }
+			get { return BasicSettings.Instance.UIPanelScale; }
 		}
 		
 		public IList<IBasicModule> GetModules
