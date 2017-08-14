@@ -54,12 +54,24 @@ namespace BasicOrbit.Modules.ManeuverModules
 			if (BasicManeuvering.Node.nextPatch == null)
 				return "---";
 
-			return result(BasicManeuvering.Node.nextPatch.inclination);
+			if (BasicManeuvering.TargetInclination)
+			{
+				double inc = Vector3d.Angle(BasicManeuvering.Node.nextPatch.GetOrbitNormal(), BasicManeuvering.TargetPhasingOrbit.GetOrbitNormal());
+
+				return string.Format("{0} ({1})", result(BasicManeuvering.Node.nextPatch.inclination), targetResult(inc));
+			}
+			else
+				return result(BasicManeuvering.Node.nextPatch.inclination);
 		}
 
 		private string result(double d)
 		{
 			return string.Format("{0:F3}°", d);
+		}
+
+		private string targetResult(double d)
+		{
+			return string.Format("Tgt Rel {0:F3}°", d);
 		}
 	}
 }
