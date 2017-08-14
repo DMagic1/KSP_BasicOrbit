@@ -77,7 +77,7 @@ namespace BasicOrbit.Modules.OrbitModules
 			}
 			else
 			{
-				if (FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude.doubleMax(0) < 2400)
+				if (!FlightGlobals.ActiveVessel.isEVA && FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude.doubleMax(0) < 2400)
 				{
 					_terrainHeight = FlightGlobals.ActiveVessel.terrainAltitude;
 					_radarAltitude = heightToLand();
@@ -113,6 +113,12 @@ namespace BasicOrbit.Modules.OrbitModules
 				for (int i = FlightGlobals.ActiveVessel.Parts.Count - 1; i >= 0; i--)
 				{
 					Part p = FlightGlobals.ActiveVessel.Parts[i];
+
+					if (p == null)
+						continue;
+
+					if (p.collider == null)
+						continue;
 
 					if (p.collider.enabled)
 						_partList.Add(p);
