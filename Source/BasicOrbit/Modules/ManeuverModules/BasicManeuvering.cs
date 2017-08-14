@@ -39,10 +39,12 @@ namespace BasicOrbit.Modules.ManeuverModules
 
 		private static bool _updated;
 		private static bool _update;
+		private static bool _targetInclination;
 
 		private static bool _vesselIntersect;
 		private static bool _bodyIntersect;
 		private static bool _showAngle;
+		private static bool _showPhasing;
 		private static double _closestDist;
 		private static double _closestTime;
 		private static double _closestRelVel;
@@ -73,6 +75,11 @@ namespace BasicOrbit.Modules.ManeuverModules
 			set { _updated = value; }
 		}
 
+		public static bool TargetInclination
+		{
+			get { return _targetInclination; }
+		}
+
 		public static bool VesselIntersect
 		{
 			get { return _vesselIntersect; }
@@ -86,6 +93,11 @@ namespace BasicOrbit.Modules.ManeuverModules
 		public static bool ShowAngle
 		{
 			get { return _showAngle; }
+		}
+
+		public static bool ShowPhasing
+		{
+			get { return _showPhasing; }
 		}
 
 		public static double ManeuverRemaining
@@ -223,6 +235,8 @@ namespace BasicOrbit.Modules.ManeuverModules
 					_burnTime = _node.UT;
 
 				_showAngle = false;
+				_showPhasing = false;
+				_targetInclination = false;
 
 				if (target)
 				{
@@ -243,11 +257,14 @@ namespace BasicOrbit.Modules.ManeuverModules
 						{
 							_phasingNodePatch = active;
 							_targetPhasingOrbit = targetOrbit;
+							_targetInclination = true;
 						}
 						else
 						{
 							if (active.referenceBody != Planetarium.fetch.Sun)
 								_showAngle = true;
+
+							_showPhasing = true;
 
 							DrillDownOrbits(_node.patch, targetOrbit);
 						}
@@ -439,12 +456,16 @@ namespace BasicOrbit.Modules.ManeuverModules
 
 				if (sIsOrbitingPlanet)
 				{
-					_phasingNodePatch = s;
-
 					if (s.referenceBody == targetParent)
-						_targetPhasingOrbit = t;
+					{
+						_targetPhasingOrbit = t.referenceBody.orbit;
+						_phasingNodePatch = s;
+					}
 					else
+					{
 						_targetPhasingOrbit = targetParent.orbit;
+						_phasingNodePatch = s.referenceBody.orbit;
+					}
 				}
 				else
 				{

@@ -40,14 +40,13 @@ namespace BasicOrbit.Modules.TargetModules
 		private static bool _vesselIntersect;
 		private static bool _bodyIntersect;
 		private static bool _showAngle;
+		private static bool _showPhasing;
 
 		private static List<OrbitTargeter.Marker> _markers;
 
 		private static int _patchLimit;
 		private static bool _updated;
 
-		private static Orbit _shipPhasingOrbit;
-		private static Orbit _targetPhasingOrbit;
 		private static Orbit _shipOrbit;
 		private static Orbit _trueShipOrbit;
 		private static Orbit _targetOrbit;
@@ -86,6 +85,11 @@ namespace BasicOrbit.Modules.TargetModules
 		public static bool ShowAngle
 		{
 			get { return _showAngle; }
+		}
+
+		public static bool ShowPhasing
+		{
+			get { return _showPhasing; }
 		}
 
 		public static int PatchLimit
@@ -133,16 +137,6 @@ namespace BasicOrbit.Modules.TargetModules
 		public static Vector3 VesselTargetDelta
 		{
 			get { return _vesselTargetDelta; }
-		}
-
-		public static Orbit ShipPhasingOrbit
-		{
-			get { return _shipPhasingOrbit; }
-		}
-
-		public static Orbit TargetPhasingOrbit
-		{
-			get { return _targetPhasingOrbit; }
 		}
 
 		public static Orbit ShipOrbit
@@ -255,37 +249,35 @@ namespace BasicOrbit.Modules.TargetModules
 
 			_updated = true;
 
-			_shipPhasingOrbit = null;
-			_targetPhasingOrbit = null;
-
-			_targetOrbit = _targetObject.GetOrbit();
-
 			Orbit active = _activeVessel.orbit;
+			Orbit target = _targetObject.GetOrbit();
 
 			_trueShipOrbit = active;
 
 			_showAngle = false;
+			_showPhasing = false;
 
-			_shipPhasingOrbit = null;
-			_targetPhasingOrbit = null;
+			_shipOrbit = null;
+			_targetOrbit = null;
 
-			if (active.referenceBody == _targetOrbit.referenceBody)
+			if (active.referenceBody == target.referenceBody)
 			{
 				_shipOrbit = active;
-				_shipPhasingOrbit = active;
-				_targetPhasingOrbit = _targetOrbit;
+				_targetOrbit = target;
 			}
 			else
 			{
 				if (active.referenceBody == Planetarium.fetch.Sun)
-					_shipOrbit = active;
-				else
 				{
-					_shipOrbit = active.referenceBody.orbit;
-					_showAngle = true;
+					_shipOrbit = active;
+					_targetOrbit = target;
 				}
+				else
+					_showAngle = true;
 
-				DrillDownOrbits(active, _targetOrbit);
+				_showPhasing = true;
+
+				DrillDownOrbits(active, target);
 			}
 
 			Vessel.Situations sit = _activeVessel.situation;
@@ -329,7 +321,7 @@ namespace BasicOrbit.Modules.TargetModules
 							Orbit _refPatch = null;
 
 							if (solver.maneuverNodes.Count > 0)
-								_refPatch = GetReferencePatch(oTargeter, solver, _targetOrbit.referenceBody, null, true);
+								_refPatch = GetReferencePatch(oTargeter, solver, target.referenceBody, null, true);
 							else
 								_refPatch = BasicOrbitReflection.GetRefPatch(oTargeter);
 
@@ -353,7 +345,7 @@ namespace BasicOrbit.Modules.TargetModules
 								Orbit _refPatch = null;
 
 								if (solver.maneuverNodes.Count > 0)
-									_refPatch = GetReferencePatch(oTargeter, solver, _targetBody, _targetOrbit.referenceBody, false);
+									_refPatch = GetReferencePatch(oTargeter, solver, _targetBody, target.referenceBody, false);
 								else
 									_refPatch = BasicOrbitReflection.GetRefPatch(oTargeter);
 
@@ -385,7 +377,7 @@ namespace BasicOrbit.Modules.TargetModules
 
 							if (solver.maneuverNodes.Count > 0)
 							{
-								Orbit _refPatch = GetReferencePatch(oTargeter, solver, _targetOrbit.referenceBody, null, true);
+								Orbit _refPatch = GetReferencePatch(oTargeter, solver, target.referenceBody, null, true);
 								Orbit _tgtRefPatch = BasicOrbitReflection.GetTargetRefPatch(oTargeter);
 
 								_vesselIntersect = GetClosestVessel(_refPatch, _tgtRefPatch);
@@ -450,7 +442,7 @@ namespace BasicOrbit.Modules.TargetModules
 							{
 								if (solver.maneuverNodes.Count > 0)
 								{
-									Orbit _refPatch = GetReferencePatch(oTargeter, solver, _targetBody, _targetOrbit.referenceBody, false);
+									Orbit _refPatch = GetReferencePatch(oTargeter, solver, _targetBody, target.referenceBody, false);
 									Orbit _tgtRefPatch = BasicOrbitReflection.GetTargetRefPatch(oTargeter);
 
 									_bodyIntersect = GetClosestCelestial(_refPatch, _tgtRefPatch);
@@ -500,8 +492,8 @@ namespace BasicOrbit.Modules.TargetModules
 				while (!(s.referenceBody.referenceBody == null || s.referenceBody.referenceBody == s.referenceBody))
 					s = s.referenceBody.orbit;
 
-				_shipPhasingOrbit = s;
-				_targetPhasingOrbit = t;
+				_shipOrbit = s;
+				_targetOrbit = t;
 			}
 			else
 			{
@@ -512,12 +504,16 @@ namespace BasicOrbit.Modules.TargetModules
 
 				if (sIsOrbitingPlanet)
 				{
-					_shipPhasingOrbit = s;
-
 					if (s.referenceBody == targetParent)
-						_targetPhasingOrbit = t;
+					{
+						_targetOrbit = t.referenceBody.orbit;
+						_shipOrbit = s;
+					}
 					else
-						_targetPhasingOrbit = targetParent.orbit;
+					{
+						_targetOrbit = targetParent.orbit;
+						_shipOrbit = s.referenceBody.orbit;
+					}
 				}
 				else
 				{
@@ -528,13 +524,13 @@ namespace BasicOrbit.Modules.TargetModules
 
 					if (shipParent == targetParent)
 					{
-						_shipPhasingOrbit = s.referenceBody.orbit;
-						_targetPhasingOrbit = t;
+						_shipOrbit = s.referenceBody.orbit;
+						_targetOrbit = t;
 					}
 					else
 					{
-						_shipPhasingOrbit = shipParent.orbit;
-						_targetPhasingOrbit = targetParent.orbit;
+						_shipOrbit = shipParent.orbit;
+						_targetOrbit = targetParent.orbit;
 					}
 				}
 			}

@@ -50,6 +50,9 @@ namespace BasicOrbit.Modules.TargetModules
 			if (!BasicTargetting.Updated)
 				return "---";
 
+			if (BasicTargetting.ShipOrbit == null || BasicTargetting.TargetOrbit == null)
+				return "---";
+
 			double angle = Vector3d.Angle(BasicTargetting.ShipOrbit.GetOrbitNormal(), BasicTargetting.TargetOrbit.GetOrbitNormal());
 
 			return result(angle, getNextNode());

@@ -50,14 +50,14 @@ namespace BasicOrbit.Modules.TargetModules
 			if (!BasicTargetting.Updated)
 				return "---";
 
-			if (BasicTargetting.ShipPhasingOrbit == null || BasicTargetting.TargetPhasingOrbit == null)
+			if (BasicTargetting.ShipOrbit == null || BasicTargetting.TargetOrbit == null)
 				return "---";
 
-			Vector3d exclusion = Vector3d.Exclude(BasicTargetting.ShipPhasingOrbit.GetOrbitNormal(), BasicTargetting.TargetPhasingOrbit.pos);
+			Vector3d exclusion = Vector3d.Exclude(BasicTargetting.ShipOrbit.GetOrbitNormal(), BasicTargetting.TargetOrbit.pos);
 
-			double angle = Vector3d.Angle(exclusion, BasicTargetting.ShipPhasingOrbit.pos);
+			double angle = Vector3d.Angle(exclusion, BasicTargetting.ShipOrbit.pos);
 
-			Vector3d rotate = QuaternionD.AngleAxis(90, Vector3d.forward) * BasicTargetting.ShipPhasingOrbit.pos;
+			Vector3d rotate = QuaternionD.AngleAxis(90, Vector3d.forward) * BasicTargetting.ShipOrbit.pos;
 
 			if (Vector3d.Angle(rotate, exclusion) > 90)
 				angle = 360 - angle;
