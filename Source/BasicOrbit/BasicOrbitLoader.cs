@@ -143,11 +143,11 @@ namespace BasicOrbit
 				{
 					var fields = typeof(ContractsApp).GetFields(BindingFlags.NonPublic | BindingFlags.Instance).ToArray();
 
-					appFrame = fields[6].GetValue(prefab) as GenericAppFrame;
+					appFrame = fields[7].GetValue(prefab) as GenericAppFrame;
 
-					cascadingList = fields[8].GetValue(prefab) as GenericCascadingList;
+					cascadingList = fields[9].GetValue(prefab) as GenericCascadingList;
 
-					spacer = fields[10].GetValue(prefab) as UIListItem_spacer;
+					spacer = fields[11].GetValue(prefab) as UIListItem_spacer;
 				}
 				catch (Exception e)
 				{
