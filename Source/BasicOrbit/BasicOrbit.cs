@@ -286,7 +286,7 @@ namespace BasicOrbit
 							AoPE.IsActive = AoPE.AlwaysShow;
 							SMA.IsActive = SMA.AlwaysShow;
 							ecc.IsActive = ecc.AlwaysShow;
-							peri.IsActive = v.orbit.PeA > 0 && ((!jumper || highRadar));
+							peri.IsActive = peri.AlwaysShow || (v.orbit.PeA > 0 && ((!jumper || highRadar)));
 							period.IsActive = period.AlwaysShow;
 							break;
 						case Vessel.Situations.SUB_ORBITAL:
