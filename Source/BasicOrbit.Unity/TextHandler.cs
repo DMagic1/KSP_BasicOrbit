@@ -33,12 +33,27 @@ namespace BasicOrbit.Unity
 	/// and handles updating the text field for the Text Mesh Pro replacement element
 	/// </summary>
 	public class TextHandler : MonoBehaviour
-	{
-		public class OnTextEvent : UnityEvent<string> { }
+    {
+        [SerializeField]
+        private bool m_ReadoutLabel = false;
+        [SerializeField]
+        private bool m_ReadoutField = false;
+
+        public class OnTextEvent : UnityEvent<string> { }
 
 		private OnTextEvent _onTextUpdate = new OnTextEvent();
 
-		public UnityEvent<string> OnTextUpdate
+        public bool ReadoutLabel
+        {
+            get { return m_ReadoutLabel; }
+        }
+
+        public bool ReadoutField
+        {
+            get { return m_ReadoutField; }
+        }
+
+        public UnityEvent<string> OnTextUpdate
 		{
 			get { return _onTextUpdate; }
 		}

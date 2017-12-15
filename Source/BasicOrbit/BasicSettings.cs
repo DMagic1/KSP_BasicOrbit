@@ -185,8 +185,12 @@ namespace BasicOrbit
 		public Vector2 targetPosition = new Vector2(100, 400);
 		[Persistent]
 		public Vector2 maneuverPosition = new Vector2(400, 100);
+        [Persistent]
+        public Color labelColor = Color.white;
+        [Persistent]
+        public Color readoutColor = new Color(0.72157f, 0.79216f, 0.44706f);
 
-		private const string fileName = "PluginData/Settings.cfg";
+        private const string fileName = "PluginData/Settings.cfg";
 		private string fullPath;
 
 		private static bool loaded;

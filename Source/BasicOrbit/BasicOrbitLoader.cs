@@ -272,7 +272,14 @@ namespace BasicOrbit
 
 			//Populate the TextMeshPro fields with the cached data from the old Text element
 			tmp.text = t;
-			tmp.color = c;
+
+            if (handler.ReadoutField && BasicSettings.Instance != null)
+                tmp.color = BasicSettings.Instance.readoutColor;
+            else if (handler.ReadoutLabel && BasicSettings.Instance != null)
+                tmp.color = BasicSettings.Instance.labelColor;
+            else
+                tmp.color = c;
+            
 			tmp.fontSize = i;
 			tmp.raycastTarget = r;
 			tmp.alignment = align;
