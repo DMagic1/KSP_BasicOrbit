@@ -52,7 +52,7 @@ namespace BasicOrbit.Unity
         {
             get { return m_ReadoutField; }
         }
-
+        
         public UnityEvent<string> OnTextUpdate
 		{
 			get { return _onTextUpdate; }

@@ -52,6 +52,9 @@ namespace BasicOrbit.Unity.Unity
 			moduleInterface = module;
 
 			m_Title.OnTextUpdate.Invoke(module.ModuleTitle + ":");
+
+            if (module.CutoffText)
+                module.SetTMP(m_TextModule.gameObject);
 		}
 
 		/// <summary>

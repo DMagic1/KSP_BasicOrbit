@@ -30,7 +30,7 @@ namespace BasicOrbit.Modules.TargetModules
 		public TargetName(string t)
 			: base(t)
 		{
-
+            _cutoffText = true;
 		}
 
 		protected override void UpdateVisible()
@@ -70,12 +70,7 @@ namespace BasicOrbit.Modules.TargetModules
 					ModuleDockingNode target = BasicTargetting.TargetObject as ModuleDockingNode;
 
 					if (target == null)
-					{
-						if (targetVessel.vesselName.Length > 28)
-							return targetVessel.vesselName.Substring(0, 28);
-
 						return targetVessel.vesselName;
-					}
 
 					int vL = targetVessel.vesselName.Length;
 					int dL = target.part.partInfo.title.Length;
@@ -111,12 +106,7 @@ namespace BasicOrbit.Modules.TargetModules
 					return string.Format("{0} [{1}]", v, d);
 				}
 				else
-				{
-					if (targetVessel.vesselName.Length > 28)
-						return targetVessel.vesselName.Substring(0, 28);
-
 					return targetVessel.vesselName;
-				}
 			}
 			else
 				return "---";

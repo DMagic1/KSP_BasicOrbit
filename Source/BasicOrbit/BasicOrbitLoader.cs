@@ -289,9 +289,9 @@ namespace BasicOrbit
 			//Load the TMP Font from disk
 			tmp.font = UISkinManager.TMPFont;
 			tmp.fontSharedMaterial = Resources.Load("Fonts/Materials/Calibri Dropshadow", typeof(Material)) as Material;
-
-			tmp.enableWordWrapping = true;
-			tmp.isOverlay = false;
+            
+    		tmp.enableWordWrapping = true;
+            tmp.isOverlay = false;
 			tmp.richText = true;
 		}
 

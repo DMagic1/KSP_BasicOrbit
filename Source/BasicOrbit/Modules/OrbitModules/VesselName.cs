@@ -30,7 +30,7 @@ namespace BasicOrbit.Modules.OrbitModules
 		public VesselName(string t)
 			: base(t)
 		{
-
+            _cutoffText = true;
 		}
 
 		protected override void UpdateVisible()
@@ -47,10 +47,7 @@ namespace BasicOrbit.Modules.OrbitModules
 		{
 			if (FlightGlobals.ActiveVessel == null)
 				return "---";
-
-			if (FlightGlobals.ActiveVessel.vesselName.Length > 28)
-				return FlightGlobals.ActiveVessel.vesselName.Substring(0, 28);
-
+            
 			return FlightGlobals.ActiveVessel.vesselName;
 		}
 	}

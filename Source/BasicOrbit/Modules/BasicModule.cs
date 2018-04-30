@@ -24,6 +24,7 @@
 #endregion
 
 using BasicOrbit.Unity.Interface;
+using UnityEngine;
 
 namespace BasicOrbit.Modules
 {
@@ -34,6 +35,7 @@ namespace BasicOrbit.Modules
 		private bool _isVisible = true;
 		private bool _isActive = true;
 		private bool _alwaysShow;
+        protected bool _cutoffText;
 
 		public BasicModule(string t)
 		{
@@ -72,7 +74,12 @@ namespace BasicOrbit.Modules
 			}
 		}
 
-		protected abstract void UpdateVisible();
+        public bool CutoffText
+        {
+            get { return _cutoffText; }
+        }
+
+        protected abstract void UpdateVisible();
 		protected abstract void UpdateAlways();
 
 		public bool IsActive
@@ -86,6 +93,18 @@ namespace BasicOrbit.Modules
 			_moduleValue = fieldUpdate();
 		}
 
+        public void SetTMP(GameObject obj)
+        {
+            BasicOrbitTextMeshProHolder tmp = obj.GetComponent<BasicOrbitTextMeshProHolder>();
+
+            if (tmp == null)
+                return;
+
+            tmp.enableWordWrapping = false;
+            tmp.overflowMode = TMPro.TextOverflowModes.Ellipsis;
+        }
+
 		protected abstract string fieldUpdate();
-	}
+
+    }
 }

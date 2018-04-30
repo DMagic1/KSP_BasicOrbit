@@ -23,6 +23,8 @@
  */
 #endregion
 
+using UnityEngine;
+
 namespace BasicOrbit.Unity.Interface
 {
 	public interface IBasicModule
@@ -37,6 +39,10 @@ namespace BasicOrbit.Unity.Interface
 
 		bool AlwaysShow { get; set; }
 
-		void Update();
+        bool CutoffText { get; }
+
+        void Update();
+
+        void SetTMP(GameObject obj);
 	}
 }
