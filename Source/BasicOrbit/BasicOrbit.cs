@@ -88,7 +88,7 @@ namespace BasicOrbit
 
 		private BasicOrbitAppLauncher appLauncher;
 		private string _version;
-
+        
 		private int OrbitTimer = 4;
 		private int TargetTimer = 3;
 		private int ManeuverTimer = 3;
@@ -124,7 +124,7 @@ namespace BasicOrbit
 				case true: _version = ""; break;
 				default: _version = ainfoV.InformationalVersion; break;
 			}
-
+            
 			if (BasicSettings.Instance.showOrbitPanel)
 				AddOrbitPanel();
 
