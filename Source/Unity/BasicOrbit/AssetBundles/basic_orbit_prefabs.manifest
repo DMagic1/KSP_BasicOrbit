@@ -1,0 +1,82 @@
+ManifestFileVersion: 0
+CRC: 708518155
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: beef0445c85862c360fa3309801e4caa
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 77821007e4ac5162e245d03b30eb57ce
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 49
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 1301386320, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+- Class: 114
+  Script: {fileID: 1392445389, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+- Class: 114
+  Script: {fileID: 1741964061, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+- Class: 114
+  Script: {fileID: -1862395651, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+- Class: 114
+  Script: {fileID: -405508275, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+- Class: 114
+  Script: {fileID: -765806418, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+- Class: 114
+  Script: {fileID: 1679637790, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+- Class: 114
+  Script: {fileID: -1200242548, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+- Class: 114
+  Script: {fileID: 1367256648, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+- Class: 114
+  Script: {fileID: -113659843, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+- Class: 114
+  Script: {fileID: 708705254, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+- Class: 114
+  Script: {fileID: 2109663825, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+- Class: 114
+  Script: {fileID: 1297475563, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+- Class: 114
+  Script: {fileID: 1768156266, guid: c6ac5a3b13fba074697e2447b09a7be6, type: 3}
+- Class: 114
+  Script: {fileID: -1570282757, guid: c6ac5a3b13fba074697e2447b09a7be6, type: 3}
+- Class: 114
+  Script: {fileID: -1088258735, guid: c6ac5a3b13fba074697e2447b09a7be6, type: 3}
+- Class: 114
+  Script: {fileID: -706010572, guid: c6ac5a3b13fba074697e2447b09a7be6, type: 3}
+- Class: 114
+  Script: {fileID: 69166503, guid: c6ac5a3b13fba074697e2447b09a7be6, type: 3}
+- Class: 114
+  Script: {fileID: 771475197, guid: c6ac5a3b13fba074697e2447b09a7be6, type: 3}
+- Class: 114
+  Script: {fileID: 282998758, guid: c6ac5a3b13fba074697e2447b09a7be6, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 128
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 222
+  Script: {instanceID: 0}
+- Class: 223
+  Script: {instanceID: 0}
+- Class: 224
+  Script: {instanceID: 0}
+- Class: 225
+  Script: {instanceID: 0}
+Assets:
+- Assets/Prefabs/BasicOrbit_AppWindow.prefab
+- Assets/Prefabs/BasicOrbit_Panel.prefab
+- Assets/Prefabs/BasicOrbit_Module.prefab
+- Assets/XML/basic_orbit_prefabs_bundle.xml
+- Assets/Prefabs/BasicOrbit_ModuleToggle.prefab
+Dependencies: []
