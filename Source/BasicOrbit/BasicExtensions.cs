@@ -24,17 +24,18 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Text;
-using UnityEngine;
 using KSP.Localization;
 
 namespace BasicOrbit
 {
 	public static class BasicExtensions
 	{
+        public const double AlmostMaxValue = double.MaxValue - 1000;
+
 		private static int[] times = new int[5];
 		private static string[] units = new string[5] { "s", "m", "h", "d", "y" };
+        private static StringBuilder sb = new StringBuilder();
 
 		public static string LocalizeBodyName(this string input)
 		{
@@ -52,13 +53,13 @@ namespace BasicOrbit
 		public static string Distance(this double d, int figs = 2)
 		{
 			if (d < 1000000)
-				return string.Format("{0:N" + figs + "}m", d);
+				return string.Format("{0}m", d.ToString("N" + figs.ToString()));
 			else if (d < 1000000000)
-				return string.Format("{0:N1}km", d / 1000);
+				return string.Format("{0}km", (d / 1000).ToString("N1"));
 			else if (d < 1000000000000)
-				return string.Format("{0:N1}Mm", d / 1000000);
+				return string.Format("{0}Mm", (d / 1000000).ToString("N1"));
 			else
-				return string.Format("{0:N0}Gm", d / 1000000000);
+				return string.Format("{0}Gm", (d / 1000000000).ToString("N0"));
 		}
 
 		public static string CloseDistance(this double d)
@@ -66,16 +67,16 @@ namespace BasicOrbit
 			if (Math.Abs(d) < 10000)
 			{
 				if (Math.Abs(d) > 10)
-					return string.Format("{0:N1}m", d);
+					return string.Format("{0}m", d.ToString("N1"));
 				else if (Math.Abs(d) > 0.1)
-					return string.Format("{0:N2}cm", d * 100);
+					return string.Format("{0}cm", (d * 100).ToString("N2"));
 				else
-					return string.Format("{0:N2}mm", d * 1000);
+					return string.Format("{0}mm", (d * 1000).ToString("N2"));
 			}
 			else if (d < 1000000000)
-				return string.Format("{0:N1}km", d / 1000);
+				return string.Format("{0}km", (d / 1000).ToString("N1"));
 			else
-				return string.Format("{0:N0}Mm", d / 1000000);
+				return string.Format("{0}Mm", (d / 1000000).ToString("N0"));
 		}
 
 		public static string DMS(this double d, char neg, char pos)
@@ -88,17 +89,17 @@ namespace BasicOrbit
 			d = (d - min) * 60;
 			int sec = (int)Math.Floor(d);
 
-			return string.Format("{0:0}° {1:00}' {2:00}\"{3}", deg, min, sec, unit);
+			return string.Format("{0}° {1}' {2}\"{3}", deg.ToString("0"), min.ToString("00"), sec.ToString("00"), unit);
 		}
 
 		public static string Speed(this double d, int figs = 2, int cmFigs = 3)
 		{
 			if (Math.Abs(d) < 1)
-				return string.Format("{0:N" + cmFigs + "}cm/s", d * 100);
+				return string.Format("{0}cm/s", (d * 100).ToString("N" + cmFigs.ToString()));
 			else if (Math.Abs(d) < 1000)
-				return string.Format("{0:N" + figs + "}m/s", d);
+				return string.Format("{0}m/s", d.ToString("N" + figs.ToString()));
 			else
-				return string.Format("{0:N" + figs + "}km/s", d / 1000);
+				return string.Format("{0}km/s", (d / 1000).ToString("N" + figs.ToString()));
 		}
 
 		public static string Time(this double d, int values)
@@ -116,7 +117,10 @@ namespace BasicOrbit
 
 			d.SetTimes();
 
-			StringBuilder sb = StringBuilderCache.Acquire();
+            if (sb == null)
+                sb = new StringBuilder();
+
+            sb.Length = 0;
 
 			if (d < 0)
 				sb.Append("- ");
@@ -138,22 +142,23 @@ namespace BasicOrbit
 
 				string format = "";
 
-				if (i <= 1)
-					format = "{0:D2}{1}";
-				else if (i == 2 && times[3] != 0)
-					format = "{0:D2}{1}";
-				else
-					format = "{0}{1}";
+                if (i <= 1)
+                    format = "D2";
+                else if (i == 2 && times[3] != 0)
+                    format = "D2";
+                else
+                    format = "";
 
-				sb.Append(String.Format(format, Math.Abs(t), units[i]));
-
+                sb.Append(Math.Abs(t).ToString(format));
+                sb.Append(units[i]);
+                
 				if (values > 1 && i > 0)
 					sb.Append(", ");
 
 				values--;
 			}
 
-			return sb.ToStringAndRelease();
+			return sb.ToString();
 		}
 
 		private static void SetTimes(this double d)

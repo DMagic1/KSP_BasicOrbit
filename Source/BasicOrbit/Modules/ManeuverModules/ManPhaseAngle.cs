@@ -73,7 +73,7 @@ namespace BasicOrbit.Modules.ManeuverModules
 
 		private string result(double d)
 		{
-			return string.Format("{0:F2}°", d);
+			return string.Format("{0}°", d.ToString("F2"));
 		}
 	}
 }

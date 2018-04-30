@@ -66,12 +66,12 @@ namespace BasicOrbit.Modules.ManeuverModules
 
 		private string result(double d)
 		{
-			return string.Format("{0:F3}°", d);
+			return string.Format("{0}°", d.ToString("F3"));
 		}
 
 		private string targetResult(double d)
 		{
-			return string.Format("Tgt Rel {0:F3}°", d);
+			return string.Format("Tgt Rel {0}°", d.ToString("F3"));
 		}
 	}
 }

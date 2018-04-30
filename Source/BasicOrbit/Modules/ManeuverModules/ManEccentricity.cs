@@ -59,7 +59,7 @@ namespace BasicOrbit.Modules.ManeuverModules
 
 		private string result(double t)
 		{
-			return string.Format("{0:F4}", t);
+			return string.Format("{0}", t.ToString("F4"));
 		}
 	}
 }

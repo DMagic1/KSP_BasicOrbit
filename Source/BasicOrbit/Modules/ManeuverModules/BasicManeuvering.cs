@@ -170,7 +170,7 @@ namespace BasicOrbit.Modules.ManeuverModules
 
 			_node = solver.maneuverNodes[0];
 
-			if (_node != null)
+			if (_node != null || _node.patch == null)
 			{
 				_maneuverTotal = _node.DeltaV.magnitude;
 
@@ -310,7 +310,7 @@ namespace BasicOrbit.Modules.ManeuverModules
 
 									double Pe = GetLowestPeA(solver, BasicTargetting.TargetBody, _node.patch);
 
-									if (Pe < double.MaxValue - 1000)
+									if (Pe < BasicExtensions.AlmostMaxValue)
 									{
 										_closestDist = Pe;
 										_bodyIntersect = true;
@@ -387,7 +387,7 @@ namespace BasicOrbit.Modules.ManeuverModules
 
 									double Pe = GetLowestPeA(solver, BasicTargetting.TargetBody, _node.patch);
 
-									if (Pe < double.MaxValue - 1000)
+									if (Pe < BasicExtensions.AlmostMaxValue)
 									{
 										_closestDist = Pe;
 										_bodyIntersect = true;
@@ -580,7 +580,7 @@ namespace BasicOrbit.Modules.ManeuverModules
 					dist2 = (refClosest2 - tgtClosest2).magnitude;
 				}
 
-				if (dist1 > double.MaxValue - 1000 && dist2 > double.MaxValue - 1000)
+				if (dist1 > BasicExtensions.AlmostMaxValue && dist2 > BasicExtensions.AlmostMaxValue)
 					return false;
 
 				bool first = dist1 < dist2;
@@ -616,7 +616,7 @@ namespace BasicOrbit.Modules.ManeuverModules
 				if (!PatchedConics.TAIsWithinPatchBounds(UT2, refP))
 					UT2 = double.MaxValue;
 
-				if (UT1 > double.MaxValue - 1000 && UT2 > double.MaxValue - 1000)
+				if (UT1 > BasicExtensions.AlmostMaxValue && UT2 > BasicExtensions.AlmostMaxValue)
 					return false;
 
 				double useUT = UT1 < UT2 ? UT1 : UT2;

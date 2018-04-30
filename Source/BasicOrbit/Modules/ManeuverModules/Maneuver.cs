@@ -53,7 +53,7 @@ namespace BasicOrbit.Modules.ManeuverModules
 
 		private string result(double r, double t)
 		{
-			return string.Format("{0:N1} / {1:N1}m/s", r, t);
+			return string.Format("{0} / {1}m/s", r.ToString("N1"), t.ToString("N1"));
 		}
 	}
 }

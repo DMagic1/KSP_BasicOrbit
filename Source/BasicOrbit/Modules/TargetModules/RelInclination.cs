@@ -83,7 +83,7 @@ namespace BasicOrbit.Modules.TargetModules
 
 		private string result(double d, double t)
 		{
-			return string.Format("{0:F3}°; node in {1}", d, t.Time(2));
+			return string.Format("{0}°; node in {1}", d.ToString("F3"), t.Time(2));
 		}
 	}
 }

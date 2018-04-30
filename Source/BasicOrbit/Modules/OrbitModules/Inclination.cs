@@ -56,7 +56,7 @@ namespace BasicOrbit.Modules.OrbitModules
 
 		private string result(double d)
 		{
-			return string.Format("{0:F3}°", d);
+			return string.Format("{0}°", d.ToString("F3"));
 		}
 	}
 }
