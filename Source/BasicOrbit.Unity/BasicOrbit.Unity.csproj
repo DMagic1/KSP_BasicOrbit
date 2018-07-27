@@ -42,6 +42,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BasicPanelManager.cs" />
     <Compile Include="CanvasFader.cs" />
     <Compile Include="Interface\IBasicModule.cs" />
     <Compile Include="Interface\IBasicOrbit.cs" />

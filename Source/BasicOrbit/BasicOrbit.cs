@@ -30,6 +30,7 @@ using System.Reflection;
 using BasicOrbit.Modules.OrbitModules;
 using BasicOrbit.Modules.TargetModules;
 using BasicOrbit.Modules.ManeuverModules;
+using BasicOrbit.Unity;
 using BasicOrbit.Unity.Unity;
 using BasicOrbit.Unity.Interface;
 using UnityEngine;
@@ -86,6 +87,8 @@ namespace BasicOrbit
 		private BasicOrbit_Panel targetPanel;
 		private BasicOrbit_Panel maneuverPanel;
 
+        private BasicPanelManager panelManager;
+
 		private BasicOrbitAppLauncher appLauncher;
 		private string _version;
         
@@ -100,14 +103,19 @@ namespace BasicOrbit
 
 		private void Awake()
 		{
-			if (instance != null)
-				Destroy(gameObject);
+            if (instance != null)
+            {
+                Destroy(gameObject);
+                return;
+            }
 
 			instance = this;
 		}
 
 		private void Start()
 		{
+            panelManager = gameObject.AddComponent<BasicPanelManager>();
+
 			orbitHUD = new BasicHUD(AddOrbitModules());
 			orbitHUD.Position = BasicSettings.Instance.orbitPosition;
 
@@ -142,7 +150,10 @@ namespace BasicOrbit
 
 		private void OnDestroy()
 		{
-			instance = null;
+            if (instance != this)
+                return;
+
+    		instance = null;
 
 			vesselName.IsActive = false;
 			apo.IsActive = false;
@@ -188,6 +199,9 @@ namespace BasicOrbit
 
 			if (maneuverPanel != null)
 				Destroy(maneuverPanel.gameObject);
+
+            if (panelManager != null)
+                Destroy(panelManager.gameObject);
 
 			BasicSettings.Instance.orbitPosition = orbitHUD.Position;
 			BasicSettings.Instance.targetPosition = targetHUD.Position;

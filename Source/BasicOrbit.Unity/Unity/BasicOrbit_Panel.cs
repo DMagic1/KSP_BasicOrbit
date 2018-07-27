@@ -98,6 +98,8 @@ namespace BasicOrbit.Unity.Unity
 
 		private void Kill()
 		{
+            BasicPanelManager.Instance.UnregisterPanel(this);
+
 			gameObject.SetActive(false);
 
 			Destroy(gameObject);
@@ -125,6 +127,8 @@ namespace BasicOrbit.Unity.Unity
 			SetAlpha(panel.Alpha);
 
 			SetOldAlpha();
+
+            BasicPanelManager.Instance.RegisterPanel(this);
 		}
 
 		/// <summary>
@@ -269,76 +273,143 @@ namespace BasicOrbit.Unity.Unity
 			Modules.Add(bMod);
 		}
 
+        public void OnUpdate()
+        {
+            if (panelInterface == null)
+                return;
+
+            if (!panelInterface.IsVisible)
+                return;
+
+            if (panelInterface.AnyActive || dragging)
+            {
+                if (inactive)
+                {
+                    inactive = false;
+
+                    Fade(1, false);
+
+                    if (cg != null)
+                    {
+                        cg.interactable = true;
+                        cg.blocksRaycasts = true;
+                    }
+                }
+            }
+            else
+            {
+                if (!inactive)
+                {
+                    inactive = true;
+
+                    Fade(0, false);
+
+                    if (cg != null)
+                    {
+                        cg.interactable = false;
+                        cg.blocksRaycasts = false;
+                    }
+                }
+                return;
+            }
+
+            for (int i = Modules.Count - 1; i >= 0; i--)
+            {
+                BasicOrbit_Module mod = Modules[i];
+
+                if (mod == null)
+                    continue;
+
+                if (!mod.IsVisible)
+                {
+                    if (mod.gameObject.activeSelf)
+                        mod.gameObject.SetActive(false);
+
+                    continue;
+                }
+
+                if (mod.IsActive)
+                {
+                    if (!mod.gameObject.activeSelf)
+                        mod.gameObject.SetActive(true);
+
+                    mod.UpdateModule();
+                }
+                else if (mod.gameObject.activeSelf)
+                    mod.gameObject.SetActive(false);
+            }
+        }
+
 		/// <summary>
 		/// Update panel visibility based on the status of each readout module
 		/// Update any active modules found
 		/// </summary>
-		private void Update()
-		{
-			if (panelInterface == null)
-				return;
+		//private void Update()
+		//{
+		//	if (panelInterface == null)
+		//		return;
 
-			if (!panelInterface.IsVisible)
-				return;
+		//	if (!panelInterface.IsVisible)
+		//		return;
 
-			if (panelInterface.AnyActive || dragging)
-			{
-				if (inactive)
-				{
-					inactive = false;
+		//	if (panelInterface.AnyActive || dragging)
+		//	{
+		//		if (inactive)
+		//		{
+		//			inactive = false;
 
-					Fade(1, false);
+		//			Fade(1, false);
 
-					if (cg != null)
-					{
-						cg.interactable = true;
-						cg.blocksRaycasts = true;
-					}
-				}
-			}
-			else
-			{
-				if (!inactive)
-				{
-					inactive = true;
+		//			if (cg != null)
+		//			{
+		//				cg.interactable = true;
+		//				cg.blocksRaycasts = true;
+		//			}
+		//		}
+		//	}
+		//	else
+		//	{
+		//		if (!inactive)
+		//		{
+		//			inactive = true;
 
-					Fade(0, false);
+		//			Fade(0, false);
 
-					if (cg != null)
-					{
-						cg.interactable = false;
-						cg.blocksRaycasts = false;
-					}
-				}
-				return;
-			}
+		//			if (cg != null)
+		//			{
+		//				cg.interactable = false;
+		//				cg.blocksRaycasts = false;
+		//			}
+		//		}
+		//		return;
+		//	}
 
-			for (int i = Modules.Count - 1; i >= 0; i--)
-			{
-				BasicOrbit_Module mod = Modules[i];
+		//	for (int i = Modules.Count - 1; i >= 0; i--)
+		//	{
+		//		BasicOrbit_Module mod = Modules[i];
 
-				if (mod == null)
-					continue;
+		//		if (mod == null)
+		//			continue;
 
-				if (!mod.IsVisible)
-				{
-					if (mod.gameObject.activeSelf)
-						mod.gameObject.SetActive(false);
+		//		if (!mod.IsVisible)
+		//		{
+		//			if (mod.gameObject.activeSelf)
+		//				mod.gameObject.SetActive(false);
 
-					continue;
-				}
+		//			continue;
+		//		}
 
-				if (mod.IsActive)
-				{
-					if (!mod.gameObject.activeSelf)
-						mod.gameObject.SetActive(true);
+		//		if (mod.IsActive)
+		//		{
+		//			if (!mod.gameObject.activeSelf)
+		//				mod.gameObject.SetActive(true);
 
-					mod.UpdateModule();
-				}
-				else if (mod.gameObject.activeSelf)
-					mod.gameObject.SetActive(false);
-			}
-		}
+		//			mod.UpdateModule();
+		//		}
+		//		else if (mod.gameObject.activeSelf)
+		//			mod.gameObject.SetActive(false);
+		//	}
+		//}
 
 	}
 }
