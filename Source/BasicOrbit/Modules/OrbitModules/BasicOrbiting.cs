@@ -120,7 +120,7 @@ namespace BasicOrbit.Modules.OrbitModules
 					if (p.collider == null)
 						continue;
 
-					if (p.collider.enabled)
+                    if (p.collider.enabled)
 						_partList.Add(p);
 				}
 			}
@@ -128,7 +128,7 @@ namespace BasicOrbit.Modules.OrbitModules
 			{
 				_partsList.Clear();
 
-				for (int i = FlightGlobals.ActiveVessel.Parts.Count - 1; i >= 0; i--)
+                for (int i = FlightGlobals.ActiveVessel.Parts.Count - 1; i >= 0; i--)
 				{
 					Part p = FlightGlobals.ActiveVessel.Parts[i];
 
@@ -136,17 +136,23 @@ namespace BasicOrbit.Modules.OrbitModules
 				}
 
 				_partsList.Sort((a, b) => a.Value.CompareTo(b.Value));
-
-				for (int i = 0; i < 30; i++)
+                
+                for (int i = 0; i < 30; i++)
 				{
 					KeyValuePair<Part, double> pp = _partsList[i];
+
+                    if (pp.Key == null)
+                        continue;
+
+                    if (pp.Key.collider == null)
+                        continue;
 
 					if (pp.Key.collider.enabled)
 						_partList.Add(pp.Key);
 				}
 			}
 
-			for (int i = _partList.Count - 1; i >= 0; i--)
+            for (int i = _partList.Count - 1; i >= 0; i--)
 			{
 				Part p = _partList[i];
 
@@ -165,7 +171,7 @@ namespace BasicOrbit.Modules.OrbitModules
 
 							if (FlightGlobals.ActiveVessel.mainBody.ocean)
 							{
-								if (FlightGlobals.ActiveVessel.PQSAltitude() < 0)
+                                if (FlightGlobals.ActiveVessel.PQSAltitude() < 0)
 									hitDist = hitDist + (float)FlightGlobals.ActiveVessel.PQSAltitude();
 							}
 
@@ -182,7 +188,7 @@ namespace BasicOrbit.Modules.OrbitModules
 					}
 					else if (!firstRay)
 					{
-						landHeight = Math.Min(landHeight, FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude);
+                        landHeight = Math.Min(landHeight, FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude);
 						firstRay = false;
 					}
 				}
