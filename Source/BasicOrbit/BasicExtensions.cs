@@ -31,7 +31,7 @@ namespace BasicOrbit
 {
 	public static class BasicExtensions
 	{
-        public const double AlmostMaxValue = double.MaxValue - 1000;
+        public const double AlmostMaxValue = double.MaxValue / 10;
 
 		private static int[] times = new int[5];
 		private static string[] units = new string[5] { "s", "m", "h", "d", "y" };

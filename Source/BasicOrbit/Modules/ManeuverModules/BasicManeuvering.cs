@@ -579,15 +579,15 @@ namespace BasicOrbit.Modules.ManeuverModules
 
 					dist2 = (refClosest2 - tgtClosest2).magnitude;
 				}
-
-				if (dist1 > BasicExtensions.AlmostMaxValue && dist2 > BasicExtensions.AlmostMaxValue)
-					return false;
-
+                
 				bool first = dist1 < dist2;
 
 				if (first)
-				{
-					_closestDist = dist1;
+                {
+                    if (dist1 >= BasicExtensions.AlmostMaxValue)
+                        return false;
+
+                    _closestDist = dist1;
 					_closestTime = UT1;
 
 					Vector3d refVel = refP.getOrbitalVelocityAtUT(UT1);
@@ -596,8 +596,11 @@ namespace BasicOrbit.Modules.ManeuverModules
 					_closestRelVel = (refVel - tgtVel).magnitude;
 				}
 				else
-				{
-					_closestDist = dist2;
+                {
+                    if (dist2 >= BasicExtensions.AlmostMaxValue)
+                        return false;
+
+                    _closestDist = dist2;
 					_closestTime = UT2;
 
 					Vector3d refVel = refP.getOrbitalVelocityAtUT(UT2);
