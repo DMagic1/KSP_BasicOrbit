@@ -28,6 +28,7 @@ using BasicOrbit.Unity.Unity;
 using KSP.UI.Screens;
 using KSP.UI;
 using UnityEngine;
+using System.IO;
 
 namespace BasicOrbit
 {
@@ -52,8 +53,15 @@ namespace BasicOrbit
 
 		private void Start()
 		{
-			if (icon == null)
-				icon = GameDatabase.Instance.GetTexture("BasicOrbit/Resources/AppIcon", false);
+            if (icon == null)
+            {
+                icon = new Texture2D(38, 38, TextureFormat.ARGB32, false);
+
+                string path = Path.Combine(new DirectoryInfo(KSPUtil.ApplicationRootPath).FullName, "GameData/BasicOrbit/Resources/AppIcon.png").Replace("\\", "/");
+
+                if (File.Exists(path))
+                    icon.LoadImage(File.ReadAllBytes(path));
+            }
 
 			instance = this;
 
