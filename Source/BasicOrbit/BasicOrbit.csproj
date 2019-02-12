@@ -63,6 +63,7 @@
     <Compile Include="Modules\ManeuverModules\ManClosestRelVel.cs" />
     <Compile Include="Modules\ManeuverModules\ManEccentricity.cs" />
     <Compile Include="Modules\ManeuverModules\Maneuver.cs" />
+    <Compile Include="Modules\ManeuverModules\ManeuverTotal.cs" />
     <Compile Include="Modules\ManeuverModules\ManInclination.cs" />
     <Compile Include="Modules\ManeuverModules\ManPeriapsis.cs" />
     <Compile Include="Modules\ManeuverModules\ManPhaseAngle.cs" />
