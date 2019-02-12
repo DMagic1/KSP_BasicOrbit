@@ -129,7 +129,11 @@ namespace BasicOrbit
 		public bool showManeuverNode = true;
 		[Persistent]
 		public bool showManeuverNodeAlways = false;
-		[Persistent]
+        [Persistent]
+        public bool showManeuverNodeTotal = true;
+        [Persistent]
+        public bool showManeuverNodeTotalAlways = false;
+        [Persistent]
 		public bool showManeuverBurn = true;
 		[Persistent]
 		public bool showManeuverBurnAlways = false;
