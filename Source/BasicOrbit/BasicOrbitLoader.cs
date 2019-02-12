@@ -189,24 +189,28 @@ namespace BasicOrbit
 				if (pre.name == "StageManager")
 					prefabFlight = pre;
 			}
+            BasicOrbit.BasicLogging("Load 1");
+            if (prefabFlight != null)
+            {
+                BasicOrbit.BasicLogging("Load 2");
+                StageGroup group = prefabFlight.stageGroupPrefab;
 
-			if (prefabFlight != null)
-			{
-				StageGroup group = prefabFlight.stageGroupPrefab;
+                Transform layout = group.transform.FindDeepChild("IconLayout");
 
-				Transform layout = group.transform.FindChild("IconLayout");
-
-				if (layout != null)
-					panelSprite = layout.GetComponent<Image>().sprite;
-			}
+                if (layout != null)
+                {
+                    BasicOrbit.BasicLogging("Load 3");
+                    panelSprite = layout.GetComponent<Image>().sprite;
+                }
+            }
 
 			spritesLoaded = true;
 		}
-
-		/// <summary>
-		/// This method is used to parse all the loaded UI prefab elements and to cache certain prefabs
-		/// </summary>
-		private void processTMPPrefabs()
+        
+        /// <summary>
+        /// This method is used to parse all the loaded UI prefab elements and to cache certain prefabs
+        /// </summary>
+        private void processTMPPrefabs()
 		{
 			for (int i = loadedPrefabs.Length - 1; i >= 0; i--)
 			{
