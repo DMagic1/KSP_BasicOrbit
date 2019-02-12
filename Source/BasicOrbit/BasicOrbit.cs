@@ -71,7 +71,8 @@ namespace BasicOrbit
 		private PhaseAngle phaseAngle;
 
 		private Maneuver maneuver;
-		private BurnTime burnTime;
+        private ManeuverTotal maneuverTotal;
+        private BurnTime burnTime;
 		private ManApoapsis maneuverApoapsis;
 		private ManPeriapsis maneuverPeriapsis;
 		private ManInclination maneuverInclination;
@@ -181,7 +182,8 @@ namespace BasicOrbit
 			phaseAngle.IsActive = false;
 
 			maneuver.IsActive = false;
-			burnTime.IsActive = false;
+            maneuverTotal.IsActive = false;
+            burnTime.IsActive = false;
 			maneuverApoapsis.IsActive = false;
 			maneuverPeriapsis.IsActive = false; 
 			maneuverInclination.IsActive = false;
@@ -443,7 +445,8 @@ namespace BasicOrbit
 				if (solver == null || solver.maneuverNodes.Count <= 0)
 				{
 					maneuver.IsActive = false;
-					burnTime.IsActive = false;
+                    maneuverTotal.IsActive = false;
+                    burnTime.IsActive = false;
 					maneuverApoapsis.IsActive = false;
 					maneuverPeriapsis.IsActive = false;
 					maneuverInclination.IsActive = false;
@@ -472,7 +475,8 @@ namespace BasicOrbit
 							case Vessel.Situations.PRELAUNCH:
 							case Vessel.Situations.SPLASHED:
 								maneuver.IsActive = maneuver.AlwaysShow;
-								burnTime.IsActive = burnTime.AlwaysShow;
+                                maneuverTotal.IsActive = maneuverTotal.AlwaysShow && solver.maneuverNodes.Count > 1;
+                                burnTime.IsActive = burnTime.AlwaysShow;
 								maneuverApoapsis.IsActive = maneuverApoapsis.AlwaysShow;
 								maneuverPeriapsis.IsActive = maneuverPeriapsis.AlwaysShow;
 								maneuverInclination.IsActive = maneuverInclination.AlwaysShow;
@@ -484,7 +488,8 @@ namespace BasicOrbit
 								break;
 							case Vessel.Situations.FLYING:
 								maneuver.IsActive = maneuver.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2;
-								burnTime.IsActive = burnTime.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2;
+                                maneuverTotal.IsActive = (maneuverTotal.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2) && solver.maneuverNodes.Count > 1;
+                                burnTime.IsActive = burnTime.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2;
 								maneuverApoapsis.IsActive = maneuverApoapsis.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2;
 								maneuverPeriapsis.IsActive = maneuverPeriapsis.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2;
 								maneuverInclination.IsActive = maneuverInclination.AlwaysShow || v.altitude > v.mainBody.scienceValues.flyingAltitudeThreshold / 2;
@@ -498,7 +503,8 @@ namespace BasicOrbit
 								Orbit nextPatch = solver.maneuverNodes[0].nextPatch;
 
 								maneuver.IsActive = maneuver.AlwaysShow || !jumper || highRadar;
-								burnTime.IsActive = burnTime.AlwaysShow || !jumper || highRadar;
+                                maneuverTotal.IsActive = (maneuverTotal.AlwaysShow || !jumper || highRadar) && solver.maneuverNodes.Count > 1;
+                                burnTime.IsActive = burnTime.AlwaysShow || !jumper || highRadar;
 								maneuverApoapsis.IsActive = maneuverApoapsis.AlwaysShow || ((nextPatch != null && nextPatch.eccentricity < 1) && (!jumper || highRadar));
 								maneuverPeriapsis.IsActive = maneuverPeriapsis.AlwaysShow || ((nextPatch != null && (nextPatch.eccentricity < 1 || nextPatch.timeToPe > 0)) && (!jumper || highRadar));
 								maneuverInclination.IsActive = maneuverInclination.AlwaysShow || !jumper || highRadar;
@@ -767,7 +773,8 @@ namespace BasicOrbit
 			List<IBasicModule> modules = new List<IBasicModule>();
 
 			maneuver = new Maneuver("Maneuver Node");
-			burnTime = new BurnTime("Burn Time");
+            maneuverTotal = new ManeuverTotal("All Man. Nodes");
+            burnTime = new BurnTime("Burn Time");
 			maneuverApoapsis = new ManApoapsis("Apoapsis");
 			maneuverPeriapsis = new ManPeriapsis("Periapsis");
 			maneuverInclination = new ManInclination("Inclination");
@@ -779,7 +786,9 @@ namespace BasicOrbit
 
 			maneuver.IsVisible = BasicSettings.Instance.showManeuverNode;
 			maneuver.AlwaysShow = BasicSettings.Instance.showManeuverNodeAlways;
-			burnTime.IsVisible = BasicSettings.Instance.showManeuverBurn;
+            maneuverTotal.IsVisible = BasicSettings.Instance.showManeuverNodeTotal;
+            maneuverTotal.AlwaysShow = BasicSettings.Instance.showManeuverNodeTotalAlways;
+            burnTime.IsVisible = BasicSettings.Instance.showManeuverBurn;
 			burnTime.AlwaysShow = BasicSettings.Instance.showManeuverBurnAlways;
 			maneuverApoapsis.IsVisible = BasicSettings.Instance.showManeuverApoapsis;
 			maneuverApoapsis.AlwaysShow = BasicSettings.Instance.showManeuverApoapsisAlways;
@@ -807,7 +816,8 @@ namespace BasicOrbit
 			modules.Add(maneuverPeriapsis);
 			modules.Add(maneuverApoapsis);
 			modules.Add(burnTime);
-			modules.Add(maneuver);
+            modules.Add(maneuverTotal);
+            modules.Add(maneuver);
 
 			return modules;
 		}
@@ -824,7 +834,7 @@ namespace BasicOrbit
 		{
 			return maneuverAngleToPro.IsActive || maneuverPhaseAngle.IsActive || maneuverCloseRelVel.IsActive ||
 				maneuverCloseApproach.IsActive || maneuverEccentricity.IsActive || maneuverInclination.IsActive ||
-				maneuverPeriapsis.IsActive || maneuverApoapsis.IsActive || burnTime.IsActive || maneuver.IsActive ||
+				maneuverPeriapsis.IsActive || maneuverApoapsis.IsActive || burnTime.IsActive || maneuver.IsActive || maneuverTotal.IsActive ||
 				maneuverCloseApproach.IsVisible || maneuverCloseRelVel.IsVisible || maneuverAngleToPro.IsVisible || maneuverPhaseAngle.IsVisible;
 		}
 
