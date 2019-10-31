@@ -163,34 +163,37 @@ namespace BasicOrbit.Modules.OrbitModules
 					Vector3 rayDir = (FlightGlobals.currentMainBody.position - partEdge).normalized;
 					Ray pRayDown = new Ray(partEdge, rayDir);
 
-					if (Physics.Raycast(pRayDown, out pHit, (float)(FlightGlobals.ActiveVessel.mainBody.Radius + FlightGlobals.ActiveVessel.altitude), 32769))
-					{
-						if (pHit.collider.gameObject.layer == 15 || (pHit.collider.gameObject.layer == 0 && pHit.collider.gameObject.GetComponentInParent<Part>().vessel != FlightGlobals.ActiveVessel))
-						{
-							float hitDist = pHit.distance;
+                    if (Physics.Raycast(pRayDown, out pHit, (float)(FlightGlobals.ActiveVessel.mainBody.Radius + FlightGlobals.ActiveVessel.altitude), 32769))
+                    {
+                        if (pHit.collider.gameObject.layer == 15 || (pHit.collider.gameObject.layer == 0 && pHit.collider.gameObject.GetComponentInParent<Part>().vessel != FlightGlobals.ActiveVessel))
+                        {
+                            float hitDist = pHit.distance;
 
-							if (FlightGlobals.ActiveVessel.mainBody.ocean)
-							{
+                            if (FlightGlobals.ActiveVessel.mainBody.ocean)
+                            {
                                 if (FlightGlobals.ActiveVessel.PQSAltitude() < 0)
-									hitDist = hitDist + (float)FlightGlobals.ActiveVessel.PQSAltitude();
-							}
+                                    hitDist = hitDist + (float)FlightGlobals.ActiveVessel.PQSAltitude();
+                            }
 
-							if (firstRay)
-							{
-								landHeight = hitDist;
+                            if (firstRay)
+                            {
+                                landHeight = hitDist;
 
-								firstRay = false;
-							}
-							else if (hitDist < landHeight)
-								landHeight = hitDist;
-						}
+                                firstRay = false;
+                            }
+                            else if (hitDist < landHeight)
+                                landHeight = hitDist;
+                        }
 
-					}
-					else if (!firstRay)
-					{
-                        landHeight = Math.Min(landHeight, FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude);
-						firstRay = false;
-					}
+                    }
+                    else if (!firstRay)
+                    {
+                        if (FlightGlobals.ActiveVessel.pqsAltitude < 0)
+                            landHeight = Math.Min(landHeight, FlightGlobals.ActiveVessel.altitude);
+                        else
+                            landHeight = Math.Min(landHeight, FlightGlobals.ActiveVessel.altitude - FlightGlobals.ActiveVessel.pqsAltitude);
+                        firstRay = false;
+                    }
 				}
 				catch
 				{
